@@ -1,6 +1,12 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2003-09-10 22:57:03 ADT"
+                                        Time-stamp: "2003-10-12 14:56:57 ADT"
 
+2003-10-12  Sean M. Burke  sburke@cpan.org
+	* Release 3.11 -- tweak for Linux man.
+	Brendan O'Dea provides code for Pod/Perldoc/ToMan.pm to sets -rLL
+	to what stty reports for terminal column width.
+	
+	
 2003-09-10  Sean M. Burke  sburke@cpan.org
 	* Release 3.10 -- bugfix for cygwin
 	Jari Aalto notes a problem with cygwin and the containspod routine

@@ -19,4 +19,4 @@ README
 t/checkerbasic.t
 t/perldocbasic.t
 t/textbasic.t
-META.yml                                Module meta-data (added by MakeMaker)
+META.yml                                 Module meta-data (added by MakeMaker)

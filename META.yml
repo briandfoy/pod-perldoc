@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Pod-Perldoc
-version:      3.11
+version:      3.12
 version_from: lib/Pod/Perldoc.pm
 installdirs:  site
 requires:

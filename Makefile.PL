@@ -1,4 +1,4 @@
-# Time-stamp: "2003-07-24 06:29:06 ADT"
+# Time-stamp: "2003-10-21 16:56:41 ADT"
 require 5;
 use 5.006; # Perldoc.pm currently needs at least this version
 use strict;
@@ -12,6 +12,9 @@ WriteMakefile(
     'VERSION_FROM' => 'lib/Pod/Perldoc.pm', # finds $VERSION
     'ABSTRACT'  => 'look up Perl documentation in Pod format',
     'EXE_FILES' => [qw( perldoc )],
+
+    ($] >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
+
     'PREREQ_PM' => {
 		    # Are there any hard dependencies not covered here?
 		    'Config' => 0,

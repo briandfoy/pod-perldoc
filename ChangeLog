@@ -1,6 +1,19 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2003-10-12 14:56:57 ADT"
+                                        Time-stamp: "2003-10-21 16:55:28 ADT"
 
+2003-10-21  Sean M. Burke  sburke@cpan.org
+	* Release 3.12 -- tweak for Linux man.
+	
+	Slaven Rezic notes that Makefile.PL should say INSTALLDIRS => "perl"
+	for perl versions 5.8.1 and newer, to make installation work right
+	on those perls.  Change made.
+
+	Slaven Rezic notes that -q was generating an erroneous =over 8 ...
+	around the sliced text from perlfaq searched via -q.  Change made
+	-- this =over 8 ... =back stuff is now generated only if you're
+	calling perldoc with -f (for perlfunc sections).
+	
+	
 2003-10-12  Sean M. Burke  sburke@cpan.org
 	* Release 3.11 -- tweak for Linux man.
 	Brendan O'Dea provides code for Pod/Perldoc/ToMan.pm to sets -rLL

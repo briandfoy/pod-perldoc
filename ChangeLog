@@ -1,5 +1,11 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2002-12-01 22:13:05 MST"
+                                        Time-stamp: "2003-01-18 18:39:56 AHST"
+
+2003-01-18  Sean M. Burke  sburke@cpan.org
+	* Release 3.08.
+	* Fixed split-related bug in reading $Config{'pager'}.
+	Thanks to Chip Turner <cturner@redhat.com> for pointing it out!
+
 2002-12-01  Sean M. Burke  sburke@cpan.org
 	* Release 3.07.
 	* Minor typo fix to code in Pod::Perldoc::ToMan.

@@ -1,6 +1,11 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2002-11-22 02:58:36 MST"
-
+                                        Time-stamp: "2002-12-01 22:13:05 MST"
+2002-12-01  Sean M. Burke  sburke@cpan.org
+	* Release 3.07.
+	* Minor typo fix to code in Pod::Perldoc::ToMan.
+	* Added RTFREADER example to Pod::Perldoc::ToRTF docs.
+	* Made Pod::Perldoc::ToTk a bit more tolerant of old Tk::Pod
+	versions (pre-4.0).	
 
 2002-11-22  Sean M. Burke  sburke@cpan.org
 	* Release 3.06.

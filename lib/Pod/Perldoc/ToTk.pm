@@ -70,7 +70,10 @@ sub parse_from_file {
     
     $mw->optionAdd('*Menu.tearOff', $Tk::platform ne 'MSWin32' ? 1 : 0);
     
-    $mw->Pod(-file => $Input_File, -tree => $tree)->focusNext;
+    $mw->Pod(
+      '-file' => $Input_File,
+      (($Tk::Pod::VERSION >= 4) ? ('-tree' => $tree) : ())
+    )->focusNext;
     
     # xxx dirty but it works. A simple $mw->destroy if $mw->children
     # does not work because Tk::ErrorDialogs could be created.

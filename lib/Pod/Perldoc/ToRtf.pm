@@ -52,8 +52,11 @@ You have to have Pod::Simple::RTF installed (from the Pod::Simple dist),
 or this module won't work.
 
 If Perldoc is running under MSWin and uses this class as a formatter,
-the output will be opened with F<write.exe> or whatever program
-is specified in the environment variable C<RTFREADER>.
+the output will be opened with F<write.exe> or whatever program is
+specified in the environment variable C<RTFREADER>. For example, to
+specify that RTF files should be opened the same as they are when you
+double-click them, you would do C<set RTFREADER=start.exe> in your
+F<autoexec.bat>.
 
 Handy tip: put C<set PERLDOC=-ortf> in your F<autoexec.bat>
 and that will set this class as the default formatter to run when

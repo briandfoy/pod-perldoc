@@ -81,11 +81,11 @@ sub parse_from_file {
     defined(&Pod::Perldoc::DEBUG)
      and Pod::Perldoc::DEBUG()
      and print "Nonzero exit ($?) while running $command.\n",
-               "Falling back to Pod::Perldoc::ToRaw\n ",
+               "Falling back to Pod::Perldoc::ToPod\n ",
     ;
     # A desperate fallthru:
-    require Pod::Perldoc::ToRaw;
-    return  Pod::Perldoc::ToRaw->new->parse_from_file(@_);
+    require Pod::Perldoc::ToPod;
+    return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
     
   } else {
     print $outfh $rslt

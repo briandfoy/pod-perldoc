@@ -1,15 +1,10 @@
 README for Perldoc
-                                        Time-stamp: "2002-11-11 01:35:33 MST"
+                                   Time-stamp: "2002-11-22 01:58:50 MST"
 
 			       Perldoc
 
 This is an experimental distribution of Perldoc, the program for
 reading Pod documentation.
-
-NOTE: the binary that this dist installs is currently called perldoc3,
-and the documentation for it is called perldoc3 too.  So when you see
-"run 'perldoc perldoc'", you should actually run "perldoc3 perldoc3".
-
 
 
 INSTALLATION

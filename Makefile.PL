@@ -1,4 +1,4 @@
-# Time-stamp: "2002-11-11 02:31:27 MST"
+# Time-stamp: "2002-11-22 02:00:31 MST"
 require 5;
 use strict;
 use warnings;
@@ -9,8 +9,8 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'Pod::Perldoc',
     'VERSION_FROM' => 'lib/Pod/Perldoc.pm', # finds $VERSION
-    'ABSTRACT' => 'look up Perl documentation in Pod format',
-    'EXE_FILES' => [qw( perldoc3 )],
+    'ABSTRACT'  => 'look up Perl documentation in Pod format',
+    'EXE_FILES' => [qw( perldoc )],
     'PREREQ_PM' => {
 		    # Are there any hard dependencies not covered here?
 		    'Config' => 0,
@@ -22,7 +22,7 @@ WriteMakefile(
 		    'File::Temp' => 0,
 		    'File::Spec::Functions' => 0,
 		   },
-    'dist'        => { COMPRESS => 'gzip -6f', SUFFIX => 'gz', },
+    'dist'      => { COMPRESS => 'gzip -6f', SUFFIX => 'gz', },
 );
 
 package MY;

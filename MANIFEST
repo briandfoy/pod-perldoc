@@ -14,8 +14,8 @@ lib/Pod/Perldoc/ToRtf.pm
 lib/Pod/Perldoc/ToText.pm
 lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm
-lib/perldoc3.pod
-perldoc3
+lib/perldoc.pod
+perldoc
 t/checkerbasic.t
 t/perldocbasic.t
 t/textbasic.t

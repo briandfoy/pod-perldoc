@@ -1,6 +1,21 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2002-11-11 21:53:25 MST"
+                                        Time-stamp: "2002-11-22 02:58:36 MST"
 
+
+2002-11-22  Sean M. Burke  sburke@cpan.org
+	* Release 3.06.
+	* Made it install to perldoc pand perldoc.pod now.
+	* Added -V
+	* Made -U a no-op switch, for legacy.
+	* Corrected a few minor typoes in the usage messages.
+	* Updated perldoc.pod to document the switches that were
+	previously documented only in perldoc -h
+	
+	* Many thanks to David Hand, Avi Finkel, Iain "Spoon" Truskett,
+	Conrad Heiney, Casey West, Pete Sergeant, David Dyck, Michael
+	Schwern, Slaven Rezic, Hugo van der Sanden, and many others for
+	lots of patient help in working on this.
+	
 2002-11-11  Sean M. Burke  sburke@cpan.org
 	* Release 3.05 alpha.
 	* Corrected the logic that suppresses warnings during require's or
@@ -13,4 +28,4 @@ Revision history for Perl module group Pod::Perldoc
 	* Release 3.04 alpha.  First public release.
 	* Many new features, including the switches: -T, -d, -o, -M, -w
 
-See the end of Pod/Perldoc.pm for previous revision history.
+See the end of Pod/Perldoc.pm for previous revision history and TODOs

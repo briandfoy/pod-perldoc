@@ -6,18 +6,20 @@ perldoc - Look up Perl documentation in Pod format.
 =head1 SYNOPSIS
 
 B<perldoc> [B<-h>] [B<-v>] [B<-t>] [B<-u>] [B<-m>] [B<-l>] [B<-F>]
-[B<-T>]
+[B<-i>] [B<-V>] [B<-T>] [B<-r>]
 [B<-dI<destination_file>>]
 [B<-oI<formatname>>]
 [B<-MI<FormatterClassName>>]
 [B<-wI<formatteroption:value>>]
-[B<-X>] PageName|ModuleName|ProgramName
+[B<-n>I<nroff-replacement>]
+[B<-X>]
+PageName|ModuleName|ProgramName
 
 B<perldoc> B<-f> BuiltinFunction
 
 B<perldoc> B<-q> FAQ Keyword
 
-See below for more switches described.
+See below for more description of the switches.
 
 =head1 DESCRIPTION
 
@@ -37,39 +39,39 @@ documentation, see the L<perltoc> page.
 
 =over 5
 
-=item B<-h> help
+=item B<-h>
 
-Prints out a brief help message.
+Prints out a brief B<h>elp message.
 
-=item B<-v> verbose
+=item B<-v>
 
-Describes search for the item in detail.
+Describes search for the item in detail (B<v>erbosely).
 
-=item B<-t> text output
+=item B<-t>
 
-Display docs using plain text converter, instead of nroff. This may be faster,
+Display docs using plain B<t>ext converter, instead of nroff. This may be faster,
 but it probably won't look as nice.
 
-=item B<-u> unformatted
+=item B<-u>
 
-Skip the real Pod formatting, and just show the raw Pod source.
+Skip the real Pod formatting, and just show the raw Pod source (B<U>nformatted)
 
-=item B<-m> module
+=item B<-m> I<module>
 
 Display the entire module: both code and unformatted pod documentation.
 This may be useful if the docs don't explain a function in the detail
 you need, and you'd like to inspect the code directly; perldoc will find
 the file for you and simply hand it off for display.
 
-=item B<-l> file name only
+=item B<-l>
 
-Display the file name of the module found.
+Display onB<l>y the file name of the module found.
 
-=item B<-F> file names
+=item B<-F>
 
 Consider arguments as file names; no search in directories will be performed.
 
-=item B<-f> perlfunc
+=item B<-f> I<perlfunc>
 
 The B<-f> option followed by the name of a perl built in function will
 extract the documentation of this function from L<perlfunc>.
@@ -78,18 +80,18 @@ Example:
 
       perldoc -f sprintf
 
-=item B<-q> perlfaq
+=item B<-q> I<perlfaq-search-regexp>
 
 The B<-q> option takes a regular expression as an argument.  It will search
-the question headings in perlfaq[1-9] and print the entries matching
+the B<q>uestion headings in perlfaq[1-9] and print the entries matching
 the regular expression.  Example: C<perldoc -q shuffle>
 
-=item B<-T> terminal
+=item B<-T>
 
 This specifies that the output is not to be sent to a pager, but is to
 be sent right to STDOUT.
 
-=item B<-d> F<destination-filename>
+=item B<-d> I<destination-filename>
 
 This specifies that the output is to be sent neither to a pager nor
 to STDOUT, but is to be saved to the specified filename.  Example:
@@ -136,18 +138,34 @@ features like: C<-w page_numbering>.
 You can use a "=" instead of the ":", as in: C<-w textsize=15>.  This
 might be more (or less) convenient, depending on what shell you use.
 
+=item B<-X>
 
-=item B<-X> use an index if it is present
-
-The B<-X> option looks for an entry whose basename matches the name
-given on the command line in the file C<$Config{archlib}/pod.idx>. The
-pod.idx file should contain fully qualified filenames, one per line.
+Use an index if it is present -- the B<-X> option looks for an entry
+whose basename matches the name given on the command line in the file
+C<$Config{archlib}/pod.idx>. The F<pod.idx> file should contain fully
+qualified filenames, one per line.
 
 =item B<PageName|ModuleName|ProgramName>
 
 The item you want to look up.  Nested modules (such as C<File::Basename>)
 are specified either as C<File::Basename> or C<File/Basename>.  You may also
 give a descriptive name of a page, such as C<perlfunc>.
+
+=item B<-n> I<some-formatter>
+
+Specify replacement for nroff
+
+=item B<-r>
+
+Recursive search.
+
+=item B<-i>
+
+Ignore case.
+
+=item B<-V>
+
+Displays the version of perldoc you're running.
 
 =back
 
@@ -188,21 +206,14 @@ Having PERLDOCDEBUG set to a positive integer will make perldoc emit
 even more descriptive output than the C<-v> switch does -- the higher the
 number, the more it emits.
 
-=head1 VERSION
-
-This is perldoc v3.05, an alpha version by Sean M. Burke.
-
-=for note
- TODO: remove the above "alpha" talk, once it's time.
-
-
 =head1 AUTHOR
 
-Kenneth Albanowski <kjahds@kjahds.com>
+Current maintainer: Sean M. Burke, <sburke@cpan.org>
 
-Minor updates by Andy Dougherty <doughera@lafcol.lafayette.edu>,
-Sean M. Burke <sburke@cpan.org>,
-and others.
+Past contributors are:
+Kenneth Albanowski <kjahds@kjahds.com>,
+Andy Dougherty <doughera@lafayette.edu>,
+and many others.
 
 =cut
 

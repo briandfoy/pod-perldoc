@@ -6,12 +6,12 @@ use warnings;
 use Config '%Config';
 
 use Fcntl;    # for sysopen
-use File::Spec::Functions qw(catfile splitdir);
+use File::Spec::Functions qw(catfile catdir splitdir);
 
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.05';
+$VERSION = '3.06';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -104,6 +104,22 @@ sub opt_M_with { # specify formatter class name(s)
   
   return;
 }
+
+sub opt_V { # report version and exit
+  print join '',
+    "Perldoc v$VERSION, under perl v$] for $^O",
+
+    (defined(&Win32::BuildNumber) and defined &Win32::BuildNumber())
+     ? (" (win32 build ", &Win32::BuildNumber(), ")") : (),
+    
+    (chr(65) eq 'A') ? () : " (non-ASCII)",
+    
+    "\n",
+  ;
+  exit;
+}
+
+sub opt_U {} # legacy no-op
 
 sub opt_t { # choose plaintext as output format
   my $self = shift;
@@ -222,6 +238,7 @@ perldoc [options] -q FAQRegex
 
 Options:
     -h   Display this help message
+    -V   report version
     -r   Recursive search (slow)
     -i   Ignore case
     -t   Display pod using pod2text instead of pod2man and nroff
@@ -235,7 +252,7 @@ Options:
     -T   Send output to STDOUT without any pager
     -d output_filename_to_send_to
     -o output_format_name
-    -m FormatterModuleNameToUse
+    -M FormatterModuleNameToUse
     -w formatter_option:option_value
     -X	 use index if present (looks for pod.idx at $Config{archlib})
     -q   Search the text of questions (not answers) in perlfaq[1-9]
@@ -270,7 +287,7 @@ sub usage_brief {
   $me =~ s,.*[/\\],,; # get basename
   
   die <<"EOUSAGE";
-Usage: $me [-h] [-r] [-i] [-v] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-m FormatterModuleNameToUse] [-w formatter_option:option_value] [-F] [-X] PageName|ModuleName|ProgramName
+Usage: $me [-h] [-V] [-r] [-i] [-v] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-M FormatterModuleNameToUse] [-w formatter_option:option_value] [-F] [-X] PageName|ModuleName|ProgramName
        $me -f PerlFunc
        $me -q FAQKeywords
 
@@ -1609,6 +1626,10 @@ __END__
 # is embedded in the perl installation tree.
 # 
 #~~~~~~
+# Version 3.06: Sunday November 17 2002 -- 14:05:28
+#       Sean M. Burke <sburke@cpan.org>
+#       Added -V to report version
+#       Restore -U as a no-op legacy switch.
 #
 # Version 3.01: Sun Nov 10 21:38:09 MST 2002
 #       Sean M. Burke <sburke@cpan.org>
@@ -1681,4 +1702,7 @@ __END__
 #	Cache the directories read during sloppy match
 #       (To disk, or just in-memory?)
 #
-
+#       Backport this to perl 5.005?
+#
+#       Implement at least part of the "perlman" interface described
+#       in Programming Perl 3e?

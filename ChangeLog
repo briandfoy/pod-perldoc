@@ -1,5 +1,14 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2004-04-09 18:17:10 ADT"
+                                        Time-stamp: "2004-11-30 13:27:01 AST"
+
+2004-11-30  Sean M. Burke  sburke@cpan.org
+	* Release 3.14 -- bugfix for Cygwin
+
+	* Matt Johnson sends in two patches to accodomate Cygwin.
+	Accepted.
+
+	* Also changing pathsep for IS_MSWin32 || IS_Dos temp files
+	from '/' to '\'.
 
 2004-04-09  Sean M. Burke  sburke@cpan.org
 	* Release 3.13 -- minor bugfixes

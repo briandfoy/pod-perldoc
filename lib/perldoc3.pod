@@ -190,7 +190,7 @@ number, the more it emits.
 
 =head1 VERSION
 
-This is perldoc v3.04, an alpha version by Sean M. Burke.
+This is perldoc v3.05, an alpha version by Sean M. Burke.
 
 =for note
  TODO: remove the above "alpha" talk, once it's time.

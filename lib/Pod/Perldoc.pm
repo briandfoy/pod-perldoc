@@ -11,7 +11,7 @@ use File::Spec::Functions qw(catfile splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.04';
+$VERSION = '3.05';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -232,6 +232,11 @@ Options:
     -l   Display the module's file name
     -F   Arguments are file names, not modules
     -v	 Verbosely describe what's going on
+    -T   Send output to STDOUT without any pager
+    -d output_filename_to_send_to
+    -o output_format_name
+    -m FormatterModuleNameToUse
+    -w formatter_option:option_value
     -X	 use index if present (looks for pod.idx at $Config{archlib})
     -q   Search the text of questions (not answers) in perlfaq[1-9]
 
@@ -265,7 +270,7 @@ sub usage_brief {
   $me =~ s,.*[/\\],,; # get basename
   
   die <<"EOUSAGE";
-Usage: $me [-h] [-r] [-i] [-v] [-t] [-u] [-m] [-n program] [-l] [-F] [-X] PageName|ModuleName|ProgramName
+Usage: $me [-h] [-r] [-i] [-v] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-m FormatterModuleNameToUse] [-w formatter_option:option_value] [-F] [-X] PageName|ModuleName|ProgramName
        $me -f PerlFunc
        $me -q FAQKeywords
 
@@ -437,10 +442,31 @@ sub find_good_formatter_class {
     }
     
     $class_seen{$c} = 1;
+    
     if( $c->can('parse_from_file') ) {
-      DEBUG > 4 and print "Interesting, $c is already loaded!\n";
+      DEBUG > 4 and print
+       "Interesting, the formatter class $c is already loaded!\n";
+      
+    } elsif(
+      (IS_VMS or IS_MSWin32 or IS_Dos or IS_OS2)
+       # the alway case-insensitive fs's
+      and $class_seen{lc("~$c")}++
+    ) {
+      DEBUG > 4 and print
+       "We already used something quite like \"\L$c\E\", so no point using $c\n";
+      # This avoids redefining the package.
     } else {
       DEBUG > 4 and print "Trying to eval 'require $c'...\n";
+
+      local $^W = $^W;
+      if(DEBUG() or $self->opt_v) {
+        # feh, let 'em see it
+      } else {
+        $^W = 0;
+        # The average user just has no reason to be seeing
+        #  $^W-suppressable warnings from the the require!
+      }
+
       eval "require $c";
       if($@) {
         DEBUG > 4 and print "Couldn't load $c: $!\n";
@@ -448,7 +474,7 @@ sub find_good_formatter_class {
       }
     }
     
-    if( $c->can("parse_from_file") ) {
+    if( $c->can('parse_from_file') ) {
       DEBUG > 4 and print "Settling on $c\n";
       my $v = $c->VERSION;
       $v = ( defined $v and length $v ) ? " version $v" : '';
@@ -904,11 +930,11 @@ sub render_findings {
   {
     local $^W = $^W;
     if(DEBUG() or $self->opt_v) {
+      # feh, let 'em see it
+    } else {
       $^W = 0;
       # The average user just has no reason to be seeing
       #  $^W-suppressable warnings from the formatting!
-    } else {
-      # feh, let 'em see it
     }
           
     eval {  $formatter->parse_from_file( $file, $out_fh )  };
@@ -1200,6 +1226,25 @@ sub page_module_file {
     # occasionally hazy distinction between OS-local extension
     # associations, and browser-specific MIME mappings.
 
+    if ($self->{'output_to_stdout'}) {
+        $self->aside("Sending unpaged output to STDOUT.\n");
+	local $_;
+	my $any_error = 0;
+        foreach my $output (@found) {
+	    unless( open(TMP, "<", $output) ) {
+	      warn("Can't open $output: $!");
+	      $any_error = 1;
+	      next;
+	    }
+	    while (<TMP>) {
+	        print or die "Can't print to stdout: $!";
+	    } 
+	    close TMP  or die "Can't close while $output: $!";
+	    $self->unlink_if_temp_file($output);
+	}
+	return $any_error; # successful
+    }
+
     foreach my $pager ( $self->pagers ) {
         $self->aside("About to try calling $pager @found\n");
         if (system($pager, @found) == 0) {
@@ -1383,6 +1428,7 @@ sub new_tempfile {    # $self->new_tempfile( [$suffix, [$infix] ] )
 sub page {  # apply a pager to the output file
     my ($self, $output, $output_to_stdout, @pagers) = @_;
     if ($output_to_stdout) {
+        $self->aside("Sending unpaged output to STDOUT.\n");
 	open(TMP, "<", $output)  or  die "Can't open $output: $!";
 	local $_;
 	while (<TMP>) {
@@ -1498,7 +1544,7 @@ sub am_taint_checking {
 
 #..........................................................................
 
-sub is_tainted {
+sub is_tainted { # just a function
     my $arg  = shift;
     my $nada = substr($arg, 0, 0);  # zero-length!
     local $@;  # preserve the caller's version of $@
@@ -1569,7 +1615,7 @@ __END__
 #       Massive refactoring and code-tidying.
 #       Now it's a module(-family)!
 #       Formatter-specific stuff pulled out into Pod::Perldoc::To(Whatever).pm
-#       Added -T, -d, -o, -m, -V.
+#       Added -T, -d, -o, -M, -w.
 #       Added some improved MSWin funk.
 #
 #~~~~~~
@@ -1634,8 +1680,5 @@ __END__
 #
 #	Cache the directories read during sloppy match
 #       (To disk, or just in-memory?)
-#
-# TODO:
-#       Under MSWin, clean up old temp files?
 #
 

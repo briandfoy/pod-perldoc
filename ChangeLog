@@ -1,8 +1,16 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2002-11-11 03:24:57 MST"
+                                        Time-stamp: "2002-11-11 21:53:25 MST"
 
+2002-11-11  Sean M. Burke  sburke@cpan.org
+	* Release 3.05 alpha.
+	* Corrected the logic that suppresses warnings during require's or
+	formattings.
+	* Updated usage messages
+	* Corrected bug that ignored -T when using -m
+	
 2002-11-11  Sean M. Burke  sburke@cpan.org
 
 	* Release 3.04 alpha.  First public release.
+	* Many new features, including the switches: -T, -d, -o, -M, -w
 
 See the end of Pod/Perldoc.pm for previous revision history.

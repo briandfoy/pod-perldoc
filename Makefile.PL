@@ -1,5 +1,6 @@
-# Time-stamp: "2002-11-22 02:00:31 MST"
+# Time-stamp: "2003-07-24 06:29:06 ADT"
 require 5;
+use 5.006; # Perldoc.pm currently needs at least this version
 use strict;
 use warnings;
 

@@ -1,6 +1,29 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2003-01-18 18:39:56 AHST"
+                                        Time-stamp: "2003-07-24 06:33:17 ADT"
 
+2003-07-24  Sean M. Burke  sburke@cpan.org
+	* Release 3.09.
+	
+	Notable changes:
+	
+	* perldoc when run as root no longer dies when it can't manage to
+	drop privileges.  This is by popular demand.
+	* perldoc -f -X now properly sees an -X entry regardless of
+	whether it's coded as =item -X or =item I<-X>.
+	* In README, changed "This is an experimental distribution of
+	Perldoc," to "This is the distribution of Perldoc,"
+
+	Wee little things:
+	
+	* Added a "use 5.006;" to the start of Perldoc.pm and the
+	Makefile.PL, since we do actually need that version of perl
+	for the module to even compile right.  (Altho backporting is an
+	option later, if we remove the 5.6-isms.)
+	* Perldoc.pm has a new constant IS_Cygwin if we ever need it.
+	* Added a bit of IS_VMS logic.
+	* Minor cosmetic changes to handling of -U.
+	* Added a few comments here and there.
+	
 2003-01-18  Sean M. Burke  sburke@cpan.org
 	* Release 3.08.
 	* Fixed split-related bug in reading $Config{'pager'}.

@@ -1,10 +1,10 @@
 README for Perldoc
-                                   Time-stamp: "2002-11-22 01:58:50 MST"
+                                   Time-stamp: "2003-07-24 06:30:53 ADT"
 
 			       Perldoc
 
-This is an experimental distribution of Perldoc, the program for
-reading Pod documentation.
+This is the distribution of Perldoc, the program for reading Pod
+documentation.
 
 
 INSTALLATION

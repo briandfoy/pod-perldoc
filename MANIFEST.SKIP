@@ -1,0 +1,7 @@
+^MANIFEST\.bak$
+Makefile(\.old)?$
+^Pod-Perldoc-\d
+\.rej$
+CVS
+blib
+~

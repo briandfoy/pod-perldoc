@@ -1,0 +1,44 @@
+README for Perldoc
+                                        Time-stamp: "2002-11-11 01:35:33 MST"
+
+			       Perldoc
+
+This is an experimental distribution of Perldoc, the program for
+reading Pod documentation.
+
+NOTE: the binary that this dist installs is currently called perldoc3,
+and the documentation for it is called perldoc3 too.  So when you see
+"run 'perldoc perldoc'", you should actually run "perldoc3 perldoc3".
+
+
+
+INSTALLATION
+
+You install this module-suite, as you would install any perl module
+library, by running these commands:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+If you want to install a private copy of this module-suite in your home
+directory, then you should try to produce the initial Makefile with
+something like this command:
+
+  perl Makefile.PL PREFIX=~/perl
+
+See perldoc perlmodinstall for more information on installing modules.
+
+
+SUPPORT
+
+Questions, bug reports, useful code bits, and suggestions for this
+module should just be sent to me at sburke@cpan.org
+
+
+AVAILABILITY
+
+The latest version of this module is available from the Comprehensive
+Perl Archive Network (CPAN).  Visit <http://www.perl.com/CPAN/> to
+find a CPAN site near you.

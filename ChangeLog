@@ -1,0 +1,8 @@
+Revision history for Perl module group Pod::Perldoc
+                                        Time-stamp: "2002-11-11 03:24:57 MST"
+
+2002-11-11  Sean M. Burke  sburke@cpan.org
+
+	* Release 3.04 alpha.  First public release.
+
+See the end of Pod/Perldoc.pm for previous revision history.

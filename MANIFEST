@@ -1,8 +1,5 @@
 ChangeLog
-MANIFEST
-MANIFEST.SKIP
-Makefile.PL
-README
+lib/perldoc.pod
 lib/Pod/Perldoc.pm
 lib/Pod/Perldoc/BaseTo.pm
 lib/Pod/Perldoc/GetOptsOO.pm
@@ -14,8 +11,12 @@ lib/Pod/Perldoc/ToRtf.pm
 lib/Pod/Perldoc/ToText.pm
 lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm
-lib/perldoc.pod
+Makefile.PL
+MANIFEST
+MANIFEST.SKIP
 perldoc
+README
 t/checkerbasic.t
 t/perldocbasic.t
 t/textbasic.t
+META.yml                                Module meta-data (added by MakeMaker)

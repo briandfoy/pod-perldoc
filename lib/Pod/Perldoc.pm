@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.09';
+$VERSION = '3.10';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -1341,6 +1341,27 @@ sub check_file {
 sub containspod {
     my($self, $file, $readit) = @_;
     return 1 if !$readit && $file =~ /\.pod\z/i;
+
+
+    #  Under cygwin the /usr/bin/perl is legal executable, but
+    #  you cannot open a file with that name. It must be spelled
+    #  out as "/usr/bin/perl.exe".
+    #
+    #  The following if-case under cygwin prevents error
+    #
+    #     $ perldoc perl
+    #     Cannot open /usr/bin/perl: no such file or directory
+    #
+    #  This would work though
+    #
+    #     $ perldoc perl.pod
+
+    if ( IS_Cygwin  and  -x $file  and  -f "$file.exe" )
+    {
+        warn "Cygwin $file.exe search skipped\n"  if DEBUG or $self->opt_v;
+        return 0;
+    }
+
     local($_);
     open(TEST,"<", $file) 	or die "Can't open $file: $!";   # XXX 5.6ism
     while (<TEST>) {

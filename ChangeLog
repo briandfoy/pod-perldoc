@@ -1,6 +1,14 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2003-07-24 06:33:17 ADT"
+                                        Time-stamp: "2003-09-10 22:57:03 ADT"
 
+2003-09-10  Sean M. Burke  sburke@cpan.org
+	* Release 3.10 -- bugfix for cygwin
+	Jari Aalto notes a problem with cygwin and the containspod routine
+	-- cygwin apparently pretends there's an executable $filename file
+	when there's really a "$filename.exe" file.  Added a
+	cygwin-specific hack in containspod to trap this case.
+	
+	
 2003-07-24  Sean M. Burke  sburke@cpan.org
 	* Release 3.09.
 	

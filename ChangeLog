@@ -1,5 +1,19 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2003-10-21 16:55:28 ADT"
+                                        Time-stamp: "2004-04-09 18:17:10 ADT"
+
+2004-04-09  Sean M. Burke  sburke@cpan.org
+	* Release 3.13 -- minor bugfixes
+
+	Ken Willians notes that Pod::Perldoc::ToMan breaks when the
+	pod2man program isn't in $Config{'scriptdirexp'}.  So I make it
+	look there first, but then fall back to not specifying where it
+	should be found.
+
+	James Michael Du Pont notes that Carp::croak isn't always loaded
+	by all versions of the modules perldoc uses.  So I add an explicit
+	"require Carp::croak".
+
+	I add t/01_about_verbose.t just to give more diagnostics.
 
 2003-10-21  Sean M. Burke  sburke@cpan.org
 	* Release 3.12 -- tweak for Linux man.

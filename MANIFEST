@@ -16,6 +16,7 @@ MANIFEST
 MANIFEST.SKIP
 perldoc
 README
+t/01_about_verbose.t
 t/checkerbasic.t
 t/perldocbasic.t
 t/textbasic.t

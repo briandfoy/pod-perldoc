@@ -1,10 +1,18 @@
 Revision history for Perl module group Pod::Perldoc
                                         Time-stamp: "2004-11-30 13:27:01 AST"
 
-2007-08-16  
+2007-08-23
+	* Development release 3.14_02
+	* -L becomes more forgiving:
+              $ perldoc -L it perldocpage
+	  retrieves the standard (English) version if it cannot find
+	  the Italian translation.
+	
+2007-08-23
 	* Release 3.14_01 -- bleedperl changes:
 	+ #31628: a Gentoo patch
 	+ #27878: warn when -f, -q ignore extra arguments
+	+ #26202: document -L
 	+ #26191: new switch -L
 	
 2004-11-30  Sean M. Burke  sburke@cpan.org

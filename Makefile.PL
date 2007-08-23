@@ -5,6 +5,9 @@ use strict;
 use warnings;
 
 use ExtUtils::MakeMaker;
+
+my $EUMM_VERSION = $ExtUtils::MakeMaker::VERSION;
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
@@ -27,6 +30,9 @@ WriteMakefile(
 		    'File::Spec::Functions' => 0,
 		   },
     'dist'      => { COMPRESS => 'gzip -6f', SUFFIX => 'gz', },
+    ( $EUMM_VERSION > 6.31 ? (
+        LICENSE => 'perl',
+    ) : () ),
 );
 
 package MY;

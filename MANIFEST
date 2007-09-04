@@ -13,7 +13,6 @@ lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm
 Makefile.PL
 MANIFEST
-MANIFEST.SKIP
 perldoc
 README
 t/01_about_verbose.t

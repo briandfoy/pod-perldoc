@@ -1,12 +1,21 @@
 Revision history for Perl module group Pod::Perldoc
                                         Time-stamp: "2004-11-30 13:27:01 AST"
 
+2007-09-03
+	* typo fix (#31763 by rgs)
+	* warning and debugging code added to add_translator()
+	* the translators now became objects
+	* POD2::Base (if available) provides language-specific
+	  support for free
+        * experimental releases, misses documentation of changes
+	
 2007-08-23
 	* Development release 3.14_02
 	* -L becomes more forgiving:
               $ perldoc -L it perldocpage
 	  retrieves the standard (English) version if it cannot find
 	  the Italian translation.
+	* applied to bleed as Change #31762
 	
 2007-08-23
 	* Release 3.14_01 -- bleedperl changes:

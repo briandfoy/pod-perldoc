@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.14_02';
+$VERSION = '3.14_03';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -720,8 +720,8 @@ sub grand_search_init {
         # prepend extra search directories (including language specific)
         push @searchdirs, @{ $self->{'extra_search_dirs'} };
 
-        # We mush look both in @INC for library modules and in $bindir
-        # for executables, like h2xs or perldoc itself.	
+        # We must look both in @INC for library modules and in $bindir
+        # for executables, like h2xs or perldoc itself.
         push @searchdirs, ($self->{'bindir'}, @INC);
         unless ($self->opt_m) {
             if (IS_VMS) {
@@ -839,18 +839,38 @@ sub pod_dirs { # @dirs = pod_dirs($translator);
 
 #.........................................................................
 
+sub new_translator { # $tr = $self->new_translator($lang);
+    my $self = shift;
+    my $lang = shift;
+
+    my $pack = 'POD2::' . uc($lang);
+    eval "require $pack";
+    if ( !$@ && $pack->can('new') ) {
+	return $pack->new();
+    }
+
+    eval { require POD2::Base };
+    return if $@;
+    
+    return POD2::Base->new({ lang => $lang });
+}
+
+#.........................................................................
+
 sub add_translator { # $self->add_translator($lang);
     my $self = shift;
     for my $lang (@_) {
-        my $pack = 'POD2::' . uc($lang);
-        eval "require $pack";
-        if ( $@ ) {
-            # XXX warn: non-installed translator package
+        my $tr = $self->new_translator($lang);
+        if ( defined $tr ) {
+            push @{ $self->{'translators'} }, $tr;
+            push @{ $self->{'extra_search_dirs'} }, $tr->pod_dirs;
+
+            $self->aside( "translator for '$lang' loaded\n" );
         } else {
-            push @{ $self->{'translators'} }, $pack;
-            push @{ $self->{'extra_search_dirs'} }, pod_dirs($pack);
-            # XXX DEBUG
+            # non-installed or bad translator package
+            warn "Perldoc cannot load translator package for '$lang': ignored\n";
         }
+
     }
     return;
 }

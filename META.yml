@@ -1,9 +1,10 @@
 --- #YAML:1.0
 name:                Pod-Perldoc
-version:             3.14_03
+version:             3.14_04
 abstract:            look up Perl documentation in Pod format
 license:             perl
-generated_by:        ExtUtils::MakeMaker version 6.36
+author:              ~
+generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
     Config:                        0
@@ -15,5 +16,5 @@ requires:
     Text::ParseWords:              0
     warnings:                      0
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.2.html
-    version: 1.2
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3

@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.14_03';
+$VERSION = '3.14_04';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -824,21 +824,6 @@ sub add_formatter_option { # $self->add_formatter_option('key' => 'value');
 
 #.........................................................................
 
-sub pod_dirs { # @dirs = pod_dirs($translator);
-    my $tr = shift;
-    return $tr->pod_dirs if $tr->can('pod_dirs');
-    
-    my $mod = ref $tr || $tr;
-    $mod =~ s|::|/|g;
-    $mod .= '.pm';
-
-    my $dir = $INC{$mod};
-    $dir =~ s/\.pm\z//;
-    return $dir;
-}
-
-#.........................................................................
-
 sub new_translator { # $tr = $self->new_translator($lang);
     my $self = shift;
     my $lang = shift;
@@ -1476,13 +1461,13 @@ sub maybe_diddle_INC {
   
   # Does this look like a module or extension directory?
   
-  if (-f "Makefile.PL") {
+  if (-f "Makefile.PL" || -f "Build.PL") {
 
     # Add "." and "lib" to @INC (if they exist)
     eval q{ use lib qw(. lib); 1; } or die;
 
     # don't add if superuser
-    if ($< && $> && -f "blib") {   # don't be looking too hard now!
+    if ($< && $> && -d "blib") {   # don't be looking too hard now!
       eval q{ use blib; 1 };
       warn $@ if $@ && $self->opt_v;
     }

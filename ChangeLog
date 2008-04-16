@@ -1,7 +1,14 @@
 Revision history for Perl module group Pod::Perldoc
                                         Time-stamp: "2004-11-30 13:27:01 AST"
-
+2008-04-16
+	* Development release 3.14_04
+	* 'lib' & co. are added to search path if -f Build.PL
+	  in current directory (rt.cpan.org #33941)
+        * bug fix: 'blib' directories were never searched 
+	  because they were tested with -f
+	
 2007-09-03
+	* Development release 3.14_03
 	* typo fix (#31763 by rgs)
 	* warning and debugging code added to add_translator()
 	* the translators now became objects

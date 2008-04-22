@@ -1,5 +1,15 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2004-11-30 13:27:01 AST"
+                                        Time-stamp: "2008-04-22 15:21:46 BRT"
+
+2008-04-22
+        * Development release 3.14_05 -- Search perlvar
+        * Applied patch to allow -A for searching perlvar.
+          (after a patch by Ovid, 2008-02-26)
+	
+        * [RFC] the switch name is experimental: I am open
+	  to convincing alternatives (other than -v and -V 
+	  which are already taken).
+	
 2008-04-16
 	* Development release 3.14_04
 	* 'lib' & co. are added to search path if -f Build.PL

@@ -24,6 +24,8 @@ B<perldoc> B<-q> FAQ Keyword
 
 B<perldoc> B<-L> fr B<-q> FAQ Keyword
 
+B<perldoc> B<-A> PerlVariable
+
 See below for more description of the switches.
 
 =head1 DESCRIPTION
@@ -43,6 +45,11 @@ documentation, see the L<perltoc> page.
 =head1 OPTIONS
 
 =over 5
+
+=item B<-A> I<perlvar>
+
+The B<-A> option followed by the name of a Perl predefined variable will
+extract the documentation of this variable from L<perlvar>.
 
 =item B<-h>
 

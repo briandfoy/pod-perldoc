@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.14_04';
+$VERSION = '3.14_05';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -62,7 +62,7 @@ $Pod2man = "pod2man" . ( $Config{'versiononly'} ? $Config{'version'} : '' );
 #
 # Option accessors...
 
-foreach my $subname (map "opt_$_", split '', q{mhlvriFfXqnTdUL}) {
+foreach my $subname (map "opt_$_", split '', q{mhlvriFfXqnTdULA}) {
   no strict 'refs';
   *$subname = do{ use strict 'refs';  sub () { shift->_elem($subname, @_) } };
 }
@@ -72,6 +72,7 @@ sub opt_f_with { shift->_elem('opt_f', @_) }
 sub opt_q_with { shift->_elem('opt_q', @_) }
 sub opt_d_with { shift->_elem('opt_d', @_) }
 sub opt_L_with { shift->_elem('opt_L', @_) }
+sub opt_A_with { shift->_elem('opt_A', @_) }
 
 sub opt_w_with { # Specify an option for the formatter subclass
   my($self, $value) = @_;
@@ -296,6 +297,7 @@ sub usage_brief {
 Usage: $me [-h] [-V] [-r] [-i] [-v] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-M FormatterModuleNameToUse] [-w formatter_option:option_value] [-L translation_code] [-F] [-X] PageName|ModuleName|ProgramName
        $me -f PerlFunc
        $me -q FAQKeywords
+       $me -A PerlVar
 
 The -h option prints more help.  Also try "perldoc perldoc" to get
 acquainted with the system.                        [Perldoc v$VERSION]
@@ -415,6 +417,7 @@ sub process {
     $self->{'pages'} = \@pages;
     if(    $self->opt_f) { @pages = ("perlfunc")               }
     elsif( $self->opt_q) { @pages = ("perlfaq1" .. "perlfaq9") }
+    elsif( $self->opt_A) { @pages = ("perlvar")                }
     else                 { @pages = @{$self->{'args'}};
                            # @pages = __FILE__
                            #  if @pages == 1 and $pages[0] eq 'perldoc';
@@ -776,10 +779,12 @@ sub maybe_generate_dynamic_pod {
     my @dynamic_pod;
     
     $self->search_perlfunc($found_things, \@dynamic_pod)  if  $self->opt_f;
+
+    $self->search_perlvar($found_things, \@dynamic_pod)   if  $self->opt_A;
     
     $self->search_perlfaqs($found_things, \@dynamic_pod)  if  $self->opt_q;
 
-    if( ! $self->opt_f and ! $self->opt_q ) {
+    if( ! $self->opt_f and ! $self->opt_q and ! $self->opt_A ) {
         DEBUG > 4 and print "That's a non-dynamic pod search.\n";
     } elsif ( @dynamic_pod ) {
         $self->aside("Hm, I found some Pod from that search!\n");
@@ -788,7 +793,7 @@ sub maybe_generate_dynamic_pod {
         push @{ $self->{'temp_file_list'} }, $buffer;
          # I.e., it MIGHT be deleted at the end.
         
-	my $in_list = $self->opt_f;
+	my $in_list = $self->opt_f || $self->opt_A;
 
         print $buffd "=over 8\n\n" if $in_list;
         print $buffd @dynamic_pod  or die "Can't print $buffer: $!";
@@ -857,6 +862,79 @@ sub add_translator { # $self->add_translator($lang);
         }
 
     }
+    return;
+}
+
+#..........................................................................
+
+sub search_perlvar {
+    my($self, $found_things, $pod) = @_;
+
+    my $opt = $self->opt_A;
+
+    if ( $opt !~ /^ (?: [\@\%\$]\S+ | [A-Z]\w* ) $/x ) {
+        die "'$opt' does not look like a Perl variable\n";
+    }
+
+    DEBUG > 2 and print "Search: @$found_things\n";
+    
+    my $perlvar = shift @$found_things;
+    open(PVAR, "<", $perlvar)               # "Funk is its own reward"
+        or die("Can't open $perlvar: $!");
+
+    if ( $opt =~ /^\$\d+$/ ) { # handle $1, $2, ..., $9
+      $opt = '$<I<digits>>';
+    }
+    my $search_re = quotemeta($opt);
+
+    DEBUG > 2 and
+     print "Going to perlvar-scan for $search_re in $perlvar\n";
+    
+    # Skip introduction
+    local $_;
+    while (<PVAR>) {
+        last if /^=over 8/;
+    }
+
+    # Look for our variable
+    my $found = 0;
+    my $inheader = 1;
+    my $inlist = 0;
+    while (<PVAR>) {  # "The Mothership Connection is here!"
+        last if /^=head2 Error Indicators/;
+        # \b at the end of $` and friends borks things!
+        if ( m/^=item\s+$search_re\s/ )  {
+            $found = 1;
+        }
+        elsif (/^=item/) {
+            last if $found && !$inheader && !$inlist;
+        }
+        elsif (!/^\s+$/) { # not a blank line
+            if ( $found ) {
+                $inheader = 0; # don't accept more =item (unless inlist)
+	    }
+            else {
+                @$pod = (); # reset
+                $inheader = 1; # start over
+                next;
+            }
+	}
+
+        if (/^=over/) {
+            ++$inlist;
+        }
+        elsif (/^=back/) {
+            --$inlist;
+        }
+        push @$pod, $_;
+#        ++$found if /^\w/;        # found descriptive text
+    }
+    @$pod = () unless $found;
+    if (!@$pod) {
+        die "No documentation for perl variable '$opt' found\n";
+    }
+    close PVAR                or die "Can't open $perlvar: $!";
+
     return;
 }
 

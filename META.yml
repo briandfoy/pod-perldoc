@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name:                Pod-Perldoc
-version:             3.14_05
-abstract:            look up Perl documentation in Pod format
+version:             3.14_06
+abstract:            Look up Perl documentation in Pod format
 license:             perl
 author:              ~
 generated_by:        ExtUtils::MakeMaker version 6.42

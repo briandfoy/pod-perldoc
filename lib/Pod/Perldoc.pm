@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.14_06';
+$VERSION = '3.14_07';
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -242,6 +242,7 @@ sub usage {
 perldoc [options] PageName|ModuleName|ProgramName...
 perldoc [options] -f BuiltinFunction
 perldoc [options] -q FAQRegex
+perldoc [options] -v PerlVariable
 
 Options:
     -h   Display this help message
@@ -264,6 +265,8 @@ Options:
     -L translation_code   Choose doc translation (if any)
     -X   use index if present (looks for pod.idx at $Config{archlib})
     -q   Search the text of questions (not answers) in perlfaq[1-9]
+    -f   Search Perl built-in functions
+    -v   Search predefined Perl variables
 
 PageName|ModuleName...
          is the name of a piece of documentation that you want to look at. You
@@ -1825,7 +1828,45 @@ sub drop_privs_maybe {
 
 __END__
 
-# See "perldoc perldoc" for basic details.
+=head1 NAME
+
+Pod::Perldoc - Look up Perl documentation in Pod format.
+
+=head1 SYNOPSIS
+
+    use Pod::Perldoc ();
+
+    Pod::Perldoc->run();
+
+=head1 DESCRIPTION
+
+The guts of L<perldoc> utility.
+
+=head1 SEE ALSO
+
+L<perldoc>
+
+=head1 COPYRIGHT AND DISCLAIMERS
+
+Copyright (c) 2002-2007 Sean M. Burke.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+This program is distributed in the hope that it will be useful, but
+without any warranty; without even the implied warranty of
+merchantability or fitness for a particular purpose.
+
+=head1 AUTHOR
+
+Current maintainer: Adriano R. Ferreira <ferreira@cpan.org>
+
+Past contributions from:
+Sean M. Burke <sburke@cpan.org>
+
+=cut
+
+# 
 #
 # Perldoc -- look up a piece of documentation in .pod format that
 # is embedded in the perl installation tree.

@@ -1,6 +1,11 @@
 Revision history for Perl module group Pod::Perldoc
-                                        Time-stamp: "2008-05-02 21:27:00 BRT"
+                                        Time-stamp: "2008-05-08 11:29:00 BRT"
 
+2008-05-08
+	* Development release 3.14_07
+	* Pod::Perldoc now has POD
+	* so does Pod::Perldoc::BaseTo and Pod::Perldoc::GetOptsOO
+	
 2008-05-02
 	* Development release 3.14_06 -- Be lenient
 	* 'perldoc intro' may find 'perlintro' page

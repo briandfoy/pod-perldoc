@@ -1,5 +1,5 @@
-# Time-stamp: "2003-10-21 16:56:41 ADT"
-require 5;
+# Time-stamp: "2008-04-05 11:43:00 BRT"
+
 use 5.006; # Perldoc.pm currently needs at least this version
 use strict;
 use warnings;
@@ -11,8 +11,9 @@ my $EUMM_VERSION = $ExtUtils::MakeMaker::VERSION;
 WriteMakefile(
     'NAME'	=> 'Pod::Perldoc',
     'VERSION_FROM' => 'lib/Pod/Perldoc.pm',
-    'ABSTRACT'  => 'Look up Perl documentation in Pod format',
-    'EXE_FILES' => [qw( perldoc )],
+
+    'AUTHOR'         => 'Adriano R. Ferreira <ferreira@cpan.org>', # maintainer
+    'ABSTRACT_FROM'  => 'lib/Pod/Perldoc.pm',
 
     ($] >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 
@@ -27,9 +28,10 @@ WriteMakefile(
 		    'File::Temp' => 0,
 		    'File::Spec::Functions' => 0,
 		   },
-    'dist'      => { COMPRESS => 'gzip -6f', SUFFIX => 'gz', },
+    'EXE_FILES' => [qw( perldoc )],
+
     ( $EUMM_VERSION > 6.31 ? (
-        LICENSE => 'perl',
+        'LICENSE' => 'perl',
     ) : () ),
 );
 

@@ -1,6 +1,15 @@
 Revision history for Perl module group Pod::Perldoc
                                         Time-stamp: "2008-05-08 11:29:00 BRT"
 
+2008-11-01
+        * no code changes from 3.14_07
+        * summary of main changes:
+          - perldoc -v PerlVar
+          - old -v (Verbosely describe) is now -D
+          - 'perldoc intro' will find 'perlintro' page
+          - 'perldoc -L it' can find Italian translations
+            of documentation (if you have them) 
+
 2008-05-08
 	* Development release 3.14_07
 	* Pod::Perldoc now has POD

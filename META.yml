@@ -1,12 +1,14 @@
 --- #YAML:1.0
 name:               Pod-Perldoc
-version:            3.15
+version:            3.15_01
 abstract:           Look up Perl documentation in Pod format.
 author:
     - Adriano R. Ferreira <ferreira@cpan.org>
 license:            perl
 distribution_type:  module
 configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
     ExtUtils::MakeMaker:  0
 requires:
     Config:               0
@@ -21,7 +23,7 @@ no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.46
+generated_by:       ExtUtils::MakeMaker version 6.50
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4

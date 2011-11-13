@@ -293,7 +293,7 @@ EOF
 #..........................................................................
 
 sub usage_brief {
-  my $me = $0;		# Editing $0 is unportable
+  my $me = $0;      # Editing $0 is unportable
 
   $me =~ s,.*[/\\],,; # get basename
   
@@ -683,15 +683,15 @@ sub options_sanity {
     
     # Any sanity-checking need doing here?
     
-    # But does not make sense to set either -f or -q in $ENV{"PERLDOC"} 
-    if( $self->opt_f or $self->opt_q ) { 
-	$self->usage("Only one of -f -or -q") if $self->opt_f and $self->opt_q;
-	warn 
-	    "Perldoc is only really meant for reading one word at a time.\n",
-	    "So these parameters are being ignored: ",
-	    join(' ', @{$self->{'args'}}),
-	    "\n"
-		if @{$self->{'args'}}
+    # But does not make sense to set either -f or -q in $ENV{"PERLDOC"}
+    if( $self->opt_f or $self->opt_q ) {
+$self->usage("Only one of -f -or -q") if $self->opt_f and $self->opt_q;
+    warn
+        "Perldoc is only really meant for reading one word at a time.\n",
+        "So these parameters are being ignored: ",
+        join(' ', @{$self->{'args'}}),
+        "\n"
+        if @{$self->{'args'}}
     }
     return;
 }
@@ -748,7 +748,7 @@ sub grand_search_init {
             $self->aside( "Found as @files\n" );
         }
         # add "perl" prefix, so "perldoc foo" may find perlfoo.pod
-	elsif (BE_LENIENT and !/\W/ and  @files = $self->searchfor(0, "perl$_", @searchdirs)) {
+    elsif (BE_LENIENT and !/\W/ and  @files = $self->searchfor(0, "perl$_", @searchdirs)) {
             $self->aside( "Loosely found as @files\n" );
         }
         else {
@@ -801,7 +801,7 @@ sub maybe_generate_dynamic_pod {
         push @{ $self->{'temp_file_list'} }, $buffer;
          # I.e., it MIGHT be deleted at the end.
         
-	my $in_list = $self->opt_f || $self->opt_v;
+    my $in_list = $self->opt_f || $self->opt_v;
 
         print $buffd "=over 8\n\n" if $in_list;
         print $buffd @dynamic_pod  or die "Can't print $buffer: $!";
@@ -844,7 +844,7 @@ sub new_translator { # $tr = $self->new_translator($lang);
     my $pack = 'POD2::' . uc($lang);
     eval "require $pack";
     if ( !$@ && $pack->can('new') ) {
-	return $pack->new();
+    return $pack->new();
     }
 
     eval { require POD2::Base };
@@ -920,13 +920,13 @@ sub search_perlvar {
         elsif (!/^\s+$/) { # not a blank line
             if ( $found ) {
                 $inheader = 0; # don't accept more =item (unless inlist)
-	    }
+        }
             else {
                 @$pod = (); # reset
                 $inheader = 1; # start over
                 next;
             }
-	}
+    }
 
         if (/^=over/) {
             ++$inlist;
@@ -992,8 +992,8 @@ sub search_perlfunc {
             ++$inlist;
         }
         elsif (/^=back/) {
-            --$inlist;
             last if $found > 1 and not $inlist;
+            --$inlist;
         }
         push @$pod, $_;
         ++$found if /^\w/;        # found descriptive text
@@ -1291,7 +1291,7 @@ sub after_rendering_MSWin32  {
 }
 
 #..........................................................................
-#	:	:	:	:	:	:	:	:	:
+#   :   :   :   :   :   :   :   :   :
 #..........................................................................
 
 
@@ -1306,55 +1306,55 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
         or IS_Dos or IS_OS2
      ) {
         # On a case-forgiving file system, or if case is important,
-	#  that is it, all we can do.
-	warn "Ignored $path: unreadable\n" if -f _;
-	return '';
+    #  that is it, all we can do.
+    warn "Ignored $path: unreadable\n" if -f _;
+    return '';
      }
      
      local *DIR;
      my @p = ($dir);
      my($p,$cip);
      foreach $p (splitdir $file){
-	my $try = catfile @p, $p;
+    my $try = catfile @p, $p;
         $self->aside("Scrutinizing $try...\n");
-	stat $try;
- 	if (-d _) {
- 	    push @p, $p;
-	    if ( $p eq $self->{'target'} ) {
-		my $tmp_path = catfile @p;
-		my $path_f = 0;
-		for (@{ $self->{'found'} }) {
-		    $path_f = 1 if $_ eq $tmp_path;
-		}
-		push (@{ $self->{'found'} }, $tmp_path) unless $path_f;
-		$self->aside( "Found as $tmp_path but directory\n" );
-	    }
- 	}
-	elsif (-f _ && -r _) {
- 	    return $try;
- 	}
-	elsif (-f _) {
-	    warn "Ignored $try: unreadable\n";
- 	}
-	elsif (-d catdir(@p)) {  # at least we see the containing directory!
- 	    my $found = 0;
- 	    my $lcp = lc $p;
- 	    my $p_dirspec = catdir(@p);
- 	    opendir DIR, $p_dirspec  or die "opendir $p_dirspec: $!";
- 	    while(defined( $cip = readdir(DIR) )) {
- 		if (lc $cip eq $lcp){
- 		    $found++;
- 		    last; # XXX stop at the first? what if there's others?
- 		}
- 	    }
- 	    closedir DIR  or die "closedir $p_dirspec: $!";
- 	    return "" unless $found;
+    stat $try;
+    if (-d _) {
+        push @p, $p;
+        if ( $p eq $self->{'target'} ) {
+        my $tmp_path = catfile @p;
+        my $path_f = 0;
+        for (@{ $self->{'found'} }) {
+            $path_f = 1 if $_ eq $tmp_path;
+        }
+        push (@{ $self->{'found'} }, $tmp_path) unless $path_f;
+        $self->aside( "Found as $tmp_path but directory\n" );
+        }
+    }
+    elsif (-f _ && -r _) {
+        return $try;
+    }
+    elsif (-f _) {
+        warn "Ignored $try: unreadable\n";
+    }
+    elsif (-d catdir(@p)) {  # at least we see the containing directory!
+        my $found = 0;
+        my $lcp = lc $p;
+        my $p_dirspec = catdir(@p);
+        opendir DIR, $p_dirspec  or die "opendir $p_dirspec: $!";
+        while(defined( $cip = readdir(DIR) )) {
+        if (lc $cip eq $lcp){
+            $found++;
+            last; # XXX stop at the first? what if there's others?
+        }
+        }
+        closedir DIR  or die "closedir $p_dirspec: $!";
+        return "" unless $found;
 
- 	    push @p, $cip;
- 	    my $p_filespec = catfile(@p);
- 	    return $p_filespec if -f $p_filespec and -r _;
-	    warn "Ignored $p_filespec: unreadable\n" if -f _;
- 	}
+        push @p, $cip;
+        my $p_filespec = catfile(@p);
+        return $p_filespec if -f $p_filespec and -r _;
+        warn "Ignored $p_filespec: unreadable\n" if -f _;
+    }
      }
      return "";
 }
@@ -1417,21 +1417,21 @@ sub page_module_file {
 
     if ($self->{'output_to_stdout'}) {
         $self->aside("Sending unpaged output to STDOUT.\n");
-	local $_;
-	my $any_error = 0;
+    local $_;
+    my $any_error = 0;
         foreach my $output (@found) {
-	    unless( open(TMP, "<", $output) ) {    # XXX 5.6ism
-	      warn("Can't open $output: $!");
-	      $any_error = 1;
-	      next;
-	    }
-	    while (<TMP>) {
-	        print or die "Can't print to stdout: $!";
-	    } 
-	    close TMP  or die "Can't close while $output: $!";
-	    $self->unlink_if_temp_file($output);
-	}
-	return $any_error; # successful
+        unless( open(TMP, "<", $output) ) {    # XXX 5.6ism
+          warn("Can't open $output: $!");
+          $any_error = 1;
+          next;
+        }
+        while (<TMP>) {
+            print or die "Can't print to stdout: $!";
+        }
+        close TMP  or die "Can't close while $output: $!";
+        $self->unlink_if_temp_file($output);
+    }
+    return $any_error; # successful
     }
 
     foreach my $pager ( $self->pagers ) {
@@ -1488,11 +1488,11 @@ sub check_file {
     }
     
     if ($self->opt_m) {
-	return $self->minus_f_nocase($dir,$file);
+    return $self->minus_f_nocase($dir,$file);
     }
     
     else {
-	my $path = $self->minus_f_nocase($dir,$file);
+    my $path = $self->minus_f_nocase($dir,$file);
         if( length $path and $self->containspod($path) ) {
             DEBUG > 3 and print
               "  The file $path indeed looks promising!\n";
@@ -1531,14 +1531,14 @@ sub containspod {
     }
 
     local($_);
-    open(TEST,"<", $file) 	or die "Can't open $file: $!";   # XXX 5.6ism
+    open(TEST,"<", $file)   or die "Can't open $file: $!";   # XXX 5.6ism
     while (<TEST>) {
-	if (/^=head/) {
-	    close(TEST) 	or die "Can't close $file: $!";
-	    return 1;
-	}
+    if (/^=head/) {
+        close(TEST)     or die "Can't close $file: $!";
+        return 1;
     }
-    close(TEST) 		or die "Can't close $file: $!";
+    }
+    close(TEST)         or die "Can't close $file: $!";
     return 0;
 }
 
@@ -1643,13 +1643,13 @@ sub page {  # apply a pager to the output file
     my ($self, $output, $output_to_stdout, @pagers) = @_;
     if ($output_to_stdout) {
         $self->aside("Sending unpaged output to STDOUT.\n");
-	open(TMP, "<", $output)  or  die "Can't open $output: $!"; # XXX 5.6ism
-	local $_;
-	while (<TMP>) {
-	    print or die "Can't print to stdout: $!";
-	} 
-	close TMP  or die "Can't close while $output: $!";
-	$self->unlink_if_temp_file($output);
+    open(TMP, "<", $output)  or  die "Can't open $output: $!"; # XXX 5.6ism
+    local $_;
+    while (<TMP>) {
+        print or die "Can't print to stdout: $!";
+    }
+    close TMP  or die "Can't close while $output: $!";
+    $self->unlink_if_temp_file($output);
     } else {
         # On VMS, quoting prevents logical expansion, and temp files with no
         # extension get the wrong default extension (such as .LIS for TYPE)
@@ -1666,9 +1666,9 @@ sub page {  # apply a pager to the output file
             if (IS_VMS) {
                 last if system("$pager $output") == 0;
             } else {
-	        last if system("$pager \"$output\"") == 0;
+            last if system("$pager \"$output\"") == 0;
             }
-	}
+    }
     }
     return;
 }
@@ -1686,41 +1686,41 @@ sub searchfor {
     my $dir;
     $self->{'target'} = (splitdir $s)[-1];  # XXX: why not use File::Basename?
     for ($i=0; $i<@dirs; $i++) {
-	$dir = $dirs[$i];
-	next unless -d $dir;
-	($dir = VMS::Filespec::unixpath($dir)) =~ s!/\z!! if IS_VMS;
-	if (       (! $self->opt_m && ( $ret = $self->check_file($dir,"$s.pod")))
-		or ( $ret = $self->check_file($dir,"$s.pm"))
-		or ( $ret = $self->check_file($dir,$s))
-		or ( IS_VMS and
-		     $ret = $self->check_file($dir,"$s.com"))
-		or ( IS_OS2 and
-		     $ret = $self->check_file($dir,"$s.cmd"))
-		or ( (IS_MSWin32 or IS_Dos or IS_OS2) and
-		     $ret = $self->check_file($dir,"$s.bat"))
-		or ( $ret = $self->check_file("$dir/pod","$s.pod"))
-		or ( $ret = $self->check_file("$dir/pod",$s))
-		or ( $ret = $self->check_file("$dir/pods","$s.pod"))
-		or ( $ret = $self->check_file("$dir/pods",$s))
-	) {
-	    DEBUG > 1 and print "  Found $ret\n";
-	    return $ret;
-	}
+    $dir = $dirs[$i];
+    next unless -d $dir;
+    ($dir = VMS::Filespec::unixpath($dir)) =~ s!/\z!! if IS_VMS;
+    if (       (! $self->opt_m && ( $ret = $self->check_file($dir,"$s.pod")))
+        or ( $ret = $self->check_file($dir,"$s.pm"))
+        or ( $ret = $self->check_file($dir,$s))
+        or ( IS_VMS and
+             $ret = $self->check_file($dir,"$s.com"))
+        or ( IS_OS2 and
+             $ret = $self->check_file($dir,"$s.cmd"))
+        or ( (IS_MSWin32 or IS_Dos or IS_OS2) and
+             $ret = $self->check_file($dir,"$s.bat"))
+        or ( $ret = $self->check_file("$dir/pod","$s.pod"))
+        or ( $ret = $self->check_file("$dir/pod",$s))
+        or ( $ret = $self->check_file("$dir/pods","$s.pod"))
+        or ( $ret = $self->check_file("$dir/pods",$s))
+    ) {
+        DEBUG > 1 and print "  Found $ret\n";
+        return $ret;
+    }
 
-	if ($recurse) {
-	    opendir(D,$dir)	or die "Can't opendir $dir: $!";
-	    my @newdirs = map catfile($dir, $_), grep {
-		not /^\.\.?\z/s and
-		not /^auto\z/s  and   # save time! don't search auto dirs
-		-d  catfile($dir, $_)
-	    } readdir D;
-	    closedir(D)		or die "Can't closedir $dir: $!";
-	    next unless @newdirs;
-	    # what a wicked map!
-	    @newdirs = map((s/\.dir\z//,$_)[1],@newdirs) if IS_VMS;
-	    $self->aside( "Also looking in @newdirs\n" );
-	    push(@dirs,@newdirs);
-	}
+    if ($recurse) {
+        opendir(D,$dir) or die "Can't opendir $dir: $!";
+        my @newdirs = map catfile($dir, $_), grep {
+        not /^\.\.?\z/s and
+        not /^auto\z/s  and   # save time! don't search auto dirs
+        -d  catfile($dir, $_)
+        } readdir D;
+        closedir(D)     or die "Can't closedir $dir: $!";
+        next unless @newdirs;
+        # what a wicked map!
+        @newdirs = map((s/\.dir\z//,$_)[1],@newdirs) if IS_VMS;
+        $self->aside( "Also looking in @newdirs\n" );
+        push(@dirs,@newdirs);
+    }
     }
     return ();
 }
@@ -1753,7 +1753,7 @@ sub tweak_found_pathnames {
 }
 
 #..........................................................................
-#	:	:	:	:	:	:	:	:	:
+#   :   :   :   :   :   :   :   :   :
 #..........................................................................
 
 sub am_taint_checking {
@@ -1888,17 +1888,17 @@ Sean M. Burke <sburke@cpan.org>
 #~~~~~~
 #
 # Version 2.05: Sat Oct 12 16:09:00 CEST 2002
-#	Hugo van der Sanden <hv@crypt.org>
-#	Made -U the default, based on patch from Simon Cozens
+#   Hugo van der Sanden <hv@crypt.org>
+#   Made -U the default, based on patch from Simon Cozens
 # Version 2.04: Sun Aug 18 13:27:12 BST 2002
-#	Randy W. Sims <RandyS@ThePierianSpring.org>
-#	allow -n to enable nroff under Win32
+#   Randy W. Sims <RandyS@ThePierianSpring.org>
+#   allow -n to enable nroff under Win32
 # Version 2.03: Sun Apr 23 16:56:34 BST 2000
-#	Hugo van der Sanden <hv@crypt.org>
-#	don't die when 'use blib' fails
+#   Hugo van der Sanden <hv@crypt.org>
+#   don't die when 'use blib' fails
 # Version 2.02: Mon Mar 13 18:03:04 MST 2000
 #       Tom Christiansen <tchrist@perl.com>
-#	Added -U insecurity option
+#   Added -U insecurity option
 # Version 2.01: Sat Mar 11 15:22:33 MST 2000 
 #       Tom Christiansen <tchrist@perl.com>, querulously.
 #       Security and correctness patches.
@@ -1909,33 +1909,33 @@ Sean M. Burke <sburke@cpan.org>
 #
 # Version 1.15: Tue Aug 24 01:50:20 EST 1999
 #       Charles Wilson <cwilson@ece.gatech.edu>
-#	changed /pod/ directory to /pods/ for cygwin
+#   changed /pod/ directory to /pods/ for cygwin
 #         to support cygwin/win32
 # Version 1.14: Wed Jul 15 01:50:20 EST 1998
 #       Robin Barker <rmb1@cise.npl.co.uk>
-#	-strict, -w cleanups
+#   -strict, -w cleanups
 # Version 1.13: Fri Feb 27 16:20:50 EST 1997
 #       Gurusamy Sarathy <gsar@activestate.com>
-#	-doc tweaks for -F and -X options
+#   -doc tweaks for -F and -X options
 # Version 1.12: Sat Apr 12 22:41:09 EST 1997
 #       Gurusamy Sarathy <gsar@activestate.com>
-#	-various fixes for win32
+#   -various fixes for win32
 # Version 1.11: Tue Dec 26 09:54:33 EST 1995
 #       Kenneth Albanowski <kjahds@kjahds.com>
 #   -added Charles Bailey's further VMS patches, and -u switch
 #   -added -t switch, with pod2text support
 #
 # Version 1.10: Thu Nov  9 07:23:47 EST 1995
-#		Kenneth Albanowski <kjahds@kjahds.com>
-#	-added VMS support
-#	-added better error recognition (on no found pages, just exit. On
-#	 missing nroff/pod2man, just display raw pod.)
-#	-added recursive/case-insensitive matching (thanks, Andreas). This
-#	 slows things down a bit, unfortunately. Give a precise name, and
-#	 it'll run faster.
+#       Kenneth Albanowski <kjahds@kjahds.com>
+#   -added VMS support
+#   -added better error recognition (on no found pages, just exit. On
+#    missing nroff/pod2man, just display raw pod.)
+#   -added recursive/case-insensitive matching (thanks, Andreas). This
+#    slows things down a bit, unfortunately. Give a precise name, and
+#    it'll run faster.
 #
-# Version 1.01:	Tue May 30 14:47:34 EDT 1995
-#		Andy Dougherty  <doughera@lafcol.lafayette.edu>
+# Version 1.01: Tue May 30 14:47:34 EDT 1995
+#       Andy Dougherty  <doughera@lafcol.lafayette.edu>
 #   -added pod documentation.
 #   -added PATH searching.
 #   -added searching pod/ subdirectory (mainly to pick up perlfunc.pod
@@ -1945,7 +1945,7 @@ Sean M. Burke <sburke@cpan.org>
 #
 # TODO:
 #
-#	Cache the directories read during sloppy match
+#   Cache the directories read during sloppy match
 #       (To disk, or just in-memory?)
 #
 #       Backport this to perl 5.005?

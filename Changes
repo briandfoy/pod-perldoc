@@ -1,5 +1,10 @@
 Revision history for Perl module group Pod::Perldoc
 
+3.15_08 - Sun Nov 13 17:31:30 2011
+	* Sync with the latest stuff in blead
+	* Re-release as a CPAN module
+	* brian d foy is taking over maintainer duties
+
 2009-09-30
     * 3.15_01 - sync with blead
 

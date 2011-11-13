@@ -11,13 +11,12 @@ lib/Pod/Perldoc/ToRtf.pm
 lib/Pod/Perldoc/ToText.pm
 lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm
-Makefile.PL
 MANIFEST
+MANIFEST.SKIP
+META.yml			Module meta-data (added by MakeMaker)
 perldoc
 README
 t/01_about_verbose.t
 t/checkerbasic.t
 t/perldocbasic.t
 t/textbasic.t
-
-META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,0 +1,10 @@
+\.gitignore
+\.git
+blib
+Pod-.*
+Makefile
+pm_to_blib
+.releaserc
+\.gz$
+\.bak
+\.orig

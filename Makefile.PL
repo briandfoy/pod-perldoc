@@ -1,5 +1,3 @@
-# Time-stamp: "2008-04-05 11:43:00 BRT"
-
 use 5.006; # Perldoc.pm currently needs at least this version
 use strict;
 use warnings;
@@ -12,7 +10,7 @@ WriteMakefile(
     'NAME'	=> 'Pod::Perldoc',
     'VERSION_FROM' => 'lib/Pod/Perldoc.pm',
 
-    'AUTHOR'         => 'Adriano R. Ferreira <ferreira@cpan.org>', # maintainer
+    'AUTHOR'         => 'brian d foy <bdfoy@cpan.org>', # maintainer
     'ABSTRACT_FROM'  => 'lib/Pod/Perldoc.pm',
 
     ($] >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),

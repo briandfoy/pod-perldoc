@@ -4,3 +4,6 @@ blib
 pm_to_blib
 *.patch
 Makefile
+*.old
+*.bak
+*.gz

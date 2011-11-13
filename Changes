@@ -1,11 +1,11 @@
 Revision history for Perl module group Pod::Perldoc
 
 2009-09-30
-        * 3.15_01 - sync with blead
+    * 3.15_01 - sync with blead
 
 2008-11-01
-        * no code changes from 3.14_07
-        * summary of main changes:
+    * no code changes from 3.14_07
+    * summary of main changes:
           - perldoc -v PerlVar
           - old -v (Verbosely describe) is now -D
           - 'perldoc intro' will find 'perlintro' page
@@ -25,12 +25,12 @@ Revision history for Perl module group Pod::Perldoc
     * perldoc -v PerlVar
     
 2008-04-22
-        * Development release 3.14_05 -- Search perlvar
-        * Applied patch to allow -A for searching perlvar.
+    * Development release 3.14_05 -- Search perlvar
+    * Applied patch to allow -A for searching perlvar.
           (after a patch by Ovid, 2008-02-26)
           [rt.cpan.org #33624]
     
-        * [RFC] the switch name is experimental: I am open
+    * [RFC] the switch name is experimental: I am open
       to convincing alternatives (other than -v and -V 
       which are already taken).
     

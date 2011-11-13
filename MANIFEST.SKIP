@@ -2,7 +2,7 @@
 \.git
 blib
 Pod-.*
-Makefile
+Makefile$
 pm_to_blib
 .releaserc
 \.gz$

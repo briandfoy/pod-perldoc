@@ -1,16 +1,16 @@
 Revision history for Perl module group Pod::Perldoc
 
 2009-09-30
-    * 3.15_01 - sync with blead
+        * 3.15_01 - sync with blead
 
 2008-11-01
-    * no code changes from 3.14_07
-    * summary of main changes:
-        - perldoc -v PerlVar
-        - old -v (Verbosely describe) is now -D
-        - 'perldoc intro' will find 'perlintro' page
-        - 'perldoc -L it' can find Italian translations
-        of documentation (if you have them) 
+        * no code changes from 3.14_07
+        * summary of main changes:
+          - perldoc -v PerlVar
+          - old -v (Verbosely describe) is now -D
+          - 'perldoc intro' will find 'perlintro' page
+          - 'perldoc -L it' can find Italian translations
+            of documentation (if you have them) 
 
 2008-05-08
     * Development release 3.14_07
@@ -25,20 +25,20 @@ Revision history for Perl module group Pod::Perldoc
     * perldoc -v PerlVar
     
 2008-04-22
-    * Development release 3.14_05 -- Search perlvar
-    * Applied patch to allow -A for searching perlvar.
-      (after a patch by Ovid, 2008-02-26)
-      [rt.cpan.org #33624]
+        * Development release 3.14_05 -- Search perlvar
+        * Applied patch to allow -A for searching perlvar.
+          (after a patch by Ovid, 2008-02-26)
+          [rt.cpan.org #33624]
     
-    * [RFC] the switch name is experimental: I am open
-    to convincing alternatives (other than -v and -V 
-    which are already taken).
+        * [RFC] the switch name is experimental: I am open
+      to convincing alternatives (other than -v and -V 
+      which are already taken).
     
 2008-04-16
     * Development release 3.14_04
     * 'lib' & co. are added to search path if -f Build.PL
       in current directory (rt.cpan.org #33941)
-    * bug fix: 'blib' directories were never searched 
+        * bug fix: 'blib' directories were never searched 
       because they were tested with -f
     
 2007-09-03
@@ -48,7 +48,7 @@ Revision history for Perl module group Pod::Perldoc
     * the translators now became objects
     * POD2::Base (if available) provides language-specific
       support for free
-    * experimental releases, misses documentation of changes
+        * experimental releases, misses documentation of changes
     
 2007-08-23
     * Development release 3.14_02

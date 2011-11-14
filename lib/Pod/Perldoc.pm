@@ -1521,7 +1521,8 @@ sub pagers_guessing {
     if ($self->is_cygwin) {
         if (($pagers[0] eq 'less') || ($pagers[0] eq '/usr/bin/less')) {
             unshift @pagers, '/usr/bin/less -isrR';
-        }
+            unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
+       }
     }
 
     unshift @pagers, $ENV{PERLDOC_PAGER} if $ENV{PERLDOC_PAGER};

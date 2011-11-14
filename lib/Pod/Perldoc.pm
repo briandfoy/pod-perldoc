@@ -66,7 +66,7 @@ $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;
 
 #..........................................................................
 { my $pager = $Config{'pager'};
-  push @Pagers, $pager if -x (split /\s+/, $pager)[0] or $self->is_vms;
+  push @Pagers, $pager if -x (split /\s+/, $pager)[0] or __PACKAGE__->is_vms;
 }
 $Bindir  = $Config{'scriptdirexp'};
 $Pod2man = "pod2man" . ( $Config{'versiononly'} ? $Config{'version'} : '' );
@@ -291,7 +291,7 @@ PageName|ModuleName|ProgramName|URL...
 
 BuiltinFunction
          is the name of a perl function.  Will extract documentation from
-         `perlfunc'.
+         `perlfunc' or `perlop'.
 
 FAQRegex
          is a regex. Will search perlfaq[1-9] for and extract any
@@ -443,7 +443,7 @@ sub process {
 
     my @pages;
     $self->{'pages'} = \@pages;
-    if(    $self->opt_f) { @pages = ("perlfunc")               }
+    if(    $self->opt_f) { @pages = qw(perlfunc perlop)        }
     elsif( $self->opt_q) { @pages = ("perlfaq1" .. "perlfaq9") }
     elsif( $self->opt_v) { @pages = ("perlvar")                }
     else                 { @pages = @{$self->{'args'}};
@@ -855,7 +855,7 @@ sub maybe_generate_dynamic_pod {
         push @{ $self->{'temp_file_list'} }, $buffer;
          # I.e., it MIGHT be deleted at the end.
 
-    my $in_list = $self->opt_f || $self->opt_v;
+        my $in_list = !$self->not_dynamic && $self->opt_f || $self->opt_v;
 
         print $buffd "=over 8\n\n" if $in_list;
         print $buffd @dynamic_pod  or $self->die( "Can't print $buffer: $!" );
@@ -875,6 +875,14 @@ sub maybe_generate_dynamic_pod {
     }
 
     return;
+}
+
+#..........................................................................
+
+sub not_dynamic {
+  my ($self,$value) = @_;
+  $self->{__not_dynamic} = $value if @_ == 2;
+  return $self->{__not_dynamic};
 }
 
 #..........................................................................
@@ -1003,6 +1011,59 @@ sub search_perlvar {
 
 #..........................................................................
 
+sub search_perlop {
+  my ($self,$found_things,$pod) = @_;
+
+  $self->not_dynamic( 1 );
+
+  my $perlop = shift @$found_things;
+  open( PERLOP, '<', $perlop ) or $self->die( "Can't open $perlop: $!" );
+
+  my $paragraph = "";
+  my $has_text_seen = 0;
+  my $thing = $self->opt_f;
+  my $list = 0;
+
+  while( my $line = <PERLOP> ){
+    if( $paragraph and $line =~ m!^=(?:head|item)! and $paragraph =~ m!X<+\s*\Q$thing\E\s*>+! ){
+      if( $list ){
+        $paragraph =~ s!=back.*?\z!!s;
+      }
+  
+      if( $paragraph =~ m!^=item! ){
+        $paragraph = "=over 8\n\n" . $paragraph . "=back\n";
+      }
+  
+      push @$pod, $paragraph;
+      $paragraph = "";
+      $has_text_seen = 0;
+      $list = 0;
+    }
+  
+    if( $line =~ m!^=over! ){
+      $list++;
+    }
+    elsif( $line =~ m!^=back! ){
+      $list--;
+    }
+  
+    if( $line =~ m!^=(?:head|item)! and $has_text_seen ){
+      $paragraph = "";
+    }
+    elsif( $line !~ m!^=(?:head|item)! and $line !~ m!^\s*$! and $line !~ m!^\s*X<! ){
+      $has_text_seen = 1;
+    }
+  
+    $paragraph .= $line;
+    }
+
+  close PERLOP;
+
+  return;
+}
+
+#..........................................................................
+
 sub search_perlfunc {
     my($self, $found_things, $pod) = @_;
 
@@ -1036,7 +1097,11 @@ sub search_perlfunc {
     # Look for our function
     my $found = 0;
     my $inlist = 0;
+
+    my @perlops = qw(m q qq qr qx qw s tr y);
+
     while (<PFUNC>) {  # "The Mothership Connection is here!"
+        last if( grep{ $self->opt_f eq $_ }@perlops );
         if ( m/^=item\s+$search_re\b/ )  {
             $found = 1;
         }
@@ -1054,6 +1119,11 @@ sub search_perlfunc {
         push @$pod, $_;
         ++$found if /^\w/;        # found descriptive text
     }
+
+    if( !@$pod ){
+        $self->search_perlop( $found_things, $pod );
+    }
+
     if (!@$pod) {
         $self->die( sprintf
           "No documentation for perl function `%s' found\n",

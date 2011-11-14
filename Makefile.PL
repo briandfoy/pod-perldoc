@@ -7,8 +7,8 @@ use ExtUtils::MakeMaker;
 my $EUMM_VERSION = $ExtUtils::MakeMaker::VERSION;
 
 WriteMakefile(
-    'NAME'	=> 'Pod::Perldoc',
-    'VERSION_FROM' => 'lib/Pod/Perldoc.pm',
+    'NAME'           => 'Pod::Perldoc',
+    'VERSION_FROM'   => 'lib/Pod/Perldoc.pm',
 
     'AUTHOR'         => 'brian d foy <bdfoy@cpan.org>', # maintainer
     'ABSTRACT_FROM'  => 'lib/Pod/Perldoc.pm',

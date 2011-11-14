@@ -4,6 +4,9 @@ package Pod::Perldoc::BaseTo;
 use strict;
 use warnings;
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 sub is_pageable        { '' }
 sub write_with_binmode {  1 }
 

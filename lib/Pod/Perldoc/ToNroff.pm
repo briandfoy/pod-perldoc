@@ -4,6 +4,9 @@ package Pod::Perldoc::ToNroff;
 use strict;
 use warnings;
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 # This is unlike ToMan.pm in that it emits the raw nroff source!
 
 use base qw(Pod::Perldoc::BaseTo);

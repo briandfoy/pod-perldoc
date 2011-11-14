@@ -12,6 +12,9 @@ package Pod::Perldoc::ToPod;
 use strict;
 use warnings;
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 use base qw(Pod::Perldoc::BaseTo);
 sub is_pageable        { 1 }
 sub write_with_binmode { 0 }

@@ -3,6 +3,9 @@ require 5;
 package Pod::Perldoc::GetOptsOO;
 use strict;
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 # Rather like Getopt::Std's getopts
 #  Call Pod::Perldoc::GetOptsOO::getopts($object, \@ARGV, $truth)
 #  Given -n, if there's a opt_n_with, it'll call $object->opt_n_with( ARGUMENT )

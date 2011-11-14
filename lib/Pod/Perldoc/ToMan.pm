@@ -4,6 +4,9 @@ package Pod::Perldoc::ToMan;
 use strict;
 use warnings;
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 # This class is unlike ToText.pm et al, because we're NOT paging thru
 # the output in our particular format -- we make the output and
 # then we run nroff (or whatever) on it, and then page thru the

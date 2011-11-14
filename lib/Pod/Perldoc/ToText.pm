@@ -4,6 +4,9 @@ package Pod::Perldoc::ToText;
 use strict;
 use warnings;
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 use base qw(Pod::Perldoc::BaseTo);
 
 sub is_pageable        { 1 }

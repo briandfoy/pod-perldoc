@@ -5,6 +5,9 @@ use strict;
 use warnings;
 use vars qw(@ISA);
 
+use vars qw($VERSION);
+$VERSION = '3.15_09';
+
 # Pick our superclass...
 #
 eval 'require Pod::Simple::Checker';

@@ -1,6 +1,5 @@
-
-require 5;
 use 5.006;  # we use some open(X, "<", $y) syntax
+
 package Pod::Perldoc;
 use strict;
 use warnings;
@@ -13,6 +12,7 @@ use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
 $VERSION = '3.15_09';
+
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...

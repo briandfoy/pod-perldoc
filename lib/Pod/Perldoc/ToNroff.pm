@@ -1,4 +1,3 @@
-
 require 5;
 package Pod::Perldoc::ToNroff;
 use strict;

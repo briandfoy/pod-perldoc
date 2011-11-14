@@ -1391,11 +1391,11 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
         $self->aside( "Found as $tmp_path but directory\n" );
         }
     }
-    elsif (-f _ && -r _) {
+    elsif (-f _ && -r _ && lc($try) eq lc($path)) {
         return $try;
     }
     elsif (-f _) {
-        $self->warn( "Ignored $try: unreadable\n" );
+        $self->warn( "Ignored $try: unreadable or file/dir mismatch\n" );
     }
     elsif (-d catdir(@p)) {  # at least we see the containing directory!
         my $found = 0;
@@ -1548,21 +1548,33 @@ sub check_file {
       return "";
     }
 
-    if ($self->opt_m) {
-    return $self->minus_f_nocase($dir,$file);
-    }
-
-    else {
     my $path = $self->minus_f_nocase($dir,$file);
-        if( length $path and $self->containspod($path) ) {
-            DEBUG > 3 and print
-              "  The file $path indeed looks promising!\n";
-            return $path;
-        }
+    if( length $path and ($self->opt_m ? $self->isprintable($path)
+                                      : $self->containspod($path)) ) {
+        DEBUG > 3 and print
+            "  The file $path indeed looks promising!\n";
+        return $path;
     }
     DEBUG > 3 and print "  No good: $file in $dir\n";
 
     return "";
+}
+
+sub isprintable {
+	my($self, $file, $readit) = @_;
+	my $size= 1024;
+	my $maxunprintfrac= 0.2;   # tolerate some unprintables for UTF-8 comments etc.
+
+	return 1 if !$readit && $file =~ /\.(?:pl|pm|pod|cmd|com|bat)\z/i;
+
+	my $data;
+	local($_);
+	open(TEST,"<", $file)     or $self->die( "Can't open $file: $!" );
+	read TEST, $data, $size;
+	close TEST;
+	$size= length($data);
+	$data =~ tr/\x09-\x0D\x20-\x7E//d;
+	return length($data) <= $size*$maxunprintfrac;
 }
 
 #..........................................................................

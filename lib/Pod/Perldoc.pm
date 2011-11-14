@@ -1806,7 +1806,7 @@ sub searchfor {
 
     return if $already_asserted;
 
-    eval  q~ END { close(STDOUT) || die "Can't close STDOUT: $!" } ~;
+    eval  q~ END { close(STDOUT) || CORE::die "Can't close STDOUT: $!" } ~;
      # What for? to let the pager know that nothing more will come?
 
     $self->die( $@ ) if $@;

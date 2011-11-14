@@ -1822,6 +1822,7 @@ sub tweak_found_pathnames {
   if ($self->is_mswin32) {
     foreach (@$found) { s,/,\\,g }
   }
+  foreach (@$found) { s,',\\',g } # RT 37347
   return;
 }
 

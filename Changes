@@ -54,7 +54,7 @@ Revision history for Perl module group Pod::Perldoc
     * POD2::Base (if available) provides language-specific
       support for free
         * experimental releases, misses documentation of changes
-    
+
 2007-08-23
     * Development release 3.14_02
     * -L becomes more forgiving:
@@ -62,14 +62,14 @@ Revision history for Perl module group Pod::Perldoc
       retrieves the standard (English) version if it cannot find
       the Italian translation.
     * applied to bleed as Change #31762
-    
+
 2007-08-23
     * Release 3.14_01 -- bleedperl changes:
     + #31628: a Gentoo patch
     + #27878: warn when -f, -q ignore extra arguments
     + #26202: document -L
     + #26191: new switch -L
-    
+
 2004-11-30  Sean M. Burke  sburke@cpan.org
     * Release 3.14 -- bugfix for Cygwin
 
@@ -95,7 +95,7 @@ Revision history for Perl module group Pod::Perldoc
 
 2003-10-21  Sean M. Burke  sburke@cpan.org
     * Release 3.12 -- tweak for Linux man.
-    
+
     Slaven Rezic notes that Makefile.PL should say INSTALLDIRS => "perl"
     for perl versions 5.8.1 and newer, to make installation work right
     on those perls.  Change made.
@@ -104,27 +104,27 @@ Revision history for Perl module group Pod::Perldoc
     around the sliced text from perlfaq searched via -q.  Change made
     -- this =over 8 ... =back stuff is now generated only if you're
     calling perldoc with -f (for perlfunc sections).
-    
-    
+
+
 2003-10-12  Sean M. Burke  sburke@cpan.org
     * Release 3.11 -- tweak for Linux man.
     Brendan O'Dea provides code for Pod/Perldoc/ToMan.pm to sets -rLL
     to what stty reports for terminal column width.
-    
-    
+
+
 2003-09-10  Sean M. Burke  sburke@cpan.org
     * Release 3.10 -- bugfix for cygwin
     Jari Aalto notes a problem with cygwin and the containspod routine
     -- cygwin apparently pretends there's an executable $filename file
     when there's really a "$filename.exe" file.  Added a
     cygwin-specific hack in containspod to trap this case.
-    
-    
+
+
 2003-07-24  Sean M. Burke  sburke@cpan.org
     * Release 3.09.
-    
+
     Notable changes:
-    
+
     * perldoc when run as root no longer dies when it can't manage to
     drop privileges.  This is by popular demand.
     * perldoc -f -X now properly sees an -X entry regardless of
@@ -133,7 +133,7 @@ Revision history for Perl module group Pod::Perldoc
     Perldoc," to "This is the distribution of Perldoc,"
 
     Wee little things:
-    
+
     * Added a "use 5.006;" to the start of Perldoc.pm and the
     Makefile.PL, since we do actually need that version of perl
     for the module to even compile right.  (Altho backporting is an
@@ -142,7 +142,7 @@ Revision history for Perl module group Pod::Perldoc
     * Added a bit of IS_VMS logic.
     * Minor cosmetic changes to handling of -U.
     * Added a few comments here and there.
-    
+
 2003-01-18  Sean M. Burke  sburke@cpan.org
     * Release 3.08.
     * Fixed split-related bug in reading $Config{'pager'}.
@@ -153,7 +153,7 @@ Revision history for Perl module group Pod::Perldoc
     * Minor typo fix to code in Pod::Perldoc::ToMan.
     * Added RTFREADER example to Pod::Perldoc::ToRTF docs.
     * Made Pod::Perldoc::ToTk a bit more tolerant of old Tk::Pod
-    versions (pre-4.0). 
+    versions (pre-4.0).
 
 2002-11-22  Sean M. Burke  sburke@cpan.org
     * Release 3.06.
@@ -163,19 +163,19 @@ Revision history for Perl module group Pod::Perldoc
     * Corrected a few minor typoes in the usage messages.
     * Updated perldoc.pod to document the switches that were
     previously documented only in perldoc -h
-    
+
     * Many thanks to David Hand, Avi Finkel, Iain "Spoon" Truskett,
     Conrad Heiney, Casey West, Pete Sergeant, David Dyck, Michael
     Schwern, Slaven Rezic, Hugo van der Sanden, and many others for
     lots of patient help in working on this.
-    
+
 2002-11-11  Sean M. Burke  sburke@cpan.org
     * Release 3.05 alpha.
     * Corrected the logic that suppresses warnings during require's or
     formattings.
     * Updated usage messages
     * Corrected bug that ignored -T when using -m
-    
+
 2002-11-11  Sean M. Burke  sburke@cpan.org
 
     * Release 3.04 alpha.  First public release.

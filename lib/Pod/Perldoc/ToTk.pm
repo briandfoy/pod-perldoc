@@ -38,29 +38,29 @@ sub parse_from_file {
     if($self->{'forky'}) {
       return if fork;  # i.e., parent process returns
     }
-    
+
     $Input_File =~ s{\\}{/}g
      if Pod::Perldoc::IS_MSWin32 or Pod::Perldoc::IS_Dos
      # and maybe OS/2
     ;
-    
+
     my($tk_opt, $tree);
     $tree   = $self->{'tree'  };
     $tk_opt = $self->{'tk_opt'};
-    
+
     #require Tk::ErrorDialog;
-    
+
     # Add 'Tk' subdirectories to search path so, e.g.,
     # 'Scrolled' will find doc in 'Tk/Scrolled'
-    
+
     if( $tk_opt ) {
       push @INC, grep -d $_, map catfile($_,'Tk'), @INC;
     }
-    
+
     my $mw = MainWindow->new();
     #eval 'use blib "/home/e/eserte/src/perl/Tk-App";require Tk::App::Debug';
     $mw->withdraw;
-    
+
     # CDE use Font Settings if available
     my $ufont = $mw->optionGet('userFont','UserFont');     # fixed width
     my $sfont = $mw->optionGet('systemFont','SystemFont'); # proportional
@@ -70,18 +70,18 @@ sub parse_from_file {
         $mw->optionAdd('*Entry.Font', $ufont);
         $mw->optionAdd('*Text.Font',  $ufont);
     }
-    
+
     $mw->optionAdd('*Menu.tearOff', $Tk::platform ne 'MSWin32' ? 1 : 0);
-    
+
     $mw->Pod(
       '-file' => $Input_File,
       (($Tk::Pod::VERSION >= 4) ? ('-tree' => $tree) : ())
     )->focusNext;
-    
+
     # xxx dirty but it works. A simple $mw->destroy if $mw->children
     # does not work because Tk::ErrorDialogs could be created.
     # (they are withdrawn after Ok instead of destory'ed I guess)
-    
+
     if ($mw->children) {
         $mw->repeat(1000, sub {
                     # ErrorDialog is withdrawn not deleted :-(

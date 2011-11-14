@@ -1,7 +1,7 @@
 
 # This class is just a hack to act as a "formatter" for
 # actually unformatted Pod.
-# 
+#
 # Note that this isn't the same as just passing thru whatever
 # we're given -- we pass thru only the pod source, and suppress
 # the Perl code (or whatever non-pod stuff is in the source file).
@@ -28,7 +28,7 @@ sub parse_from_file {
   open(IN, "<", $in) or die "Can't read-open $in: $!\nAborting";
 
   my $cut_mode = 1;
-  
+
   # A hack for finding things between =foo and =cut, inclusive
   local $_;
   while (<IN>) {
@@ -42,7 +42,7 @@ sub parse_from_file {
     next if $cut_mode;
     print $outfh $_ or die "Can't print to $outfh: $!";
   }
-  
+
   close IN or die "Can't close $in: $!";
   return;
 }

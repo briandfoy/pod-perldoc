@@ -32,13 +32,13 @@ sub new { return bless {}, ref($_[0]) || $_[0] }
 sub parse_from_file {
   my $self = shift;
   my $file = $_[0];
-  
+
   my @options =
     map {; $_, $self->{$_} }
       grep !m/^_/s,
         keys %$self
   ;
-  
+
   defined(&Pod::Perldoc::DEBUG)
    and Pod::Perldoc::DEBUG()
    and print "About to call new Pod::Man ",

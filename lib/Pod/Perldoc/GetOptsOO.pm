@@ -57,7 +57,7 @@ sub getopts {
     if( $target->can($method) ) {  # it's argumental
       if($rest eq '') {   # like -f bar
         shift @$args;
-        warn "Option $first needs a following argument!\n" unless @$args;
+        $target->warn( "Option $first needs a following argument!\n" ) unless @$args;
         $rest = shift @$args;
       } else {            # like -fbar  (== -f bar)
         shift @$args;
@@ -85,7 +85,7 @@ sub getopts {
 
       } else {
         ++$error_count;
-        warn "Unknown option: $first\n";
+        $target->warn( "Unknown option: $first\n" );
       }
 
       if($rest eq '') {   # like -f

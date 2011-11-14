@@ -27,6 +27,20 @@ BEGIN {  # Make a DEBUG constant very first thing...
 }
 
 use Pod::Perldoc::GetOptsOO; # uses the DEBUG.
+use Carp qw(croak carp);
+
+# these are also in BaseTo, which I don't want to inherit
+sub warn {
+  my( $self, @messages ) = @_;
+
+  carp( join "\n", @messages );
+  }
+
+sub die {
+  my( $self, @messages ) = @_;
+
+  croak( join "\n", @messages );
+  }
 
 #..........................................................................
 
@@ -83,7 +97,7 @@ sub opt_w_with { # Specify an option for the formatter subclass
     $option =~ tr/\-/_/s;  # tolerate "foo-bar" for "foo_bar"
     $self->add_formatter_option( $option, $option_value );
   } else {
-    warn "\"$value\" isn't a good formatter option name.  I'm ignoring it!\n";
+    $self->warn( qq("$value" isn't a good formatter option name.  I'm ignoring it!\n ) );
   }
   return;
 }
@@ -99,7 +113,7 @@ sub opt_M_with { # specify formatter class name(s)
       # A mildly restrictive concept of what modulenames are valid.
       push @classes_to_add, $1; # untaint
     } else {
-      warn "\"$classname\" isn't a valid classname.  Ignoring.\n";
+      $self->warn(  qq("$classname" isn't a valid classname.  Ignoring.\n) );
     }
   }
 
@@ -152,7 +166,7 @@ sub opt_o_with { # "o" for output format
   if($rest =~ m/^(\w+)$/s) {
     $rest = $1; #untaint
   } else {
-    warn "\"$rest\" isn't a valid output format.  Skipping.\n";
+    $self->warn( qq("$rest" isn't a valid output format.  Skipping.\n") );
     return;
   }
 
@@ -233,12 +247,12 @@ sub aside {  # If we're in -D or DEBUG mode, say this.
 
 sub usage {
   my $self = shift;
-  warn "@_\n" if @_;
+  $self->warn( "@_\n" ) if @_;
 
   # Erase evidence of previous errors (if any), so exit status is simple.
   $! = 0;
 
-  die <<EOF;
+  $self->die( <<EOF );
 perldoc [options] PageName|ModuleName|ProgramName|URL...
 perldoc [options] -f BuiltinFunction
 perldoc [options] -q FAQRegex
@@ -307,7 +321,7 @@ sub usage_brief {
   my $self = shift;
   my $me = $self->program_name;
 
-  die <<"EOUSAGE";
+  $self->die( <<"EOUSAGE" );
 Usage: $me [-h] [-V] [-r] [-i] [-D] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-M FormatterModuleNameToUse] [-w formatter_option:option_value] [-L translation_code] [-F] [-X] PageName|ModuleName|ProgramName
        $me -f PerlFunc
        $me -q FAQKeywords
@@ -469,7 +483,7 @@ my( %class_seen, %class_loaded );
 sub find_good_formatter_class {
   my $self = $_[0];
   my @class_list = @{ $self->{'formatter_classes'} || [] };
-  die "WHAT?  Nothing in the formatter class list!?" unless @class_list;
+  $self->die( "WHAT?  Nothing in the formatter class list!?" ) unless @class_list;
 
   my $good_class_found;
   foreach my $c (@class_list) {
@@ -531,7 +545,7 @@ sub find_good_formatter_class {
     }
   }
 
-  die "Can't find any loadable formatter class in @class_list?!\nAborting"
+  $self->die( "Can't find any loadable formatter class in @class_list?!\nAborting" )
     unless $good_class_found;
 
   $self->{'formatter_class'} = $good_class_found;
@@ -546,7 +560,7 @@ sub find_good_formatter_class {
 sub formatter_sanity_check {
   my $self = shift;
   my $formatter_class = $self->{'formatter_class'}
-   || die "NO FORMATTER CLASS YET!?";
+   || $self->die( "NO FORMATTER CLASS YET!?" );
 
   if(!$self->opt_T # so -T can FORCE sending to STDOUT
     and $formatter_class->can('is_pageable')
@@ -560,10 +574,10 @@ sub formatter_sanity_check {
     $ext = ".$ext" if length $ext;
 
     my $me = $self->program_name;
-    die
+    $self->die(
        "When using Perldoc to format with $formatter_class, you have to\n"
      . "specify -T or -dsomefile$ext\n"
-     . "See `$me perldoc' for more information on those switches.\n"
+     . "See `$me perldoc' for more information on those switches.\n" )
     ;
   }
 }
@@ -707,11 +721,11 @@ sub options_sanity {
     # But does not make sense to set either -f or -q in $ENV{"PERLDOC"}
     if( $self->opt_f or $self->opt_q ) {
     $self->usage("Only one of -f -or -q") if $self->opt_f and $self->opt_q;
-    warn
+    $self->warn(
         "Perldoc is only really meant for reading one word at a time.\n",
         "So these parameters are being ignored: ",
         join(' ', @{$self->{'args'}}),
-        "\n"
+        "\n" )
         if @{$self->{'args'}}
     }
     return;
@@ -749,7 +763,7 @@ sub grand_search_init {
                 chomp;
                 push(@found, $_) if m,/$searchfor(?:\.(?:pod|pm))?\z,i;
             }
-            close(PODIDX)            or die "Can't close $$self{'podidx'}: $!";
+            close(PODIDX)            or $self->die( "Can't close $$self{'podidx'}: $!" );
             next;
         }
 
@@ -804,13 +818,13 @@ sub grand_search_init {
                     print STDERR "However, try\n";
                     my $me = $self->program_name;
                     for my $dir (@{ $self->{'found'} }) {
-                        opendir(DIR, $dir) or die "opendir $dir: $!";
+                        opendir(DIR, $dir) or $self->die( "opendir $dir: $!" );
                         while (my $file = readdir(DIR)) {
                             next if ($file =~ /^\./s);
                             $file =~ s/\.(pm|pod)\z//;  # XXX: badfs
                             print STDERR "\t$me $_\::$file\n";
                         }
-                        closedir(DIR)    or die "closedir $dir: $!";
+                        closedir(DIR)    or $self->die( "closedir $dir: $!" );
                     }
                 }
             }
@@ -844,10 +858,10 @@ sub maybe_generate_dynamic_pod {
     my $in_list = $self->opt_f || $self->opt_v;
 
         print $buffd "=over 8\n\n" if $in_list;
-        print $buffd @dynamic_pod  or die "Can't print $buffer: $!";
+        print $buffd @dynamic_pod  or $self->die( "Can't print $buffer: $!" );
         print $buffd "=back\n"     if $in_list;
 
-        close $buffd        or die "Can't close $buffer: $!";
+        close $buffd        or $self->die( "Can't close $buffer: $!" );
 
         @$found_things = $buffer;
           # Yes, so found_things never has more than one thing in
@@ -906,7 +920,7 @@ sub add_translator { # $self->add_translator($lang);
             $self->aside( "translator for '$lang' loaded\n" );
         } else {
             # non-installed or bad translator package
-            warn "Perldoc cannot load translator package for '$lang': ignored\n";
+            $self->warn( "Perldoc cannot load translator package for '$lang': ignored\n" );
         }
 
     }
@@ -921,14 +935,14 @@ sub search_perlvar {
     my $opt = $self->opt_v;
 
     if ( $opt !~ /^ (?: [\@\%\$]\S+ | [A-Z]\w* ) $/x ) {
-        die "'$opt' does not look like a Perl variable\n";
+        $self->die( "'$opt' does not look like a Perl variable\n" );
     }
 
     DEBUG > 2 and print "Search: @$found_things\n";
 
     my $perlvar = shift @$found_things;
     open(PVAR, "<", $perlvar)               # "Funk is its own reward"
-        or die("Can't open $perlvar: $!");
+        or $self->die("Can't open $perlvar: $!");
 
     if ( $opt ne '$0' && $opt =~ /^\$\d+$/ ) { # handle $1, $2, ...
       $opt = '$<I<digits>>';
@@ -980,9 +994,9 @@ sub search_perlvar {
     }
     @$pod = () unless $found;
     if (!@$pod) {
-        die "No documentation for perl variable '$opt' found\n";
+        $self->die( "No documentation for perl variable '$opt' found\n" );
     }
-    close PVAR                or die "Can't open $perlvar: $!";
+    close PVAR                or $self->die( "Can't open $perlvar: $!" );
 
     return;
 }
@@ -996,7 +1010,7 @@ sub search_perlfunc {
 
     my $perlfunc = shift @$found_things;
     open(PFUNC, "<", $perlfunc)               # "Funk is its own reward"
-        or die("Can't open $perlfunc: $!");
+        or $self->die("Can't open $perlfunc: $!");
 
     # Functions like -r, -e, etc. are listed under `-X'.
     my $search_re = ($self->opt_f =~ /^-[rwxoRWXOeszfdlpSbctugkTBMAC]$/)
@@ -1041,12 +1055,12 @@ sub search_perlfunc {
         ++$found if /^\w/;        # found descriptive text
     }
     if (!@$pod) {
-        die sprintf
+        $self->die( sprintf
           "No documentation for perl function `%s' found\n",
-          $self->opt_f
+          $self->opt_f )
         ;
     }
-    close PFUNC                or die "Can't open $perlfunc: $!";
+    close PFUNC                or $self->die( "Can't open $perlfunc: $!" );
 
     return;
 }
@@ -1061,7 +1075,7 @@ sub search_perlfaqs {
     my $search_key = $self->opt_q;
 
     my $rx = eval { qr/$search_key/ }
-     or die <<EOD;
+     or $self->die( <<EOD );
 Invalid regular expression '$search_key' given as -q pattern:
 $@
 Did you mean \\Q$search_key ?
@@ -1070,9 +1084,9 @@ EOD
 
     local $_;
     foreach my $file (@$found_things) {
-        die "invalid file spec: $!" if $file =~ /[<>|]/;
+        $self->die( "invalid file spec: $!" ) if $file =~ /[<>|]/;
         open(INFAQ, "<", $file)  # XXX 5.6ism
-         or die "Can't read-open $file: $!\nAborting";
+         or $self->die( "Can't read-open $file: $!\nAborting" );
         while (<INFAQ>) {
             if ( m/^=head2\s+.*(?:$search_key)/i ) {
                 $found = 1;
@@ -1086,7 +1100,7 @@ EOD
         }
         close(INFAQ);
     }
-    die("No documentation for perl FAQ keyword `$search_key' found\n")
+    $self->die("No documentation for perl FAQ keyword `$search_key' found\n")
      unless @$pod;
 
     return;
@@ -1101,21 +1115,21 @@ sub render_findings {
   my($self, $found_things) = @_;
 
   my $formatter_class = $self->{'formatter_class'}
-   || die "No formatter class set!?";
+   || $self->die( "No formatter class set!?" );
   my $formatter = $formatter_class->can('new')
     ? $formatter_class->new
     : $formatter_class
   ;
 
   if(! @$found_things) {
-    die "Nothing found?!";
+    $self->die( "Nothing found?!" );
     # should have been caught before here
   } elsif(@$found_things > 1) {
-    warn
+    $self->warn(
      "Perldoc is only really meant for reading one document at a time.\n",
      "So these parameters are being ignored: ",
      join(' ', @$found_things[1 .. $#$found_things] ),
-     "\n"
+     "\n" );
   }
 
   my $file = $found_things->[0];
@@ -1129,13 +1143,13 @@ sub render_findings {
       my($switch, $value, $silent_fail) = @$f;
       if( $formatter->can($switch) ) {
         eval { $formatter->$switch( defined($value) ? $value : () ) };
-        warn "Got an error when setting $formatter_class\->$switch:\n$@\n"
+        $self->warn( "Got an error when setting $formatter_class\->$switch:\n$@\n" )
          if $@;
       } else {
         if( $silent_fail or $switch =~ m/^__/s ) {
           DEBUG > 2 and print "Formatter $formatter_class doesn't support $switch\n";
         } else {
-          warn "$formatter_class doesn't recognize the $switch switch.\n";
+          $self->warn( "$formatter_class doesn't recognize the $switch switch.\n" );
         }
       }
     }
@@ -1169,11 +1183,11 @@ sub render_findings {
     eval {  $formatter->parse_from_file( $file, $out_fh )  };
   }
 
-  warn "Error while formatting with $formatter_class:\n $@\n" if $@;
+  $self->warn( "Error while formatting with $formatter_class:\n $@\n" ) if $@;
   DEBUG > 2 and print "Back from formatting with $formatter_class\n";
 
   close $out_fh
-   or warn "Can't close $out: $!\n(Did $formatter already close it?)";
+   or $self->warn( "Can't close $out: $!\n(Did $formatter already close it?)" );
   sleep 0; sleep 0; sleep 0;
    # Give the system a few timeslices to meditate on the fact
    # that the output file does in fact exist and is closed.
@@ -1187,7 +1201,7 @@ sub render_findings {
       # as a 0-length output file?
       $formatter->if_zero_length( $file, $out, $out_fh );
     } else {
-      warn "Got a 0-length file from $$found_things[0] via $formatter_class!?\n"
+      $self->warn( "Got a 0-length file from $$found_things[0] via $formatter_class!?\n" );
     }
   }
 
@@ -1210,7 +1224,7 @@ sub unlink_if_temp_file {
   my $temp_file_list = $self->{'temp_file_list'} || return;
   if(grep $_ eq $file, @$temp_file_list) {
     $self->aside("Unlinking $file\n");
-    unlink($file) or warn "Odd, couldn't unlink $file: $!";
+    unlink($file) or $self->warn( "Odd, couldn't unlink $file: $!" );
   } else {
     DEBUG > 1 and print "$file isn't a temp file, so not unlinking.\n";
   }
@@ -1314,7 +1328,7 @@ sub MSWin_perldoc_tempfile {
   }
 
   $self->aside("Giving up on making a temp file!\n");
-  die "Can't make a tempfile!?";
+  $self->die( "Can't make a tempfile!?" );
 }
 
 #..........................................................................
@@ -1354,7 +1368,7 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
      ) {
         # On a case-forgiving file system, or if case is important,
     #  that is it, all we can do.
-    warn "Ignored $path: unreadable\n" if -f _;
+    $self->warn( "Ignored $path: unreadable\n" ) if -f _;
     return '';
      }
 
@@ -1381,26 +1395,26 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
         return $try;
     }
     elsif (-f _) {
-        warn "Ignored $try: unreadable\n";
+        $self->warn( "Ignored $try: unreadable\n" );
     }
     elsif (-d catdir(@p)) {  # at least we see the containing directory!
         my $found = 0;
         my $lcp = lc $p;
         my $p_dirspec = catdir(@p);
-        opendir DIR, $p_dirspec  or die "opendir $p_dirspec: $!";
+        opendir DIR, $p_dirspec  or $self->die( "opendir $p_dirspec: $!" );
         while(defined( $cip = readdir(DIR) )) {
         if (lc $cip eq $lcp){
             $found++;
             last; # XXX stop at the first? what if there's others?
         }
         }
-        closedir DIR  or die "closedir $p_dirspec: $!";
+        closedir DIR  or $self->die( "closedir $p_dirspec: $!" );
         return "" unless $found;
 
         push @p, $cip;
         my $p_filespec = catfile(@p);
         return $p_filespec if -f $p_filespec and -r _;
-        warn "Ignored $p_filespec: unreadable\n" if -f _;
+        $self->warn( "Ignored $p_filespec: unreadable\n" ) if -f _;
     }
      }
      return "";
@@ -1468,14 +1482,14 @@ sub page_module_file {
     my $any_error = 0;
         foreach my $output (@found) {
         unless( open(TMP, "<", $output) ) {    # XXX 5.6ism
-          warn("Can't open $output: $!");
+          $self->warn("Can't open $output: $!");
           $any_error = 1;
           next;
         }
         while (<TMP>) {
-            print or die "Can't print to stdout: $!";
+            print or $self->die( "Can't print to stdout: $!" );
         }
-        close TMP  or die "Can't close while $output: $!";
+        close TMP  or $self->die( "Can't close while $output: $!" );
         $self->unlink_if_temp_file($output);
     }
     return $any_error; # successful
@@ -1506,7 +1520,7 @@ sub page_module_file {
             use vmsish qw(status exit);
             exit $?;
             1;
-        } or die;
+        } or $self->die;
     }
 
     return 1;
@@ -1573,19 +1587,19 @@ sub containspod {
 
     if ( IS_Cygwin  and  -x $file  and  -f "$file.exe" )
     {
-        warn "Cygwin $file.exe search skipped\n"  if DEBUG or $self->opt_D;
+        $self->warn( "Cygwin $file.exe search skipped\n" ) if DEBUG or $self->opt_D;
         return 0;
     }
 
     local($_);
-    open(TEST,"<", $file)   or die "Can't open $file: $!";   # XXX 5.6ism
+    open(TEST,"<", $file)   or $self->die( "Can't open $file: $!" );   # XXX 5.6ism
     while (<TEST>) {
     if (/^=head/) {
-        close(TEST)     or die "Can't close $file: $!";
+        close(TEST)     or $self->die( "Can't close $file: $!" );
         return 1;
     }
     }
-    close(TEST)         or die "Can't close $file: $!";
+    close(TEST)         or $self->die( "Can't close $file: $!" );
     return 0;
 }
 
@@ -1599,12 +1613,12 @@ sub maybe_diddle_INC {
   if (-f "Makefile.PL" || -f "Build.PL") {
 
     # Add "." and "lib" to @INC (if they exist)
-    eval q{ use lib qw(. lib); 1; } or die;
+    eval q{ use lib qw(. lib); 1; } or $self->die;
 
     # don't add if superuser
     if ($< && $> && -d "blib") {   # don't be looking too hard now!
       eval q{ use blib; 1 };
-      warn $@ if $@ && $self->opt_D;
+      $self->warn( $@ ) if $@ && $self->opt_D;
     }
   }
 
@@ -1629,7 +1643,7 @@ sub new_output_file {
     $fh = Symbol::gensym();
   }
   DEBUG > 3 and print "About to try writing to specified output file $outspec\n";
-  die "Can't write-open $outspec: $!"
+  $self->die( "Can't write-open $outspec: $!" )
    unless open($fh, ">", $outspec); # XXX 5.6ism
 
   DEBUG > 3 and print "Successfully opened $outspec\n";
@@ -1690,12 +1704,12 @@ sub page {  # apply a pager to the output file
     my ($self, $output, $output_to_stdout, @pagers) = @_;
     if ($output_to_stdout) {
         $self->aside("Sending unpaged output to STDOUT.\n");
-    open(TMP, "<", $output)  or  die "Can't open $output: $!"; # XXX 5.6ism
+    open(TMP, "<", $output)  or  $self->die( "Can't open $output: $!" ); # XXX 5.6ism
     local $_;
     while (<TMP>) {
-        print or die "Can't print to stdout: $!";
+        print or $self->die( "Can't print to stdout: $!" );
     }
-    close TMP  or die "Can't close while $output: $!";
+    close TMP  or $self->die( "Can't close while $output: $!" );
     $self->unlink_if_temp_file($output);
     } else {
         # On VMS, quoting prevents logical expansion, and temp files with no
@@ -1755,13 +1769,13 @@ sub searchfor {
     }
 
     if ($recurse) {
-        opendir(D,$dir) or die "Can't opendir $dir: $!";
+        opendir(D,$dir) or $self->die( "Can't opendir $dir: $!" );
         my @newdirs = map catfile($dir, $_), grep {
         not /^\.\.?\z/s and
         not /^auto\z/s  and   # save time! don't search auto dirs
         -d  catfile($dir, $_)
         } readdir D;
-        closedir(D)     or die "Can't closedir $dir: $!";
+        closedir(D)     or $self->die( "Can't closedir $dir: $!" );
         next unless @newdirs;
         # what a wicked map!
         @newdirs = map((s/\.dir\z//,$_)[1],@newdirs) if IS_VMS;
@@ -1783,7 +1797,7 @@ sub searchfor {
     eval  q~ END { close(STDOUT) || die "Can't close STDOUT: $!" } ~;
      # What for? to let the pager know that nothing more will come?
 
-    die $@ if $@;
+    $self->die( $@ ) if $@;
     $already_asserted = 1;
     return;
   }
@@ -1805,7 +1819,7 @@ sub tweak_found_pathnames {
 
 sub am_taint_checking {
     my $self = shift;
-    die "NO ENVIRONMENT?!?!" unless keys %ENV; # reset iterator along the way
+    $self->die( "NO ENVIRONMENT?!?!" ) unless keys %ENV; # reset iterator along the way
     my($k,$v) = each %ENV;
     return is_tainted($v);
 }

@@ -7,6 +7,8 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '3.15_09';
 
+use Carp qw(croak carp);
+
 sub is_pageable        { '' }
 sub write_with_binmode {  1 }
 
@@ -17,6 +19,21 @@ sub output_extension   { 'txt' }  # override in subclass!
 
 #sub new { return bless {}, ref($_[0]) || $_[0] }
 
+# this is also in Perldoc.pm, but why look there when you're a
+# subclass of this?
+sub TRUE  () {1}
+sub FALSE () {return}
+
+BEGIN {
+ *is_vms     = $^O eq 'VMS'     ? \&TRUE : \&FALSE unless defined &is_vms;
+ *is_mswin32 = $^O eq 'MSWin32' ? \&TRUE : \&FALSE unless defined &is_mswin32;
+ *is_dos     = $^O eq 'dos'     ? \&TRUE : \&FALSE unless defined &is_dos;
+ *is_os2     = $^O eq 'os2'     ? \&TRUE : \&FALSE unless defined &is_os2;
+ *is_cygwin  = $^O eq 'cygwin'  ? \&TRUE : \&FALSE unless defined &is_cygwin;
+ *is_linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &is_linux;
+ *is_hpux    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &is_hpux;
+}
+
 sub _perldoc_elem {
   my($self, $name) = splice @_,0,2;
   if(@_) {
@@ -26,6 +43,17 @@ sub _perldoc_elem {
   }
 }
 
+sub warn {
+	my( $self, @messages ) = @_;
+
+	carp join "\n", @messages;
+	}
+
+sub die {
+	my( $self, @messages ) = @_;
+
+	croak join "\n", @messages;
+	}
 
 1;
 

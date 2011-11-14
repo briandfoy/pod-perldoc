@@ -41,7 +41,7 @@ sub parse_from_file {
   my $self = shift;
   my($file, $outfh) = @_;
 
-  my $render = $self->{'__nroffer'} || die "no nroffer set!?";
+  my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
 
   # turn the switches into CLIs
   my $switches = join ' ',
@@ -52,14 +52,14 @@ sub parse_from_file {
 
   my $pod2man =
     catfile(
-      ($self->{'__bindir'}  || die "no bindir set?!"  ),
-      ($self->{'__pod2man'} || die "no pod2man set?!" ),
+      ($self->{'__bindir'}  || $self->die( "no bindir set?!" )  ),
+      ($self->{'__pod2man'} || $self->die( "no pod2man set?!" ) ),
     )
   ;
   unless(-e $pod2man) {
     # This is rarely needed, I think.
-    $pod2man = $self->{'__pod2man'} || die "no pod2man set?!";
-    die "Can't find a pod2man?! (". $self->{'__pod2man'} .")\nAborting"
+    $pod2man = $self->{'__pod2man'} || $self->die( "no pod2man set?!" );
+    $self->die( "Can't find a pod2man?! (". $self->{'__pod2man'} .")\nAborting" )
       unless -e $pod2man;
   }
 
@@ -118,7 +118,7 @@ sub parse_from_file {
 
   } else {
     print $outfh $rslt
-     or die "Can't print to $$self{__output_file}: $!";
+     or $self->die( "Can't print to $$self{__output_file}: $!" );
   }
 
   return;

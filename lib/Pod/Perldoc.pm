@@ -49,13 +49,13 @@ sub FALSE () {return}
 sub BE_LENIENT () {1}
 
 BEGIN {
- *IS_VMS     = $^O eq 'VMS'     ? \&TRUE : \&FALSE unless defined &IS_VMS;
- *IS_MSWin32 = $^O eq 'MSWin32' ? \&TRUE : \&FALSE unless defined &IS_MSWin32;
- *IS_Dos     = $^O eq 'dos'     ? \&TRUE : \&FALSE unless defined &IS_Dos;
- *IS_OS2     = $^O eq 'os2'     ? \&TRUE : \&FALSE unless defined &IS_OS2;
- *IS_Cygwin  = $^O eq 'cygwin'  ? \&TRUE : \&FALSE unless defined &IS_Cygwin;
- *IS_Linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &IS_Linux;
- *IS_HPUX    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &IS_HPUX;
+ *is_vms     = $^O eq 'VMS'     ? \&TRUE : \&FALSE unless defined &is_vms;
+ *is_mswin32 = $^O eq 'MSWin32' ? \&TRUE : \&FALSE unless defined &is_mswin32;
+ *is_dos     = $^O eq 'dos'     ? \&TRUE : \&FALSE unless defined &is_dos;
+ *is_os2     = $^O eq 'os2'     ? \&TRUE : \&FALSE unless defined &is_os2;
+ *is_cygwin  = $^O eq 'cygwin'  ? \&TRUE : \&FALSE unless defined &is_cygwin;
+ *is_linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &is_linux;
+ *is_hpux    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &is_hpux;
 }
 
 $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;
@@ -66,7 +66,7 @@ $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;
 
 #..........................................................................
 { my $pager = $Config{'pager'};
-  push @Pagers, $pager if -x (split /\s+/, $pager)[0] or IS_VMS;
+  push @Pagers, $pager if -x (split /\s+/, $pager)[0] or $self->is_vms;
 }
 $Bindir  = $Config{'scriptdirexp'};
 $Pod2man = "pod2man" . ( $Config{'versiononly'} ? $Config{'version'} : '' );
@@ -397,7 +397,7 @@ sub init_formatter_class_list {
 
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('man') unless IS_MSWin32 || IS_Dos
+  $self->opt_o_with('man') unless $self->is_mswin32 || $self->is_dos
        || !($ENV{TERM} && (
               ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
            ));
@@ -460,7 +460,7 @@ sub process {
       # for when we're apparently in a module or extension directory
 
     my @found = $self->grand_search_init(\@pages);
-    exit (IS_VMS ? 98962 : 1) unless @found;
+    exit ($self->is_vms ? 98962 : 1) unless @found;
 
     if ($self->opt_l) {
         DEBUG and print "We're in -l mode, so byebye after this:\n";
@@ -507,7 +507,7 @@ sub find_good_formatter_class {
        "Interesting, the formatter class $c is already loaded!\n";
 
     } elsif(
-      (IS_VMS or IS_MSWin32 or IS_Dos or IS_OS2)
+      ( $self->is_os2 or $self->is_mswin32 or $self->is_dos or $self->is_os2)
        # the always case-insensitive filesystems
       and $class_seen{lc("~$c")}++
     ) {
@@ -784,7 +784,7 @@ sub grand_search_init {
         # for executables, like h2xs or perldoc itself.
         push @searchdirs, ($self->{'bindir'}, @INC);
         unless ($self->opt_m) {
-            if (IS_VMS) {
+            if ($self->is_vms) {
                 my($i,$trn);
                 for ($i = 0; $trn = $ENV{'DCL$PATH;'.$i}; $i++) {
                     push(@searchdirs,$trn);
@@ -1336,10 +1336,10 @@ sub MSWin_perldoc_tempfile {
 
 sub after_rendering {
   my $self = $_[0];
-  $self->after_rendering_VMS     if IS_VMS;
-  $self->after_rendering_MSWin32 if IS_MSWin32;
-  $self->after_rendering_Dos     if IS_Dos;
-  $self->after_rendering_OS2     if IS_OS2;
+  $self->after_rendering_VMS     if $self->is_vms;
+  $self->after_rendering_MSWin32 if $self->is_mswin32;
+  $self->after_rendering_Dos     if $self->is_dos;
+  $self->after_rendering_OS2     if $self->is_os2;
   return;
 }
 
@@ -1363,8 +1363,8 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
      return $path if -f $path and -r _;
 
      if(!$self->opt_i
-        or IS_VMS or IS_MSWin32
-        or IS_Dos or IS_OS2
+        or $self->is_vms or $self->is_mswin32
+        or $self->Is_dos or $self->is_os2
      ) {
         # On a case-forgiving file system, or if case is important,
     #  that is it, all we can do.
@@ -1429,26 +1429,26 @@ sub pagers_guessing {
     push @pagers, $self->pagers;
     $self->{'pagers'} = \@pagers;
 
-    if (IS_MSWin32) {
+    if ($self->is_mswin32) {
         push @pagers, qw( more< less notepad );
         unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
     }
-    elsif (IS_VMS) {
+    elsif ($self->is_vms) {
         push @pagers, qw( most more less type/page );
     }
-    elsif (IS_Dos) {
+    elsif ($self->is_dos) {
         push @pagers, qw( less.exe more.com< );
         unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
     }
     else {
-        if (IS_OS2) {
+        if ($self->is_os2) {
           unshift @pagers, 'less', 'cmd /c more <';
         }
         push @pagers, qw( more less pg view cat );
         unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
     }
 
-    if (IS_Cygwin) {
+    if ($self->is_cygwin) {
         if (($pagers[0] eq 'less') || ($pagers[0] eq '/usr/bin/less')) {
             unshift @pagers, '/usr/bin/less -isrR';
         }
@@ -1514,7 +1514,7 @@ sub page_module_file {
       join(' ', $self->pagers),
     );
 
-    if (IS_VMS) {
+    if ($self->is_vms) {
         DEBUG > 1 and print "Bailing out in a VMSish way.\n";
         eval q{
             use vmsish qw(status exit);
@@ -1597,7 +1597,7 @@ sub containspod {
     #
     #     $ perldoc perl.pod
 
-    if ( IS_Cygwin  and  -x $file  and  -f "$file.exe" )
+    if ( $self->is_cygwin  and  -x $file  and  -f "$file.exe" )
     {
         $self->warn( "Cygwin $file.exe search skipped\n" ) if DEBUG or $self->opt_D;
         return 0;
@@ -1700,7 +1700,7 @@ sub new_tempfile {    # $self->new_tempfile( [$suffix, [$infix] ] )
 
   ++$Temp_Files_Created;
 
-  if( IS_MSWin32 ) {
+  if( $self->is_mswin32 ) {
     my @out = $self->MSWin_perldoc_tempfile(@_);
     return @out if @out;
     # otherwise fall thru to the normal stuff below...
@@ -1727,16 +1727,16 @@ sub page {  # apply a pager to the output file
         # On VMS, quoting prevents logical expansion, and temp files with no
         # extension get the wrong default extension (such as .LIS for TYPE)
 
-        $output = VMS::Filespec::rmsexpand($output, '.') if IS_VMS;
+        $output = VMS::Filespec::rmsexpand($output, '.') if $self->is_vms;
 
-        $output =~ s{/}{\\}g if IS_MSWin32 || IS_Dos;
+        $output =~ s{/}{\\}g if $self->is_mswin32 || $self->is_dos;
           # Altho "/" under MSWin is in theory good as a pathsep,
           #  many many corners of the OS don't like it.  So we
           #  have to force it to be "\" to make everyone happy.
 
         foreach my $pager (@pagers) {
             $self->aside("About to try calling $pager $output\n");
-            if (IS_VMS) {
+            if ($self->is_vms) {
                 last if system("$pager $output") == 0;
             } else {
             last if system("$pager \"$output\"") == 0;
@@ -1751,7 +1751,7 @@ sub page {  # apply a pager to the output file
 sub searchfor {
     my($self, $recurse,$s,@dirs) = @_;
     $s =~ s!::!/!g;
-    $s = VMS::Filespec::unixify($s) if IS_VMS;
+    $s = VMS::Filespec::unixify($s) if $self->is_vms;
     return $s if -f $s && $self->containspod($s);
     $self->aside( "Looking for $s in @dirs\n" );
     my $ret;
@@ -1761,15 +1761,15 @@ sub searchfor {
     for ($i=0; $i<@dirs; $i++) {
     $dir = $dirs[$i];
     next unless -d $dir;
-    ($dir = VMS::Filespec::unixpath($dir)) =~ s!/\z!! if IS_VMS;
+    ($dir = VMS::Filespec::unixpath($dir)) =~ s!/\z!! if $self->is_vms;
     if (       (! $self->opt_m && ( $ret = $self->check_file($dir,"$s.pod")))
         or ( $ret = $self->check_file($dir,"$s.pm"))
         or ( $ret = $self->check_file($dir,$s))
-        or ( IS_VMS and
+        or ( $self->is_vms and
              $ret = $self->check_file($dir,"$s.com"))
-        or ( IS_OS2 and
+        or ( $self->is_os2 and
              $ret = $self->check_file($dir,"$s.cmd"))
-        or ( (IS_MSWin32 or IS_Dos or IS_OS2) and
+        or ( ($self->is_mswin32 or $self->is_dos or $self->is_os2) and
              $ret = $self->check_file($dir,"$s.bat"))
         or ( $ret = $self->check_file("$dir/pod","$s.pod"))
         or ( $ret = $self->check_file("$dir/pod",$s))
@@ -1790,7 +1790,7 @@ sub searchfor {
         closedir(D)     or $self->die( "Can't closedir $dir: $!" );
         next unless @newdirs;
         # what a wicked map!
-        @newdirs = map((s/\.dir\z//,$_)[1],@newdirs) if IS_VMS;
+        @newdirs = map((s/\.dir\z//,$_)[1],@newdirs) if $self->is_vms;
         $self->aside( "Also looking in @newdirs\n" );
         push(@dirs,@newdirs);
     }
@@ -1819,7 +1819,7 @@ sub searchfor {
 
 sub tweak_found_pathnames {
   my($self, $found) = @_;
-  if (IS_MSWin32) {
+  if ($self->is_mswin32) {
     foreach (@$found) { s,/,\\,g }
   }
   return;
@@ -1852,8 +1852,8 @@ sub drop_privs_maybe {
     my $self = shift;
 
     # Attempt to drop privs if we should be tainting and aren't
-    if (!(IS_VMS || IS_MSWin32 || IS_Dos
-          || IS_OS2
+    if (!( $self->is_vms || $self->is_mswin32 || $self->is_dos
+          || $self->is_os2
          )
         && ($> == 0 || $< == 0)
         && !$self->am_taint_checking()

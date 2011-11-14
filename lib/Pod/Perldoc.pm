@@ -771,7 +771,7 @@ sub grand_search_init {
 
         if ($self->opt_F) {
             next unless -r;
-            push @found, $_ if $self->opt_m or $self->containspod($_);
+            push @found, $_ if $self->opt_l or $self->opt_m or $self->containspod($_);
             next;
         }
 

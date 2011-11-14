@@ -114,7 +114,7 @@ sub parse_from_file {
     $command .= ' -rLL=' . (int $c) . 'n' if $cols > 80;
   }
 
-  if(Pod::Perldoc::IS_Cygwin) {
+  if( $self->is_cygwin) {
     $command .= ' -c';
   }
 
@@ -123,7 +123,7 @@ sub parse_from_file {
   # don't have a -c switch, so that unconditionally adding it here
   # would presumably be a Bad Thing   -- sburke@cpan.org
 
-  $command .= " | col -x" if Pod::Perldoc::IS_HPUX;
+  $command .= " | col -x" if $self->is_hpux;
 
   defined(&Pod::Perldoc::DEBUG)
    and Pod::Perldoc::DEBUG()

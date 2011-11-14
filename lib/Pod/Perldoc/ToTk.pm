@@ -39,7 +39,7 @@ sub parse_from_file {
     }
 
     $Input_File =~ s{\\}{/}g
-     if Pod::Perldoc::IS_MSWin32 or Pod::Perldoc::IS_Dos
+     if $self->is_mswin32 or $self->is_dos
      # and maybe OS/2
     ;
 

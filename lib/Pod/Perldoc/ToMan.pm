@@ -37,6 +37,45 @@ sub new { return bless {}, ref($_[0]) || $_[0] }
 
 use File::Spec::Functions qw(catfile);
 
+sub _get_stty { `stty -a` }
+sub _get_columns_from_stty {
+  my $output = $_[0]->_get_stty;
+
+  if(    $output =~ /\bcolumns\s+(\d+)/ )    { return $1 }
+  elsif( $output =~ /;\s*(\d+)\s+columns;/ ) { return $1 }
+  else                                       { return  0 }
+  }
+
+sub _get_columns_from_manwidth {
+  my( $self ) = @_;
+
+  return 0 unless defined $ENV{MANWIDTH};
+
+  unless( $ENV{MANWIDTH} =~ m/\A\d+\z/ ) {
+    $self->warn( "Ignoring non-numeric MANWIDTH ($ENV{MANWIDTH})\n" );
+    return 0;
+    }
+
+  if( $ENV{MANWIDTH} == 0 ) {
+    $self->warn( "Ignoring MANWIDTH of 0. Really? Why even run the program? :)\n" );
+    return 0;
+    }
+
+  if( $ENV{MANWIDTH} =~ m/\A(\d+)\z/ ) { return $1 }
+
+  return 0;
+  }
+
+sub _get_default_width {
+  73
+  }
+
+sub _get_columns {
+  $_[0]->_get_columns_from_manwidth ||
+  $_[0]->_get_columns_from_stty     ||
+  $_[0]->_get_default_width;
+  }
+
 sub parse_from_file {
   my $self = shift;
   my($file, $outfh) = @_;
@@ -67,8 +106,8 @@ sub parse_from_file {
          # no temp file, just a pipe!
 
   # Thanks to Brendan O'Dea for contributing the following block
-  if(Pod::Perldoc::IS_Linux and -t STDOUT
-    and my ($cols) = `stty -a` =~ m/\bcolumns\s+(\d+)/
+  if( $self->is_linux and -t STDOUT
+    and my ($cols) = $self->_get_columns
   ) {
     my $c = $cols * 39 / 40;
     $cols = $c > $cols - 2 ? $c : $cols -2;

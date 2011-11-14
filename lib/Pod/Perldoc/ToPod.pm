@@ -87,10 +87,11 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 
-Current maintainer: Adriano R. Ferreira <ferreira@cpan.org>
+Current maintainer: brian d foy C<< <bdfoy@cpan.org> >>
 
 Past contributions from:
-Sean M. Burke <sburke@cpan.org>
+Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
+Sean M. Burke C<< <sburke@cpan.org> >>
 
 =cut
 

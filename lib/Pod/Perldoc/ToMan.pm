@@ -102,7 +102,7 @@ sub parse_from_file {
       unless -e $pod2man;
   }
 
-  my $command = "$pod2man $switches --lax $file | $render -man";
+  my $command = "$pod2man $switches --lax \Q$file\E | $render -man";
          # no temp file, just a pipe!
 
   # Thanks to Brendan O'Dea for contributing the following block

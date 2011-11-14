@@ -1,5 +1,9 @@
 Revision history for Perl module group Pod::Perldoc
 
+3.15_09 - Mon Nov 14 13:36:37 2011
+	* Respect MANWIDTH on Linux, if set. RT #61085
+	* This is the start of some internals changes to allow testing.
+
 3.15_08 - Sun Nov 13 17:31:30 2011
 	* Sync with the latest stuff in blead
 	* Re-release as a CPAN module

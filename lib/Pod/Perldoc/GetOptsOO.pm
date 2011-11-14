@@ -6,22 +6,6 @@ use strict;
 use vars qw($VERSION);
 $VERSION = '3.15_09';
 
-# Rather like Getopt::Std's getopts
-#  Call Pod::Perldoc::GetOptsOO::getopts($object, \@ARGV, $truth)
-#  Given -n, if there's a opt_n_with, it'll call $object->opt_n_with( ARGUMENT )
-#    (e.g., "-n foo" => $object->opt_n_with('foo').  Ditto "-nfoo")
-#  Otherwise (given -n) if there's an opt_n, we'll call it $object->opt_n($truth)
-#    (Truth defaults to 1)
-#  Otherwise we try calling $object->handle_unknown_option('n')
-#    (and we increment the error count by the return value of it)
-#  If there's no handle_unknown_option, then we just warn, and then increment
-#    the error counter
-#
-#  The return value of Pod::Perldoc::GetOptsOO::getopts is true if no errors,
-#   otherwise it's false.
-#
-## sburke@cpan.org 2002-10-31
-
 BEGIN { # Make a DEBUG constant ASAP
   *DEBUG = defined( &Pod::Perldoc::DEBUG )
    ? \&Pod::Perldoc::DEBUG
@@ -126,9 +110,30 @@ Pod::Perldoc::GetOptsOO - Customized option parser for Pod::Perldoc
 Implements a customized option parser used for
 L<Pod::Perldoc>.
 
+Rather like Getopt::Std's getopts:
+
+=over
+
+=item Call Pod::Perldoc::GetOptsOO::getopts($object, \@ARGV, $truth)
+
+=item Given -n, if there's a opt_n_with, it'll call $object->opt_n_with( ARGUMENT )
+   (e.g., "-n foo" => $object->opt_n_with('foo').  Ditto "-nfoo")
+
+=item Otherwise (given -n) if there's an opt_n, we'll call it $object->opt_n($truth)
+   (Truth defaults to 1)
+
+=item Otherwise we try calling $object->handle_unknown_option('n')
+   (and we increment the error count by the return value of it)
+
+=item If there's no handle_unknown_option, then we just warn, and then increment
+   the error counter
+
+The return value of Pod::Perldoc::GetOptsOO::getopts is true if no errors,
+otherwise it's false.
+
 =head1 SEE ALSO
 
-    Pod::Perldoc
+L<Pod::Perldoc>
 
 =head1 COPYRIGHT AND DISCLAIMERS
 

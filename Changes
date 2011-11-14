@@ -15,37 +15,37 @@ Revision history for Perl module group Pod::Perldoc
           - old -v (Verbosely describe) is now -D
           - 'perldoc intro' will find 'perlintro' page
           - 'perldoc -L it' can find Italian translations
-            of documentation (if you have them) 
+            of documentation (if you have them)
 
 2008-05-08
     * Development release 3.14_07
     * Pod::Perldoc now has POD
     * so does Pod::Perldoc::BaseTo and Pod::Perldoc::GetOptsOO
-    
+
 2008-05-02
     * Development release 3.14_06 -- Be lenient
     * 'perldoc intro' may find 'perlintro' page
       (suggested by Gisle Aas)
     * -v (Verbosely describe) is now -D
     * perldoc -v PerlVar
-    
+
 2008-04-22
     * Development release 3.14_05 -- Search perlvar
     * Applied patch to allow -A for searching perlvar.
           (after a patch by Ovid, 2008-02-26)
           [rt.cpan.org #33624]
-    
+
     * [RFC] the switch name is experimental: I am open
-      to convincing alternatives (other than -v and -V 
+      to convincing alternatives (other than -v and -V
       which are already taken).
-    
+
 2008-04-16
     * Development release 3.14_04
     * 'lib' & co. are added to search path if -f Build.PL
       in current directory (rt.cpan.org #33941)
-        * bug fix: 'blib' directories were never searched 
+        * bug fix: 'blib' directories were never searched
       because they were tested with -f
-    
+
 2007-09-03
     * Development release 3.14_03
     * typo fix (#31763 by rgs)
@@ -181,4 +181,76 @@ Revision history for Perl module group Pod::Perldoc
     * Release 3.04 alpha.  First public release.
     * Many new features, including the switches: -T, -d, -o, -M, -w
 
-See the end of Pod/Perldoc.pm for previous revision history and TODOs
+
+Version 3.01: Sun Nov 10 21:38:09 MST 2002
+      Sean M. Burke <sburke@cpan.org>
+      Massive refactoring and code-tidying.
+      Now it's a module(-family)!
+      Formatter-specific stuff pulled out into Pod::Perldoc::To(Whatever).pm
+      Added -T, -d, -o, -M, -w.
+      Added some improved MSWin funk.
+
+~~~~~
+
+Version 2.05: Sat Oct 12 16:09:00 CEST 2002
+  Hugo van der Sanden <hv@crypt.org>
+  Made -U the default, based on patch from Simon Cozens
+
+Version 2.04: Sun Aug 18 13:27:12 BST 2002
+  Randy W. Sims <RandyS@ThePierianSpring.org>
+  allow -n to enable nroff under Win32
+
+Version 2.03: Sun Apr 23 16:56:34 BST 2000
+  Hugo van der Sanden <hv@crypt.org>
+  don't die when 'use blib' fails
+
+Version 2.02: Mon Mar 13 18:03:04 MST 2000
+      Tom Christiansen <tchrist@perl.com>
+  Added -U insecurity option
+
+Version 2.01: Sat Mar 11 15:22:33 MST 2000
+      Tom Christiansen <tchrist@perl.com>, querulously.
+      Security and correctness patches.
+      What a twisted bit of distasteful spaghetti code.
+
+Version 2.0: ????
+
+~~~~~
+
+Version 1.15: Tue Aug 24 01:50:20 EST 1999
+      Charles Wilson <cwilson@ece.gatech.edu>
+  changed /pod/ directory to /pods/ for cygwin
+        to support cygwin/win32
+
+Version 1.14: Wed Jul 15 01:50:20 EST 1998
+      Robin Barker <rmb1@cise.npl.co.uk>
+  -strict, -w cleanups
+
+Version 1.13: Fri Feb 27 16:20:50 EST 1997
+      Gurusamy Sarathy <gsar@activestate.com>
+  -doc tweaks for -F and -X options
+
+Version 1.12: Sat Apr 12 22:41:09 EST 1997
+      Gurusamy Sarathy <gsar@activestate.com>
+  -various fixes for win32
+
+Version 1.11: Tue Dec 26 09:54:33 EST 1995
+      Kenneth Albanowski <kjahds@kjahds.com>
+  -added Charles Bailey's further VMS patches, and -u switch
+  -added -t switch, with pod2text support
+
+Version 1.10: Thu Nov  9 07:23:47 EST 1995
+      Kenneth Albanowski <kjahds@kjahds.com>
+  -added VMS support
+  -added better error recognition (on no found pages, just exit. On
+   missing nroff/pod2man, just display raw pod.)
+  -added recursive/case-insensitive matching (thanks, Andreas). This
+   slows things down a bit, unfortunately. Give a precise name, and
+   it'll run faster.
+
+Version 1.01: Tue May 30 14:47:34 EDT 1995
+      Andy Dougherty  <doughera@lafcol.lafayette.edu>
+  -added pod documentation.
+  -added PATH searching.
+  -added searching pod/ subdirectory (mainly to pick up perlfunc.pod
+   and friends.

@@ -22,12 +22,30 @@ sub forky     { shift->_perldoc_elem('forky'   , @_) }
 use Pod::Perldoc ();
 use File::Spec::Functions qw(catfile);
 
-use Tk;
-die join '', __PACKAGE__, " doesn't work nice with Tk.pm version $Tk::VERSION"
- if $Tk::VERSION eq '800.003';
+BEGIN{ # Tk is not core, but this is
+  eval { require Tk } ||
+  __PACKAGE__->die( <<"HERE" );
+You must have the Tk module to use Pod::Perldoc::ToTk.
+If you have it installed, ensure it's in your Perl library
+path.
+HERE
+
+  __PACKAGE__->die(
+    __PACKAGE__,
+    " doesn't work nice with Tk.pm version $Tk::VERSION"
+    ) if $Tk::VERSION eq '800.003';
+  }
+
 
 BEGIN { eval { require Tk::FcyEntry; }; };
-use Tk::Pod;
+BEGIN{ # Tk::Pod is not core, but this is
+  eval { require Tk::Pod } ||
+  __PACKAGE__->die( <<"HERE" );
+You must have the Tk::Pod module to use Pod::Perldoc::ToTk.
+If you have it installed, ensure it's in your Perl library
+path.
+HERE
+  }
 
 # The following was adapted from "tkpod" in the Tk-Pod dist.
 

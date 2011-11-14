@@ -19,5 +19,7 @@ perldoc
 README
 t/01_about_verbose.t
 t/checkerbasic.t
+t/load.t
+t/man/_get_columns.t
 t/perldocbasic.t
 t/textbasic.t

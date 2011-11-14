@@ -1318,7 +1318,7 @@ sub MSWin_perldoc_tempfile {
   while($counter < 50) {
     my $fh;
     # If we are running before perl5.6.0, we can't autovivify
-    if ($] < 5.006) {
+    if ($^V < 5.006) {
       require Symbol;
       $fh = Symbol::gensym();
     }
@@ -1650,7 +1650,7 @@ sub new_output_file {
 
   my $fh;
   # If we are running before perl5.6.0, we can't autovivify
-  if ($] < 5.006) {
+  if ($^V < 5.006) {
     require Symbol;
     $fh = Symbol::gensym();
   }

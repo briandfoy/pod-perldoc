@@ -25,7 +25,7 @@ sub new { return bless {}, ref($_[0]) || $_[0] }
 sub parse_from_file {
   my( $self, $in, $outfh ) = @_;
 
-  open(IN, "<", $in) or die "Can't read-open $in: $!\nAborting";
+  open(IN, "<", $in) or $self->die( "Can't read-open $in: $!\nAborting" );
 
   my $cut_mode = 1;
 
@@ -40,10 +40,10 @@ sub parse_from_file {
       }
     }
     next if $cut_mode;
-    print $outfh $_ or die "Can't print to $outfh: $!";
+    print $outfh $_ or $self->die( "Can't print to $outfh: $!" );
   }
 
-  close IN or die "Can't close $in: $!";
+  close IN or $self->die( "Can't close $in: $!" );
   return;
 }
 

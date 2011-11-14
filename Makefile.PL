@@ -1,4 +1,4 @@
-use 5.006; # Perldoc.pm currently needs at least this version
+use 5.006;
 use strict;
 use warnings;
 
@@ -12,8 +12,6 @@ WriteMakefile(
 
     'AUTHOR'         => 'brian d foy <bdfoy@cpan.org>', # maintainer
     'ABSTRACT_FROM'  => 'lib/Pod/Perldoc.pm',
-
-    ($] >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 
     'PREREQ_PM' => {
             # Are there any hard dependencies not covered here?
@@ -33,6 +31,8 @@ WriteMakefile(
            },
 
     'EXE_FILES' => [qw( perldoc )],
+
+    ($^V >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 
     ( $EUMM_VERSION > 6.31 ? (
         'LICENSE' => 'perl',

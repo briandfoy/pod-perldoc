@@ -1317,106 +1317,6 @@ sub unlink_if_temp_file {
 
 #..........................................................................
 
-sub MSWin_temp_cleanup {
-
-  # Nothing particularly MSWin-specific in here, but I don't know if any
-  # other OS needs its temp dir policed like MSWin does!
-
-  my $self = shift;
-
-  my $tempdir = $ENV{'TEMP'};
-  return unless defined $tempdir and length $tempdir
-   and -e $tempdir and -d _ and -w _;
-
-  $self->aside(
-   "Considering whether any old files of mine in $tempdir need unlinking.\n"
-  );
-
-  opendir(TMPDIR, $tempdir) || return;
-  my @to_unlink;
-
-  my $limit = time() - $Temp_File_Lifetime;
-
-  DEBUG > 5 and printf "Looking for things pre-dating %s (%x)\n",
-   ($limit) x 2;
-
-  my $filespec;
-
-  while(defined($filespec = readdir(TMPDIR))) {
-    if(
-     $filespec =~ m{^perldoc_[a-zA-Z0-9]+_T([a-fA-F0-9]{7,})_[a-fA-F0-9]{3,}}s
-    ) {
-      if( hex($1) < $limit ) {
-        push @to_unlink, "$tempdir/$filespec";
-        $self->aside( "Will unlink my old temp file $to_unlink[-1]\n" );
-      } else {
-        DEBUG > 5 and
-         printf "  $tempdir/$filespec is too recent (after %x)\n", $limit;
-      }
-    } else {
-      DEBUG > 5 and
-       print "  $tempdir/$filespec doesn't look like a perldoc temp file.\n";
-    }
-  }
-  closedir(TMPDIR);
-  $self->aside(sprintf "Unlinked %s items of mine in %s\n",
-    scalar(unlink(@to_unlink)),
-    $tempdir
-  );
-  return;
-}
-
-#  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
-
-sub MSWin_perldoc_tempfile {
-  my($self, $suffix, $infix) = @_;
-
-  my $tempdir = $ENV{'TEMP'};
-  return unless defined $tempdir and length $tempdir
-   and -e $tempdir and -d _ and -w _;
-
-  my $spec;
-
-  do {
-    $spec = sprintf "%s\\perldoc_%s_T%x_%x%02x.%s", # used also in MSWin_temp_cleanup
-      # Yes, we embed the create-time in the filename!
-      $tempdir,
-      $infix || 'x',
-      time(),
-      $$,
-      defined( &Win32::GetTickCount )
-        ? (Win32::GetTickCount() & 0xff)
-        : int(rand 256)
-       # Under MSWin, $$ values get reused quickly!  So if we ran
-       # perldoc foo and then perldoc bar before there was time for
-       # time() to increment time."_$$" would likely be the same
-       # for each process!  So we tack on the tick count's lower
-       # bits (or, in a pinch, rand)
-      ,
-      $suffix || 'txt';
-    ;
-  } while( -e $spec );
-
-  my $counter = 0;
-
-  while($counter < 50) {
-    my $fh;
-    # If we are running before perl5.6.0, we can't autovivify
-    if ($^V < 5.006) {
-      require Symbol;
-      $fh = Symbol::gensym();
-    }
-    DEBUG > 3 and print "About to try making temp file $spec\n";
-    return($fh, $spec) if open($fh, ">", $spec);    # XXX 5.6ism
-    $self->aside("Can't create temp file $spec: $!\n");
-  }
-
-  $self->aside("Giving up on making a temp file!\n");
-  $self->die( "Can't make a tempfile!?" );
-}
-
-#..........................................................................
-
 
 sub after_rendering {
   my $self = $_[0];
@@ -1430,15 +1330,11 @@ sub after_rendering {
 sub after_rendering_VMS      { return }
 sub after_rendering_Dos      { return }
 sub after_rendering_OS2      { return }
-
-sub after_rendering_MSWin32  {
-  shift->MSWin_temp_cleanup() if $Temp_Files_Created;
-}
+sub after_rendering_MSWin32  { return }
 
 #..........................................................................
 #   :   :   :   :   :   :   :   :   :
 #..........................................................................
-
 
 sub minus_f_nocase {   # i.e., do like -f, but without regard to case
 
@@ -1561,55 +1457,16 @@ sub page_module_file {
     # occasionally hazy distinction between OS-local extension
     # associations, and browser-specific MIME mappings.
 
-    if ($self->{'output_to_stdout'}) {
-        $self->aside("Sending unpaged output to STDOUT.\n");
-    local $_;
-    my $any_error = 0;
-        foreach my $output (@found) {
-        unless( open(TMP, "<", $output) ) {    # XXX 5.6ism
-          $self->warn("Can't open $output: $!");
-          $any_error = 1;
-          next;
-        }
-        while (<TMP>) {
-            print or $self->die( "Can't print to stdout: $!" );
-        }
-        close TMP  or $self->die( "Can't close while $output: $!" );
-        $self->unlink_if_temp_file($output);
-    }
-    return $any_error; # successful
+    if(@found > 1) {
+        warn 
+            "Perldoc is only really meant for reading one document at a time.\n",
+            "So these files are being ignored: ",
+            join(' ', @found[1 .. $#found] ),
+            "\n"
     }
 
-    foreach my $pager ( $self->pagers ) {
-        $self->aside("About to try calling $pager @found\n");
-        if (system(split(/\s+(?=-)/, $pager), @found) == 0) { # https://rt.cpan.org/Ticket/Display.html?id=53986
-            $self->aside("Yay, it worked.\n");
-            return 0;
-        }
-        $self->aside("That didn't work.\n");
+    return $self->page($found[0], $self->{'output_to_stdout'}, $self->pagers);
 
-        # Odd -- when it fails, under Win32, this seems to neither
-        #  return with a fail nor return with a success!!
-        #  That's discouraging!
-    }
-
-    $self->aside(
-      sprintf "Can't manage to find a way to page [%s] via pagers [%s]\n",
-      join(' ', @found),
-      join(' ', $self->pagers),
-    );
-
-    if ($self->is_vms) {
-        DEBUG > 1 and print "Bailing out in a VMSish way.\n";
-        eval q{
-            use vmsish qw(status exit);
-            exit $?;
-            1;
-        } or $self->die;
-    }
-
-    return 1;
-      # i.e., an UNSUCCESSFUL return value!
 }
 
 #..........................................................................
@@ -1785,12 +1642,6 @@ sub new_tempfile {    # $self->new_tempfile( [$suffix, [$infix] ] )
 
   ++$Temp_Files_Created;
 
-  if( $self->is_mswin32 ) {
-    my @out = $self->MSWin_perldoc_tempfile(@_);
-    return @out if @out;
-    # otherwise fall thru to the normal stuff below...
-  }
-
   require File::Temp;
   return File::Temp::tempfile(UNLINK => 1);
 }
@@ -1801,13 +1652,13 @@ sub page {  # apply a pager to the output file
     my ($self, $output, $output_to_stdout, @pagers) = @_;
     if ($output_to_stdout) {
         $self->aside("Sending unpaged output to STDOUT.\n");
-    open(TMP, "<", $output)  or  $self->die( "Can't open $output: $!" ); # XXX 5.6ism
-    local $_;
-    while (<TMP>) {
-        print or $self->die( "Can't print to stdout: $!" );
-    }
-    close TMP  or $self->die( "Can't close while $output: $!" );
-    $self->unlink_if_temp_file($output);
+        open(TMP, "<", $output)  or  $self->die( "Can't open $output: $!" ); # XXX 5.6ism
+        local $_;
+        while (<TMP>) {
+            print or $self->die( "Can't print to stdout: $!" );
+        }
+        close TMP  or $self->die( "Can't close while $output: $!" );
+        $self->unlink_if_temp_file($output);
     } else {
         # On VMS, quoting prevents logical expansion, and temp files with no
         # extension get the wrong default extension (such as .LIS for TYPE)
@@ -1815,18 +1666,18 @@ sub page {  # apply a pager to the output file
         $output = VMS::Filespec::rmsexpand($output, '.') if $self->is_vms;
 
         $output =~ s{/}{\\}g if $self->is_mswin32 || $self->is_dos;
-          # Altho "/" under MSWin is in theory good as a pathsep,
-          #  many many corners of the OS don't like it.  So we
-          #  have to force it to be "\" to make everyone happy.
+        # Altho "/" under MSWin is in theory good as a pathsep,
+        #  many many corners of the OS don't like it.  So we
+        #  have to force it to be "\" to make everyone happy.
 
         foreach my $pager (@pagers) {
             $self->aside("About to try calling $pager $output\n");
             if ($self->is_vms) {
                 last if system("$pager $output") == 0;
             } else {
-            last if system("$pager \"$output\"") == 0;
+                last if system("$pager \"$output\"") == 0;
             }
-    }
+        }
     }
     return;
 }

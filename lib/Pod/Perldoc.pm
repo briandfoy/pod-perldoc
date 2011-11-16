@@ -1029,31 +1029,31 @@ sub search_perlop {
       if( $list ){
         $paragraph =~ s!=back.*?\z!!s;
       }
-  
+
       if( $paragraph =~ m!^=item! ){
         $paragraph = "=over 8\n\n" . $paragraph . "=back\n";
       }
-  
+
       push @$pod, $paragraph;
       $paragraph = "";
       $has_text_seen = 0;
       $list = 0;
     }
-  
+
     if( $line =~ m!^=over! ){
       $list++;
     }
     elsif( $line =~ m!^=back! ){
       $list--;
     }
-  
+
     if( $line =~ m!^=(?:head|item)! and $has_text_seen ){
       $paragraph = "";
     }
     elsif( $line !~ m!^=(?:head|item)! and $line !~ m!^\s*$! and $line !~ m!^\s*X<! ){
       $has_text_seen = 1;
     }
-  
+
     $paragraph .= $line;
     }
 

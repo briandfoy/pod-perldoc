@@ -1100,13 +1100,27 @@ sub search_perlfunc {
 
     my @perlops = qw(m q qq qr qx qw s tr y);
 
+    my @related;
+    my $related_re;
     while (<PFUNC>) {  # "The Mothership Connection is here!"
         last if( grep{ $self->opt_f eq $_ }@perlops );
         if ( m/^=item\s+$search_re\b/ )  {
             $found = 1;
         }
+        elsif (@related > 1 and /^=item/) {
+            $related_re ||= join "|", @related;
+            if (m/^=item\s+(?:$related_re)\b/) {
+                $found = 1;
+            }
+            else {
+                last;
+            }
+        }
         elsif (/^=item/) {
             last if $found > 1 and not $inlist;
+        }
+        elsif ($found and /^X<[^>]+>/) {
+            push @related, m/X<([^>]+)>/g;
         }
         next unless $found;
         if (/^=over/) {

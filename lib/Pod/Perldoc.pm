@@ -1529,7 +1529,7 @@ sub pagers_guessing {
           unshift @pagers, 'less', 'cmd /c more <';
         }
         push @pagers, qw( more less pg view cat );
-        unshift @pagers, $ENV{PAGER}  if $ENV{PAGER};
+        unshift @pagers, "$ENV{PAGER}<"  if $ENV{PAGER};
     }
 
     if ($self->is_cygwin) {

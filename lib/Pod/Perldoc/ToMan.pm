@@ -149,9 +149,31 @@ sub _save_pod_man_output {
 	close $fh;
 	}
 
-	my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
+sub _have_groff_with_utf8 {
+	my( $self ) = @_;
+
+	return 0 unless $self->__nroffer eq 'groff';
+
+	my $minimum_groff_version = '1.20.1';
+
+	my $version_string = `groff -v`;
+	my( $version ) = $version_string =~ /groff version (\d+\.\d+(?:\.\d+)?)/;
+	$self->debug( "Found groff $version\n" );
+
+	# is a string comparison good enough?
+	if( $version lt $minimum_groff_version ) {
+		$self->warn( "You have an old groff. Update to version $minimum_groff_version to good Unicode support." );
+		}
+
+	$version gt $minimum_groff_version;
+	}
+
+sub _collect_nroff_switches {
+	my( $self ) = shift;
 
 	my @render_switches = qw(-man);
+
+	push @render_switches, qw(-Kutf8 -Tutf8) if $self->_have_groff_with_utf8;
 
 	# Thanks to Brendan O'Dea for contributing the following block
 	if( $self->is_linux and -t STDOUT and my ($cols) = $self->_get_columns ) {
@@ -166,11 +188,20 @@ sub _save_pod_man_output {
 	# would presumably be a Bad Thing   -- sburke@cpan.org
     push @render_switches, '-c' if $self->is_cygwin;
 
+	return @render_switches;
+	}
+
+sub _filter_through_nroff {
+	my( $self ) = shift;
+	$self->debug( "Filtering through nroff\n" );
+
+	my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
+	my @render_switches = $self->_collect_nroff_switches;
+	$self->debug( "render is $render\n" );
+	$self->debug( "render options are @render_switches\n" );
+
 	require Symbol;
 	require IPC::Open3;
-
-	$self->debug( "render is $render\n" );
-	$self->debug( "render options are @render_switches" );
 
 	my $pid = IPC::Open3::open3(
 		my $writer,
@@ -184,23 +215,23 @@ sub _save_pod_man_output {
 	close $writer;
 	if( $? ) {
 		$self->warn( "Error from writer!" );
+		$self->debug( do { local $/; <$err> } );
 		}
 
 	my $done = do { local $/; <$reader> };
 
 	close $reader;
+	if( my $err = $? ) {
+		$self->debug(
+			"Nonzero exit ($?) while running `$render @render_switches`.\n",
+			"Falling back to Pod::Perldoc::ToPod\n"
+			);
+		return $self->_fallback_to_pod( @_ );
+		}
 
 	$self->debug( $done );
 
 	${ $self->{_text_ref} } = $done;
-
-#	if( my $err = $? ) {
-#		$self->debug(
-#			"Nonzero exit ($?) while running $render_switches.\n",
-#			"Falling back to Pod::Perldoc::ToPod\n"
-#			);
-#		return FAILED;
-#		}
 
 	return SUCCESS
 	}
@@ -256,6 +287,8 @@ sub _post_nroff_processing {
 	return 1;
 	}
 
+# I don't think this does anything since there aren't two consecutive
+# newlines in the Pod::Man output
 sub _remove_nroff_header {
 	my( $self ) = @_;
 	$self->debug( "_remove_nroff_header is still a stub!\n" );
@@ -266,10 +299,12 @@ sub _remove_nroff_header {
 #  shift @data if @data and $data[0] =~ /Contributed\s+Perl/; # Skip header
 	}
 
+# I don't think this does anything since there aren't two consecutive
+# newlines in the Pod::Man output
 sub _remove_nroff_footer {
 	my( $self ) = @_;
 	$self->warn( "_remove_nroff_footer is still a stub!\n" );
-	$self->{_text_ref} =~ s/\s+\z//;
+	${ $self->{_text_ref} } =~ s/\n\n+.*\w.*\Z//m;
 	return 1;
 
 #  my @data = split /\n{2,}/, shift;
@@ -279,8 +314,9 @@ sub _remove_nroff_footer {
 
 sub _handle_unicode {
 # this is the job of preconv
+# we don't need this with groff 1.20 and later.
 	my( $self ) = @_;
-	$self->warn( "_handle_unicode doesn't work yet\n" );
+	#$self->warn( "_handle_unicode doesn't work yet\n" );
 	return 1;
 
 	use Encode qw( decode );
@@ -299,6 +335,7 @@ sub _handle_unicode {
 
 	${ $self->{_text_ref} } = $text;
 	}
+
 1;
 
 __END__

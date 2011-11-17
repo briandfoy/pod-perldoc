@@ -95,6 +95,9 @@ sub parse_from_file {
       ($self->{'__pod2man'} || $self->die( "no pod2man set?!" ) ),
     )
   ;
+
+  $pod2man .= ".bat" if $self->is_mswin32;
+
   unless(-e $pod2man) {
     # This is rarely needed, I think.
     $pod2man = $self->{'__pod2man'} || $self->die( "no pod2man set?!" );

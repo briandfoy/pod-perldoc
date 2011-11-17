@@ -329,6 +329,8 @@ L<Pod::Man>, L<Pod::Perldoc>, L<Pod::Perldoc::ToNroff>
 
 =head1 COPYRIGHT AND DISCLAIMERS
 
+Copyright (c) 2011 brian d foy. All rights reserved.
+
 Copyright (c) 2002,3,4 Sean M. Burke.  All rights reserved.
 
 This library is free software; you can redistribute it and/or modify it

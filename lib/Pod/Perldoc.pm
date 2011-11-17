@@ -1458,11 +1458,11 @@ sub page_module_file {
     # associations, and browser-specific MIME mappings.
 
     if(@found > 1) {
-        warn 
-            "Perldoc is only really meant for reading one document at a time.\n",
-            "So these files are being ignored: ",
-            join(' ', @found[1 .. $#found] ),
-            "\n"
+        $self->warn(
+            "Perldoc is only really meant for reading one document at a time.\n" .
+            "So these files are being ignored: " .
+            join(' ', @found[1 .. $#found] ) .
+            "\n" )
     }
 
     return $self->page($found[0], $self->{'output_to_stdout'}, $self->pagers);

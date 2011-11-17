@@ -135,12 +135,19 @@ sub _parse_with_pod_man {
 	$self->die( "No output from Pod::Man!\n" )
 		unless length $self->{_text_ref};
 
+	$self->_save_pod_man_output if $self->debugging;
+
     return SUCCESS;
 	}
 
-sub _filter_through_nroff {
+sub _save_pod_man_output {
 	my( $self ) = @_;
-	$self->debug( "Filtering through nroff\n" );
+	my $file = "podman.out.$$.txt";
+	$self->debug( "Writing $file with Pod::Man output" );
+	open my( $fh ), '>', $file;
+	print $fh ${ $self->{_text_ref} };
+	close $fh;
+	}
 
 	my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
 

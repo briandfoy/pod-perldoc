@@ -318,8 +318,8 @@ sub _remove_nroff_header {
 sub _remove_nroff_footer {
 	my( $self ) = @_;
 	$self->warn( "_remove_nroff_footer is still a stub!\n" );
-	${ $self->{_text_ref} } =~ s/\n\n+.*\w.*\Z//m;
 	return 1;
+	${ $self->{_text_ref} } =~ s/\n\n+.*\w.*\Z//m;
 
 #  my @data = split /\n{2,}/, shift;
 #  pop @data if @data and $data[-1] =~ /^\w/; # Skip footer, like

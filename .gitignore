@@ -8,3 +8,6 @@ Makefile
 *.bak
 *.gz
 *.tar
+cover_db
+nytprof.*
+nytprof

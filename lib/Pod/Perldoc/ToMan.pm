@@ -162,7 +162,11 @@ sub _have_groff_with_utf8 {
 
 	# is a string comparison good enough?
 	if( $version lt $minimum_groff_version ) {
-		$self->warn( "You have an old groff. Update to version $minimum_groff_version to good Unicode support." );
+		$self->warn(
+			"You have an old groff." .
+			" Update to version $minimum_groff_version to good Unicode support.\n" .
+			"If you don't upgrade, wide characters may come out oddly.\n",
+			 );
 		}
 
 	$version gt $minimum_groff_version;

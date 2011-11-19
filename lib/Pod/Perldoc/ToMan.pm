@@ -262,7 +262,7 @@ sub parse_from_file {
 
 sub _fallback_to_pod {
 	my( $self, @args ) = @_;
-	$self->warn( "Falling back to Pod because there was a problem!" );
+	$self->warn( "Falling back to Pod because there was a problem!\n" );
     require Pod::Perldoc::ToPod;
     return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
 	}

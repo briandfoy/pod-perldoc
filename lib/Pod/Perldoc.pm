@@ -362,7 +362,7 @@ going to disallow it. I'd rather you be safe than sorry. If you
 intended to use the name I'm disallowing, please tell the maintainers
 about it. Write to:
 
-    Pod-Perldoc@rt.cpan.org
+    Pod-Perldoc\@rt.cpan.org
 
 HERE
 }

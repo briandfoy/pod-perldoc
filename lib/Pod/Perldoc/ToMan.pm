@@ -267,14 +267,24 @@ sub _fallback_to_pod {
     return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
 	}
 
+# maybe there's a user setting we should check?
+sub _get_tab_width { 4 }
+
+sub _expand_tabs {
+	my( $self ) = @_;
+
+	my $tab_width = ' ' x $self->_get_tab_width;
+
+	${ $self->{_text_ref} } =~ s/\t/$tab_width/g;
+	}
+
 sub _post_nroff_processing {
-	my( $self, $output ) = @_;
+	my( $self ) = @_;
 
 	if( $self->is_hpux ) {
-		$self->warn( "Not handling col -x for HPUX yet!" );
-		# can we do this bit in perl?
-		# -x "multiple spaces instead of tabs"
-		#  $command .= " | col -x" if $self->is_hpux;
+	    $self->debug( "On HP-UX, I'm going to expand tabs for you\n" );
+		# this used to be a pipe to `col -x` for HP-UX
+		$self->_expand_tabs;
 		}
 
 	if( $self->{'__filter_nroff'} ) {

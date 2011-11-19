@@ -319,15 +319,21 @@ sub program_name {
 
 sub usage_brief {
   my $self = shift;
-  my $me = $self->program_name;
+  my $program_name = $self->program_name;
 
   $self->die( <<"EOUSAGE" );
-Usage: $me [-h] [-V] [-r] [-i] [-D] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-M FormatterModuleNameToUse] [-w formatter_option:option_value] [-L translation_code] [-F] [-X] PageName|ModuleName|ProgramName
-       $me -f PerlFunc
-       $me -q FAQKeywords
-       $me -v PerlVar
+Usage: $program_name [-hVriDtumFXlT] [-n nroffer_program]
+    [-d output_filename] [-o output_format] [-M FormatterModule]
+    [-w formatter_option:option_value] [-L translation_code]
+    PageName|ModuleName|ProgramName
 
-The -h option prints more help.  Also try "$me perldoc" to get
+Examples:
+
+    $program_name -f PerlFunc
+    $program_name -q FAQKeywords
+    $program_name -v PerlVar
+
+The -h option prints more help.  Also try "$program_name perldoc" to get
 acquainted with the system.                        [Perldoc v$VERSION]
 EOUSAGE
 

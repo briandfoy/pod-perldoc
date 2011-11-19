@@ -335,6 +335,7 @@ sub _handle_unicode {
 
 	use Encode qw( decode );
 
+	# it's UTF-8 here, but we need character data
 	my $text = decode( 'UTF-8', ${ $self->{_text_ref} } ) ;
 
 # http://www.mail-archive.com/groff@gnu.org/msg01378.html

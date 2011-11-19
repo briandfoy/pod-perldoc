@@ -6,6 +6,7 @@ use warnings;
 use Config '%Config';
 
 use Fcntl;    # for sysopen
+use File::Basename qw(basename);
 use File::Spec::Functions qw(catfile catdir splitdir);
 
 use vars qw($VERSION @Pagers $Bindir $Pod2man
@@ -308,26 +309,83 @@ EOF
 #..........................................................................
 
 sub program_name {
-  my $me = $0;  # Editing $0 is unportable
+  my( $self ) = @_;
 
-  $me =~ s,.*[/\\],,; # get basename
+  if( my $link = readlink( $0 ) ) {
+    $self->debug( "The value in $0 is a symbolic link to $link\n" );
+    }
 
-  return $me;
+  my $basename = basename( $0 );
+
+  # possible name forms
+  #   perldoc
+  #   perldoc-v5.14
+  #   perldoc-5.14
+  #   perldoc-5.14.2
+  #   perlvar         # an alias mentioned in Camel 3
+  {
+  my( $untainted ) = $basename =~ m/(
+    \A
+    perl
+      (?:
+      doc | func | faq | help | op | toc | var # Camel 3
+      )
+    (?: -? v? \d+ \. \d+ (?:\. \d+)? ) # possible version
+    (?: \. (?: bat | exe | com ) )?    # possible extension
+    \z
+    )
+    /x;
+
+  return $untainted if $untainted;
+  }
+
+  $self->warn(<<"HERE");
+You called the perldoc command with a name that I didn't recognize.
+This might mean that someone is tricking you into running a
+program you don't intend to use, but it also might mean that you
+created your own link to perldoc.
+
+I'll allow this if the filename looks only has [a-zA-Z0-9._-].
+HERE
+
+  {
+  my( $untainted ) = $basename =~ m/(
+    \A [a-zA-Z0-9._-]+ \z
+    )/x;
+
+  return $untainted if $untainted;
+  }
+
+  $self->die(<<"HERE");
+I think that your name for perldoc is potentially unsafe, so I'm
+going to disallow it. I'd rather you be safe than sorry. If you
+intended to use the name I'm disallowing, please tell the maintainers
+about it. Write to:
+
+    Pod-Perldoc@rt.cpan.org
+
+HERE
 }
 
 #..........................................................................
 
 sub usage_brief {
   my $self = shift;
-  my $me = $self->program_name;
+  my $program_name = $self->program_name;
 
   $self->die( <<"EOUSAGE" );
-Usage: $me [-h] [-V] [-r] [-i] [-D] [-t] [-u] [-m] [-n nroffer_program] [-l] [-T] [-d output_filename] [-o output_format] [-M FormatterModuleNameToUse] [-w formatter_option:option_value] [-L translation_code] [-F] [-X] PageName|ModuleName|ProgramName
-       $me -f PerlFunc
-       $me -q FAQKeywords
-       $me -v PerlVar
+Usage: $program_name [-hVriDtumFXlT] [-n nroffer_program]
+    [-d output_filename] [-o output_format] [-M FormatterModule]
+    [-w formatter_option:option_value] [-L translation_code]
+    PageName|ModuleName|ProgramName
 
-The -h option prints more help.  Also try "$me perldoc" to get
+Examples:
+
+    $program_name -f PerlFunc
+    $program_name -q FAQKeywords
+    $program_name -v PerlVar
+
+The -h option prints more help.  Also try "$program_name perldoc" to get
 acquainted with the system.                        [Perldoc v$VERSION]
 EOUSAGE
 
@@ -1458,11 +1516,11 @@ sub page_module_file {
     # associations, and browser-specific MIME mappings.
 
     if(@found > 1) {
-        warn 
-            "Perldoc is only really meant for reading one document at a time.\n",
-            "So these files are being ignored: ",
-            join(' ', @found[1 .. $#found] ),
-            "\n"
+        $self->warn(
+            "Perldoc is only really meant for reading one document at a time.\n" .
+            "So these files are being ignored: " .
+            join(' ', @found[1 .. $#found] ) .
+            "\n" )
     }
 
     return $self->page($found[0], $self->{'output_to_stdout'}, $self->pagers);

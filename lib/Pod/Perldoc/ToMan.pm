@@ -218,7 +218,7 @@ sub _filter_through_nroff {
 	print { $writer } ${ $self->{_text_ref} };
 	close $writer;
 	if( $? ) {
-		$self->warn( "Error from writer!" );
+		$self->warn( "Error from pipe to $render!\n" );
 		$self->debug( do { local $/; <$err> } );
 		}
 

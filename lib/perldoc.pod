@@ -5,26 +5,28 @@ perldoc - Look up Perl documentation in Pod format.
 
 =head1 SYNOPSIS
 
-B<perldoc> [B<-h>] [B<-D>] [B<-t>] [B<-u>] [B<-m>] [B<-l>] [B<-F>]
-[B<-i>] [B<-V>] [B<-T>] [B<-r>]
-[B<-dI<destination_file>>]
-[B<-oI<formatname>>]
-[B<-MI<FormatterClassName>>]
-[B<-wI<formatteroption:value>>]
-[B<-n>I<nroff-replacement>]
-[B<-X>]
-[B<-L> I<language_code>]
-PageName|ModuleName|ProgramName|URL
+    B<perldoc> [B<-h>] [B<-D>] [B<-t>] [B<-u>] [B<-m>] [B<-l>] [B<-F>]
+        [B<-i>] [B<-V>] [B<-T>] [B<-r>]
+        [B<-dI<destination_file>>]
+        [B<-oI<formatname>>]
+        [B<-MI<FormatterClassName>>]
+        [B<-wI<formatteroption:value>>]
+        [B<-n>I<nroff-replacement>]
+        [B<-X>]
+        [B<-L> I<language_code>]
+        PageName|ModuleName|ProgramName|URL
 
-B<perldoc> B<-f> BuiltinFunction
+Examples:
 
-B<perldoc> B<-L> it B<-f> BuiltinFunction
+    B<perldoc> B<-f> BuiltinFunction
 
-B<perldoc> B<-q> FAQ Keyword
+    B<perldoc> B<-L> it B<-f> BuiltinFunction
 
-B<perldoc> B<-L> fr B<-q> FAQ Keyword
+    B<perldoc> B<-q> FAQ Keyword
 
-B<perldoc> B<-v> PerlVariable
+    B<perldoc> B<-L> fr B<-q> FAQ Keyword
+
+    B<perldoc> B<-v> PerlVariable
 
 See below for more description of the switches.
 
@@ -208,8 +210,6 @@ Ignore case.
 Displays the version of perldoc you're running.
 
 =back
-
-
 
 =head1 SECURITY
 

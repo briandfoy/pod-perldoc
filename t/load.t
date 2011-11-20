@@ -8,7 +8,7 @@ my @classes = ('Pod::Perldoc', map { "Pod::Perldoc::$_" } qw(
 	GetOptsOO    ToMan        ToPod        ToText       ToXml
 	) );
 
-if( eval { require Tk } ) { push @classes, 'Pod::Perldoc::ToTk' }
+if( eval { require Tk; require Tk::Pod; 1 } ) { push @classes, 'Pod::Perldoc::ToTk' }
 else {
 	diag "Skip testing Pod::Perldoc::ToTk because there's no Tk";
 	}

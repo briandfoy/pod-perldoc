@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '3.15_09';
+$VERSION = '3.15_10';
 
 # This is unlike ToMan.pm in that it emits the raw nroff source!
 

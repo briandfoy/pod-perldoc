@@ -366,7 +366,7 @@ Pod::Perldoc::ToMan - let Perldoc render Pod as man pages
 =head1 DESCRIPTION
 
 This is a "plug-in" class that allows Perldoc to use
-Pod::Man and C<nroff> for reading Pod pages.
+Pod::Man and C<groff> for reading Pod pages.
 
 The following options are supported:  center, date, fixed, fixedbold,
 fixeditalic, fixedbolditalic, quotes, release, section

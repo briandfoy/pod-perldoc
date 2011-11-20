@@ -1,5 +1,11 @@
 Revision history for Perl module group Pod::Perldoc
 
+3.15_10 - Sat Nov 19 19:56:21 2011
+	* Merge the changes to use Pod::Man instead of pod2man
+	* Restrict the names we'll allow the program to run under
+	* Patches for most of the items in the RT queue, which we'll
+	enumerate once we know the fixes work.
+
 3.15_09 - Mon Nov 14 13:36:37 2011
 	* Respect MANWIDTH on Linux, if set. RT #61085
 	* This is the start of some internals changes to allow testing.

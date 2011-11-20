@@ -1,17 +1,21 @@
-require 5;
+require 5.006;
 package Pod::Perldoc::ToMan;
 use strict;
 use warnings;
+use parent qw(Pod::Perldoc::BaseTo);
 
 use vars qw($VERSION);
 $VERSION = '3.15_09';
 
+use Pod::Man 2.18;
 # This class is unlike ToText.pm et al, because we're NOT paging thru
 # the output in our particular format -- we make the output and
 # then we run nroff (or whatever) on it, and then page thru the
 # (plaintext) output of THAT!
 
-use base qw(Pod::Perldoc::BaseTo);
+sub SUCCESS () { 1 }
+sub FAILED  () { 0 }
+
 sub is_pageable        { 1 }
 sub write_with_binmode { 0 }
 sub output_extension   { 'txt' }
@@ -33,11 +37,40 @@ sub quotes          { shift->_perldoc_elem('quotes'         , @_) }
 sub release         { shift->_perldoc_elem('release'        , @_) }
 sub section         { shift->_perldoc_elem('section'        , @_) }
 
-sub new { return bless {}, ref($_[0]) || $_[0] }
+sub new {
+	my( $either ) = shift;
+	my $self = bless {}, ref($either) || $either;
+	$self->init( @_ );
+	return $self;
+	}
+
+sub init {
+	my( $self, @args ) = @_;
+
+	$self->__nroffer( 'nroff' ) unless $self->__nroffer;
+
+	$self->_check_nroffer;
+	}
+
+sub _check_nroffer {
+	return 1;
+	# where is it in the PATH?
+
+	# is it executable?
+
+	# what is its real name?
+
+	# what is its version?
+
+	# does it support the flags we need?
+
+	# is it good enough for us?
+	}
 
 use File::Spec::Functions qw(catfile);
 
 sub _get_stty { `stty -a` }
+
 sub _get_columns_from_stty {
   my $output = $_[0]->_get_stty;
 
@@ -76,111 +109,247 @@ sub _get_columns {
   $_[0]->_get_default_width;
   }
 
+sub _get_podman_switches {
+	my( $self ) = @_;
+
+	my @switches = grep !m/^_/s, keys %$self;
+
+	$self->debug( "Pod::Man switches are [@switches]\n" );
+
+	push @switches, utf8 => 1;
+
+	return @switches;
+	}
+
+sub _parse_with_pod_man {
+	my( $self, $file ) = @_;
+
+	#->output_fh and ->output_string from Pod::Simple aren't
+	# working, apparently, so there's this ugly hack:
+	local *STDOUT;
+	open STDOUT, '>', $self->{_text_ref};
+	my $parser = Pod::Man->new( $self->_get_podman_switches );
+    $parser->parse_from_file( $file );
+    close STDOUT;
+
+	$self->die( "No output from Pod::Man!\n" )
+		unless length $self->{_text_ref};
+
+	$self->_save_pod_man_output if $self->debugging;
+
+    return SUCCESS;
+	}
+
+sub _save_pod_man_output {
+	my( $self ) = @_;
+	my $file = "podman.out.$$.txt";
+	$self->debug( "Writing $file with Pod::Man output" );
+	open my( $fh ), '>', $file;
+	print $fh ${ $self->{_text_ref} };
+	close $fh;
+	}
+
+sub _have_groff_with_utf8 {
+	my( $self ) = @_;
+
+	return 0 unless $self->__nroffer eq 'groff';
+
+	my $minimum_groff_version = '1.20.1';
+
+	my $version_string = `groff -v`;
+	my( $version ) = $version_string =~ /groff version (\d+\.\d+(?:\.\d+)?)/;
+	$self->debug( "Found groff $version\n" );
+
+	# is a string comparison good enough?
+	if( $version lt $minimum_groff_version ) {
+		$self->warn(
+			"You have an old groff." .
+			" Update to version $minimum_groff_version to good Unicode support.\n" .
+			"If you don't upgrade, wide characters may come out oddly.\n",
+			 );
+		}
+
+	$version gt $minimum_groff_version;
+	}
+
+sub _collect_nroff_switches {
+	my( $self ) = shift;
+
+	my @render_switches = qw(-man);
+
+	push @render_switches, qw(-Kutf8 -Tutf8) if $self->_have_groff_with_utf8;
+
+	# Thanks to Brendan O'Dea for contributing the following block
+	if( $self->is_linux and -t STDOUT and my ($cols) = $self->_get_columns ) {
+		my $c = $cols * 39 / 40;
+		$cols = $c > $cols - 2 ? $c : $cols -2;
+		push @render_switches, '-rLL=' . (int $c) . 'n' if $cols > 80;
+		}
+
+	# I hear persistent reports that adding a -c switch to $render
+	# solves many people's problems.  But I also hear that some mans
+	# don't have a -c switch, so that unconditionally adding it here
+	# would presumably be a Bad Thing   -- sburke@cpan.org
+    push @render_switches, '-c' if $self->is_cygwin;
+
+	return @render_switches;
+	}
+
+sub _filter_through_nroff {
+	my( $self ) = shift;
+	$self->debug( "Filtering through nroff\n" );
+
+	my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
+	my @render_switches = $self->_collect_nroff_switches;
+	$self->debug( "render is $render\n" );
+	$self->debug( "render options are @render_switches\n" );
+
+	require Symbol;
+	require IPC::Open3;
+
+	my $pid = IPC::Open3::open3(
+		my $writer,
+		my $reader,
+		my $err = Symbol::gensym(),
+		$render,
+		@render_switches
+		);
+
+	print { $writer } ${ $self->{_text_ref} };
+	close $writer;
+	if( $? ) {
+		$self->warn( "Error from pipe to $render!\n" );
+		$self->debug( do { local $/; <$err> } );
+		}
+
+	my $done = do { local $/; <$reader> };
+
+	close $reader;
+	if( my $err = $? ) {
+		$self->debug(
+			"Nonzero exit ($?) while running `$render @render_switches`.\n",
+			"Falling back to Pod::Perldoc::ToPod\n"
+			);
+		return $self->_fallback_to_pod( @_ );
+		}
+
+	$self->debug( $done );
+
+	${ $self->{_text_ref} } = $done;
+
+	return SUCCESS
+	}
+
 sub parse_from_file {
-  my $self = shift;
-  my($file, $outfh) = @_;
+	my( $self, $file, $outfh) = @_;
 
-  my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
+	# We have a pipeline of filters each affecting the reference
+	# in $self->{_text_ref}
+	$self->{_text_ref} = \my $output;
 
-  # turn the switches into CLIs
-  my $switches = join ' ',
-    map qq{"--$_=$self->{$_}"},
-      grep !m/^_/s,
-        keys %$self
-  ;
+	$self->_parse_with_pod_man( $file );
+	# so far, nroff is an external command so we ensure it worked
+	my $result = $self->_filter_through_nroff;
+	return $self->_fallback_to_pod( @_ ) unless $result == SUCCESS;
 
-  my $pod2man =
-    catfile(
-      ($self->{'__bindir'}  || $self->die( "no bindir set?!" )  ),
-      ($self->{'__pod2man'} || $self->die( "no pod2man set?!" ) ),
-    )
-  ;
+	$self->_post_nroff_processing;
 
-  $pod2man .= ".bat" if $self->is_mswin32;
+	print { $outfh } $output or
+		$self->die( "Can't print to $$self{__output_file}: $!" );
 
-  unless(-e $pod2man) {
-    # This is rarely needed, I think.
-    $pod2man = $self->{'__pod2man'} || $self->die( "no pod2man set?!" );
-    $self->die( "Can't find a pod2man?! (". $self->{'__pod2man'} .")\nAborting" )
-      unless -e $pod2man;
-  }
+	return;
+	}
 
-  if( eval { require Pod::Man } and $Pod::Man::VERSION >= 2.18 ) {
-    $switches .= " --utf8";
-  }
-
-  my $command = "$pod2man $switches --lax \Q$file\E | $render -man";
-         # no temp file, just a pipe!
-
-  # Thanks to Brendan O'Dea for contributing the following block
-  if( $self->is_linux and -t STDOUT
-    and my ($cols) = $self->_get_columns
-  ) {
-    my $c = $cols * 39 / 40;
-    $cols = $c > $cols - 2 ? $c : $cols -2;
-    $command .= ' -rLL=' . (int $c) . 'n' if $cols > 80;
-  }
-
-  if( $self->is_cygwin) {
-    $command .= ' -c';
-  }
-
-  # I hear persistent reports that adding a -c switch to $render
-  # solves many people's problems.  But I also hear that some mans
-  # don't have a -c switch, so that unconditionally adding it here
-  # would presumably be a Bad Thing   -- sburke@cpan.org
-
-  $command .= " | col -x" if $self->is_hpux;
-
-  defined(&Pod::Perldoc::DEBUG)
-   and Pod::Perldoc::DEBUG()
-   and print "About to run $command\n";
-  ;
-
-  my $rslt = `$command`;
-
-  my $err;
-
-  if( $self->{'__filter_nroff'} ) {
-    defined(&Pod::Perldoc::DEBUG)
-     and &Pod::Perldoc::DEBUG()
-     and print "filter_nroff is set, so filtering...\n";
-    $rslt = $self->___Do_filter_nroff($rslt);
-  } else {
-    defined(&Pod::Perldoc::DEBUG)
-     and Pod::Perldoc::DEBUG()
-     and print "filter_nroff isn't set, so not filtering.\n";
-  }
-
-  if (($err = $?)) {
-    defined(&Pod::Perldoc::DEBUG)
-     and Pod::Perldoc::DEBUG()
-     and print "Nonzero exit ($?) while running $command.\n",
-               "Falling back to Pod::Perldoc::ToPod\n ",
-    ;
-    # A desperate fallthru:
+sub _fallback_to_pod {
+	my( $self, @args ) = @_;
+	$self->warn( "Falling back to Pod because there was a problem!\n" );
     require Pod::Perldoc::ToPod;
     return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
+	}
 
-  } else {
-    print $outfh $rslt
-     or $self->die( "Can't print to $$self{__output_file}: $!" );
-  }
+# maybe there's a user setting we should check?
+sub _get_tab_width { 4 }
 
-  return;
-}
+sub _expand_tabs {
+	my( $self ) = @_;
 
+	my $tab_width = ' ' x $self->_get_tab_width;
 
-sub ___Do_filter_nroff {
-  my $self = shift;
-  my @data = split /\n{2,}/, shift;
+	${ $self->{_text_ref} } =~ s/\t/$tab_width/g;
+	}
 
-  shift @data while @data and $data[0] !~ /\S/; # Go to header
-  shift @data if @data and $data[0] =~ /Contributed\s+Perl/; # Skip header
-  pop @data if @data and $data[-1] =~ /^\w/; # Skip footer, like
+sub _post_nroff_processing {
+	my( $self ) = @_;
+
+	if( $self->is_hpux ) {
+	    $self->debug( "On HP-UX, I'm going to expand tabs for you\n" );
+		# this used to be a pipe to `col -x` for HP-UX
+		$self->_expand_tabs;
+		}
+
+	if( $self->{'__filter_nroff'} ) {
+		$self->debug( "filter_nroff is set, so filtering\n" );
+		$self->_remove_nroff_header;
+		$self->_remove_nroff_footer;
+		}
+	else {
+		$self->debug( "filter_nroff is not set, so not filtering\n" );
+		}
+
+	$self->_handle_unicode;
+
+	return 1;
+	}
+
+# I don't think this does anything since there aren't two consecutive
+# newlines in the Pod::Man output
+sub _remove_nroff_header {
+	my( $self ) = @_;
+	$self->debug( "_remove_nroff_header is still a stub!\n" );
+	return 1;
+
+#  my @data = split /\n{2,}/, shift;
+#  shift @data while @data and $data[0] !~ /\S/; # Go to header
+#  shift @data if @data and $data[0] =~ /Contributed\s+Perl/; # Skip header
+	}
+
+# I don't think this does anything since there aren't two consecutive
+# newlines in the Pod::Man output
+sub _remove_nroff_footer {
+	my( $self ) = @_;
+	$self->warn( "_remove_nroff_footer is still a stub!\n" );
+	return 1;
+	${ $self->{_text_ref} } =~ s/\n\n+.*\w.*\Z//m;
+
+#  my @data = split /\n{2,}/, shift;
+#  pop @data if @data and $data[-1] =~ /^\w/; # Skip footer, like
         # 28/Jan/99 perl 5.005, patch 53 1
-  join "\n\n", @data;
-}
+	}
+
+sub _handle_unicode {
+# this is the job of preconv
+# we don't need this with groff 1.20 and later.
+	my( $self ) = @_;
+	#$self->warn( "_handle_unicode doesn't work yet\n" );
+	return 1;
+
+	use Encode qw( decode );
+
+	# it's UTF-8 here, but we need character data
+	my $text = decode( 'UTF-8', ${ $self->{_text_ref} } ) ;
+
+# http://www.mail-archive.com/groff@gnu.org/msg01378.html
+# http://linux.die.net/man/7/groff_char
+# http://www.gnu.org/software/groff/manual/html_node/Using-Symbols.html
+# http://lists.gnu.org/archive/html/groff/2011-05/msg00007.html
+# http://www.simplicidade.org/notes/archives/2009/05/fixing_the_pod.html
+# http://lists.freebsd.org/pipermail/freebsd-questions/2011-July/232239.html
+	$text =~ s/(\P{ASCII})/
+		sprintf '\\[u%04X]', ord $1
+	     /eg;
+
+	${ $self->{_text_ref} } = $text;
+	}
 
 1;
 
@@ -197,7 +366,7 @@ Pod::Perldoc::ToMan - let Perldoc render Pod as man pages
 =head1 DESCRIPTION
 
 This is a "plug-in" class that allows Perldoc to use
-Pod::Man and C<nroff> for reading Pod pages.
+Pod::Man and C<groff> for reading Pod pages.
 
 The following options are supported:  center, date, fixed, fixedbold,
 fixeditalic, fixedbolditalic, quotes, release, section
@@ -218,6 +387,8 @@ in the future, and this may change what options are supported.
 L<Pod::Man>, L<Pod::Perldoc>, L<Pod::Perldoc::ToNroff>
 
 =head1 COPYRIGHT AND DISCLAIMERS
+
+Copyright (c) 2011 brian d foy. All rights reserved.
 
 Copyright (c) 2002,3,4 Sean M. Burke.  All rights reserved.
 

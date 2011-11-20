@@ -264,11 +264,11 @@ Options:
     -V   Report version
     -r   Recursive search (slow)
     -i   Ignore case
-    -t   Display pod using pod2text instead of pod2man and nroff
+    -t   Display pod using pod2text instead of Pod::Man and groff
              (-t is the default on win32 unless -n is specified)
     -u   Display unformatted pod text
     -m   Display module's file in its entirety
-    -n   Specify replacement for nroff
+    -n   Specify replacement for groff
     -l   Display the module's file name
     -F   Arguments are file names, not modules
     -D   Verbosely describe what's going on
@@ -738,7 +738,7 @@ sub options_processing {
 
     $self->options_sanity;
 
-    $self->opt_n("nroff") unless $self->opt_n;
+    $self->opt_n("groff") unless $self->opt_n;
     $self->add_formatter_option( '__nroffer' => $self->opt_n );
 
     # Get language from PERLDOC_POD2 environment variable
@@ -1087,31 +1087,31 @@ sub search_perlop {
       if( $list ){
         $paragraph =~ s!=back.*?\z!!s;
       }
-  
+
       if( $paragraph =~ m!^=item! ){
         $paragraph = "=over 8\n\n" . $paragraph . "=back\n";
       }
-  
+
       push @$pod, $paragraph;
       $paragraph = "";
       $has_text_seen = 0;
       $list = 0;
     }
-  
+
     if( $line =~ m!^=over! ){
       $list++;
     }
     elsif( $line =~ m!^=back! ){
       $list--;
     }
-  
+
     if( $line =~ m!^=(?:head|item)! and $has_text_seen ){
       $paragraph = "";
     }
     elsif( $line !~ m!^=(?:head|item)! and $line !~ m!^\s*$! and $line !~ m!^\s*X<! ){
       $has_text_seen = 1;
     }
-  
+
     $paragraph .= $line;
     }
 

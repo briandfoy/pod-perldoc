@@ -1,5 +1,9 @@
 Revision history for Perl module group Pod::Perldoc
 
+3.15_11 - Tue Nov 29 13:08:10 2011
+	* Add the parent.pm prereq
+	* Remove the 01_about_verbose test, which doesn't test anything
+
 3.15_10 - Sat Nov 19 19:56:21 2011
 	* Merge the changes to use Pod::Man instead of pod2man
 	* Restrict the names we'll allow the program to run under

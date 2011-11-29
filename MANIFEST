@@ -17,8 +17,8 @@ Makefile.PL
 MANIFEST
 MANIFEST.SKIP
 META.yml			Module meta-data (added by MakeMaker)
+MYMETA.yml
 perldoc
 README
-t/01_about_verbose.t
 t/load.t
 t/man/_get_columns.t

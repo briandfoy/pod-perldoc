@@ -1,3 +1,4 @@
+\.DS_Store
 \.gitignore
 \.git
 blib
@@ -10,3 +11,6 @@ pm_to_blib
 \.orig
 nytprof
 cover_db
+
+# This doesn't test anything, but maybe I'm wrong
+t/01_about_verbose.t

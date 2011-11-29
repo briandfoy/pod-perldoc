@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '3.15_10';
+$VERSION = '3.15_11';
 
 use base qw(Pod::Perldoc::BaseTo);
 

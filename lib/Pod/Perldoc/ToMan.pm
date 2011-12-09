@@ -129,7 +129,9 @@ sub _parse_with_pod_man {
 	local *STDOUT;
 	open STDOUT, '>', $self->{_text_ref};
 	my $parser = Pod::Man->new( $self->_get_podman_switches );
+	$self->debug( "Parsing $file" );
     $parser->parse_from_file( $file );
+	$self->debug( "Done parsing $file" );
     close STDOUT;
 
 	$self->die( "No output from Pod::Man!\n" )
@@ -262,7 +264,7 @@ sub _filter_through_nroff {
 		return $self->_fallback_to_pod( @_ );
 		}
 
-	$self->debug( $done );
+	#$self->debug( $done );
 
 	${ $self->{_text_ref} } = $done;
 

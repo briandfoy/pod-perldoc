@@ -5,7 +5,7 @@ use warnings;
 use parent qw(Pod::Perldoc::BaseTo);
 
 use vars qw($VERSION);
-$VERSION = '3.15_11';
+$VERSION = '3.15_12';
 
 use Pod::Man 2.18;
 # This class is unlike ToText.pm et al, because we're NOT paging thru

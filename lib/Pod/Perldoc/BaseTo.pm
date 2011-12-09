@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '3.15_11';
+$VERSION = '3.15_12';
 
 use Carp qw(croak carp);
 

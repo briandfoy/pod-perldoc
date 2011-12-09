@@ -34,13 +34,13 @@ use Carp qw(croak carp);
 sub warn {
   my( $self, @messages ) = @_;
 
-  carp( join "\n", @messages );
+  carp( join "\n", @messages, '' );
   }
 
 sub die {
   my( $self, @messages ) = @_;
 
-  croak( join "\n", @messages );
+  croak( join "\n", @messages, '' );
   }
 
 #..........................................................................

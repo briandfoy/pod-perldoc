@@ -1,5 +1,8 @@
 Revision history for Perl module group Pod::Perldoc
 
+3.15_12 - Fri Dec  9 07:02:02 2011
+	* Fix the blocking writes in the groff pipe (RT #73074)
+
 3.15_11 - Tue Nov 29 13:08:10 2011
 	* Add the parent.pm prereq
 	* Remove the 01_about_verbose test, which doesn't test anything

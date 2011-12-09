@@ -206,6 +206,7 @@ sub _filter_through_nroff {
 
 	require Symbol;
 	require IPC::Open3;
+	require IO::Handle;
 
 	my $pid = IPC::Open3::open3(
 		my $writer,
@@ -215,14 +216,42 @@ sub _filter_through_nroff {
 		@render_switches
 		);
 
-	print { $writer } ${ $self->{_text_ref} };
+	$reader->autoflush(1);
+
+	use IO::Select;
+	my $selector = IO::Select->new( $reader );
+
+	$self->debug( "Writing to pipe to groff\n" );
+
+	my $offset = 0;
+	my $chunk_size = 4096;
+	my $length = length( ${ $self->{_text_ref} } );
+	my $chunks = $length / $chunk_size;
+	my $done;
+	my $buffer;
+	while( $offset <= $length ) {
+		$self->debug( "Writing chunk $chunks\n" ); $chunks++;
+		syswrite $writer, ${ $self->{_text_ref} }, $chunk_size, $offset;
+		$offset += $chunk_size;
+		$self->debug( "Checking read\n" );
+		READ: {
+			last READ unless $selector->can_read( 0.01 );
+			$self->debug( "Reading\n" );
+			sysread $reader, $buffer, 4096;
+			$done .= $buffer;
+			next READ;
+			}
+		}
 	close $writer;
+
+	# read any leftovers
+	$done .= do { local $/; <$reader> };
+
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );
 		$self->debug( do { local $/; <$err> } );
 		}
 
-	my $done = do { local $/; <$reader> };
 
 	close $reader;
 	if( my $err = $? ) {

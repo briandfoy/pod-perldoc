@@ -1,5 +1,6 @@
 Changes
 corpus/no-head.pod
+corpus/perlfunc.pod
 corpus/utf8.pod
 lib/perldoc.pod
 lib/Pod/Perldoc.pm

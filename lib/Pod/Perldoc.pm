@@ -738,8 +738,11 @@ sub options_processing {
 
     $self->options_sanity;
 
-    $self->opt_n("groff") unless $self->opt_n;
-    $self->add_formatter_option( '__nroffer' => $self->opt_n );
+    # This used to set a default, but that's now moved into any
+    # formatter that cares to have a default.
+    if( $self->opt_n ) {
+        $self->add_formatter_option( '__nroffer' => $self->opt_n );
+    }
 
     # Get language from PERLDOC_POD2 environment variable
     if ( ! $self->opt_L && $ENV{PERLDOC_POD2} ) {

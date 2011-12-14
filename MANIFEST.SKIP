@@ -11,6 +11,7 @@ pm_to_blib
 \.orig
 nytprof
 cover_db
+podman\.out.*
 
 # This doesn't test anything, but maybe I'm wrong
 t/01_about_verbose.t

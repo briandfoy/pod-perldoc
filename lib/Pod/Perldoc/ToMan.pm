@@ -252,14 +252,19 @@ sub _filter_through_nroff {
 	my $buffer;
 	while( $offset <= $length ) {
 		$self->debug( "Writing chunk $chunks\n" ); $chunks++;
-		syswrite $writer, ${ $self->{_text_ref} }, $chunk_size, $offset;
+		syswrite $writer, ${ $self->{_text_ref} }, $chunk_size, $offset
+			or $self->die( $! );
 		$offset += $chunk_size;
 		$self->debug( "Checking read\n" );
 		READ: {
 			last READ unless $selector->can_read( 0.01 );
 			$self->debug( "Reading\n" );
-			sysread $reader, $buffer, 4096;
+			my $bytes = sysread $reader, $buffer, 4096;
+			$self->debug( "Read $bytes bytes\n" );
 			$done .= $buffer;
+			$self->debug( sprintf "Output is %d bytes\n",
+				length $done
+				);
 			next READ;
 			}
 		}
@@ -268,7 +273,9 @@ sub _filter_through_nroff {
 
 	# read any leftovers
 	$done .= do { local $/; <$reader> };
-	$self->debug( "Done reading\n" );
+	$self->debug( sprintf "Done reading. Output is %d bytes\n",
+		length $done
+		);
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );
@@ -279,17 +286,17 @@ sub _filter_through_nroff {
 	close $reader;
 	if( my $err = $? ) {
 		$self->debug(
-			"Nonzero exit ($?) while running `$render @render_switches`.\n",
+			"Nonzero exit ($?) while running `$render @render_switches`.\n" .
 			"Falling back to Pod::Perldoc::ToPod\n"
 			);
 		return $self->_fallback_to_pod( @_ );
 		}
 
-	$self->debug( $done );
+	$self->debug( "Output:\n----\n$done\n----\n" );
 
 	${ $self->{_text_ref} } = $done;
 
-	return SUCCESS
+	return length ${ $self->{_text_ref} } ? SUCCESS : FAILED;
 	}
 
 sub parse_from_file {

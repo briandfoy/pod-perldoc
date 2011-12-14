@@ -172,8 +172,8 @@ sub _save_pod_man_output {
 sub _have_groff_with_utf8 {
 	my( $self ) = @_;
 
+	return 0 unless $self->_is_groff;
 	my $roffer = $self->__nroffer;
-	return 0 unless $roffer =~ /\bgroff\z/;
 
 	my $minimum_groff_version = '1.20.1';
 
@@ -198,7 +198,7 @@ sub _collect_nroff_switches {
 
 	my @render_switches = qw(-man);
 
-	push @render_switches, qw(-Kutf8 -Tutf8) if $self->_have_groff_with_utf8;
+	push @render_switches, $self->_get_device_switches;
 
 	# Thanks to Brendan O'Dea for contributing the following block
 	if( $self->is_linux and -t STDOUT and my ($cols) = $self->_get_columns ) {
@@ -216,6 +216,33 @@ sub _collect_nroff_switches {
 	return @render_switches;
 	}
 
+sub _get_device_switches {
+	my( $self ) = @_;
+
+	   if( $self->_is_nroff  )            { qw() }
+	elsif( $self->_have_groff_with_utf8 ) { qw(-Kutf8 -Tutf8) }
+	elsif( $self->_is_ebcdic )            { qw(-Tcp1047)      }
+	else                                  { qw(-Tlatin1)      }
+	}
+
+sub _is_nroff {
+	my( $self ) = @_;
+
+	$self->__nroffer =~ /\bnroff\z/;
+	}
+
+sub _is_groff {
+	my( $self ) = @_;
+
+	$self->__nroffer =~ /\bgroff\z/;
+	}
+
+sub _is_ebcdic {
+	my( $self ) = @_;
+
+	return 0;
+	}
+	
 sub _filter_through_nroff {
 	my( $self ) = shift;
 	$self->debug( "Filtering through " . $self->__nroffer() . "\n" );

@@ -11,3 +11,4 @@ Makefile
 cover_db
 nytprof.*
 nytprof
+podman.out*

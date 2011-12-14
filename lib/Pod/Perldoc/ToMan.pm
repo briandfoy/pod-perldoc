@@ -47,9 +47,27 @@ sub new {
 sub init {
 	my( $self, @args ) = @_;
 
-	$self->__nroffer( 'nroff' ) unless $self->__nroffer;
+	$self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
+	unless( $self->__nroffer ) {
+		my $roffer = $self->find_roffer( $self->roffer_candidates );
+		$self->debug( "Using $roffer\n" );
+		$self->__nroffer( $roffer );
+		}
 
 	$self->_check_nroffer;
+	}
+
+sub roffer_candidates {  ( 'nroff', 'groff' ) }
+
+sub find_roffer {
+	my( $self, @candidates ) = @_;
+
+	my @found = ();
+	foreach my $candidate ( @candidates ) {
+		push @found, $self->find_executable_in_path( $candidate );
+		}
+
+	return wantarray ? @found : $found[0];
 	}
 
 sub _check_nroffer {
@@ -154,12 +172,13 @@ sub _save_pod_man_output {
 sub _have_groff_with_utf8 {
 	my( $self ) = @_;
 
-	return 0 unless $self->__nroffer eq 'groff';
+	my $roffer = $self->__nroffer;
+	return 0 unless $roffer =~ /\b[ng]roff\z/;
 
 	my $minimum_groff_version = '1.20.1';
 
-	my $version_string = `groff -v`;
-	my( $version ) = $version_string =~ /groff version (\d+\.\d+(?:\.\d+)?)/;
+	my $version_string = `$roffer -v`;
+	my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 	$self->debug( "Found groff $version\n" );
 
 	# is a string comparison good enough?
@@ -199,9 +218,9 @@ sub _collect_nroff_switches {
 
 sub _filter_through_nroff {
 	my( $self ) = shift;
-	$self->debug( "Filtering through nroff\n" );
+	$self->debug( "Filtering through " . $self->__nroffer() . "\n" );
 
-	my $render = $self->{'__nroffer'} || $self->die( "no nroffer set!?" );
+	my $render = $self->__nroffer() || $self->die( "no nroffer set!?" );
 	my @render_switches = $self->_collect_nroff_switches;
 	$self->debug( "render is $render\n" );
 	$self->debug( "render options are @render_switches\n" );

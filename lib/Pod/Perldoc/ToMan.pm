@@ -90,51 +90,50 @@ use File::Spec::Functions qw(catfile);
 sub _get_stty { `stty -a` }
 
 sub _get_columns_from_stty {
-  my $output = $_[0]->_get_stty;
+	my $output = $_[0]->_get_stty;
 
-  if(    $output =~ /\bcolumns\s+(\d+)/ )    { return $1 }
-  elsif( $output =~ /;\s*(\d+)\s+columns;/ ) { return $1 }
-  else                                       { return  0 }
-  }
+	if(    $output =~ /\bcolumns\s+(\d+)/ )    { return $1 }
+	elsif( $output =~ /;\s*(\d+)\s+columns;/ ) { return $1 }
+	else                                       { return  0 }
+	}
 
 sub _get_columns_from_manwidth {
-  my( $self ) = @_;
+	my( $self ) = @_;
 
-  return 0 unless defined $ENV{MANWIDTH};
+	return 0 unless defined $ENV{MANWIDTH};
 
-  unless( $ENV{MANWIDTH} =~ m/\A\d+\z/ ) {
-    $self->warn( "Ignoring non-numeric MANWIDTH ($ENV{MANWIDTH})\n" );
-    return 0;
-    }
+	unless( $ENV{MANWIDTH} =~ m/\A\d+\z/ ) {
+		$self->warn( "Ignoring non-numeric MANWIDTH ($ENV{MANWIDTH})\n" );
+		return 0;
+		}
 
-  if( $ENV{MANWIDTH} == 0 ) {
-    $self->warn( "Ignoring MANWIDTH of 0. Really? Why even run the program? :)\n" );
-    return 0;
-    }
+	if( $ENV{MANWIDTH} == 0 ) {
+		$self->warn( "Ignoring MANWIDTH of 0. Really? Why even run the program? :)\n" );
+		return 0;
+		}
 
-  if( $ENV{MANWIDTH} =~ m/\A(\d+)\z/ ) { return $1 }
+	if( $ENV{MANWIDTH} =~ m/\A(\d+)\z/ ) { return $1 }
 
-  return 0;
-  }
+	return 0;
+	}
 
 sub _get_default_width {
-  73
-  }
+	73
+	}
 
 sub _get_columns {
-  $_[0]->_get_columns_from_manwidth ||
-  $_[0]->_get_columns_from_stty     ||
-  $_[0]->_get_default_width;
-  }
+	$_[0]->_get_columns_from_manwidth ||
+	$_[0]->_get_columns_from_stty     ||
+	$_[0]->_get_default_width;
+	}
 
 sub _get_podman_switches {
 	my( $self ) = @_;
 
 	my @switches = grep !m/^_/s, keys %$self;
 
-	$self->debug( "Pod::Man switches are [@switches]\n" );
-
 	push @switches, utf8 => 1;
+	$self->debug( "Pod::Man switches are [@switches]\n" );
 
 	return @switches;
 	}
@@ -147,9 +146,9 @@ sub _parse_with_pod_man {
 	local *STDOUT;
 	open STDOUT, '>', $self->{_text_ref};
 	my $parser = Pod::Man->new( $self->_get_podman_switches );
-	$self->debug( "Parsing $file" );
+	$self->debug( "Parsing $file\n" );
     $parser->parse_from_file( $file );
-	$self->debug( "Done parsing $file" );
+	$self->debug( "Done parsing $file\n" );
     close STDOUT;
 
 	$self->die( "No output from Pod::Man!\n" )
@@ -162,8 +161,9 @@ sub _parse_with_pod_man {
 
 sub _save_pod_man_output {
 	my( $self ) = @_;
+	next unless $self->debugging;
 	my $file = "podman.out.$$.txt";
-	$self->debug( "Writing $file with Pod::Man output" );
+	$self->debug( "Writing $file with Pod::Man output\n" );
 	open my( $fh ), '>', $file;
 	print $fh ${ $self->{_text_ref} };
 	close $fh;
@@ -264,13 +264,15 @@ sub _filter_through_nroff {
 			}
 		}
 	close $writer;
+	$self->debug( "Done writing\n" );
 
 	# read any leftovers
 	$done .= do { local $/; <$reader> };
+	$self->debug( "Done reading\n" );
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );
-		$self->debug( do { local $/; <$err> } );
+		$self->debug( 'Error: ' . do { local $/; <$err> } );
 		}
 
 
@@ -283,7 +285,7 @@ sub _filter_through_nroff {
 		return $self->_fallback_to_pod( @_ );
 		}
 
-	#$self->debug( $done );
+	$self->debug( $done );
 
 	${ $self->{_text_ref} } = $done;
 

@@ -156,7 +156,7 @@ sub _parse_with_pod_man {
 
 	$self->_save_pod_man_output if $self->debugging;
 
-    return SUCCESS;
+	return SUCCESS;
 	}
 
 sub _save_pod_man_output {
@@ -315,8 +315,8 @@ sub parse_from_file {
 sub _fallback_to_pod {
 	my( $self, @args ) = @_;
 	$self->warn( "Falling back to Pod because there was a problem!\n" );
-    require Pod::Perldoc::ToPod;
-    return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
+	require Pod::Perldoc::ToPod;
+	return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
 	}
 
 # maybe there's a user setting we should check?

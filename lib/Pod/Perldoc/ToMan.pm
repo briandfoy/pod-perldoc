@@ -57,7 +57,7 @@ sub init {
 	$self->_check_nroffer;
 	}
 
-sub roffer_candidates {  ( 'nroff', 'groff' ) }
+sub roffer_candidates {  ( 'groff', 'nroff' ) }
 
 sub find_roffer {
 	my( $self, @candidates ) = @_;
@@ -173,7 +173,7 @@ sub _have_groff_with_utf8 {
 	my( $self ) = @_;
 
 	my $roffer = $self->__nroffer;
-	return 0 unless $roffer =~ /\b[ng]roff\z/;
+	return 0 unless $roffer =~ /\bgroff\z/;
 
 	my $minimum_groff_version = '1.20.1';
 

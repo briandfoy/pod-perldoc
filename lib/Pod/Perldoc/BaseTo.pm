@@ -7,7 +7,9 @@ use warnings;
 use vars qw($VERSION);
 $VERSION = '3.15_12';
 
-use Carp qw(croak carp);
+use Carp                  qw(croak carp);
+use Config                qw(%Config);
+use File::Spec::Functions qw(catfile);
 
 sub is_pageable        { '' }
 sub write_with_binmode {  1 }
@@ -55,12 +57,39 @@ sub debug {
 
 sub warn {
 	my( $self, @messages ) = @_;
-	carp join "\n", @messages;
+	carp join "\n", @messages, '';
 	}
 
 sub die {
 	my( $self, @messages ) = @_;
-	croak join "\n", @messages;
+	croak join "\n", @messages, '';
+	}
+
+sub get_path_components {
+	my( $self ) = @_;
+
+	my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
+
+	return @paths;
+	}
+
+sub find_executable_in_path {
+	my( $self, $program ) = @_;
+
+	my @found = ();
+	foreach my $dir ( $self->get_path_components ) {
+		my $binary = catfile( $dir, $program );
+		$self->debug( "Looking for $binary\n" );
+		next unless -e $binary;
+		unless( -x $binary ) {
+			$self->warn( "Found $binary but it's not executable. Skipping.\n" );
+			next;
+			}
+		$self->debug( "Found $binary\n" );
+		push @found, $binary;
+		}
+
+	return @found;
 	}
 
 1;

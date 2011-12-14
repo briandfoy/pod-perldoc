@@ -6,11 +6,8 @@ use vars qw($VERSION);
 
 use base qw( Pod::Simple::RTF );
 
-$VERSION   # so that ->VERSION is happy
-# stop CPAN from seeing this
- =
-$Pod::Simple::RTF::VERSION;
-
+use vars qw($VERSION);
+$VERSION = '3.15_13';
 
 sub is_pageable        { 0 }
 sub write_with_binmode { 0 }

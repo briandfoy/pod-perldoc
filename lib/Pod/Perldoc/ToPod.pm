@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '3.15_12';
+$VERSION = '3.15_13';
 
 use base qw(Pod::Perldoc::BaseTo);
 sub is_pageable        { 1 }

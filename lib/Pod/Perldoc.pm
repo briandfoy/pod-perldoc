@@ -183,8 +183,8 @@ sub opt_o_with { # "o" for output format
       "\L$rest", "\L\u$rest", "\U$rest" # And then try variations
 
     ) {
+      $self->aside("Considering $prefix$stem\n");
       push @classes, $prefix . $stem;
-      #print "Considering $prefix$stem\n";
     }
 
     # Tidier, but misses too much:

@@ -47,12 +47,14 @@ sub new {
 sub init {
 	my( $self, @args ) = @_;
 
-	$self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
 	unless( $self->__nroffer ) {
 		my $roffer = $self->find_roffer( $self->roffer_candidates );
 		$self->debug( "Using $roffer\n" );
 		$self->__nroffer( $roffer );
 		}
+    else {
+	    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
+        }
 
 	$self->_check_nroffer;
 	}

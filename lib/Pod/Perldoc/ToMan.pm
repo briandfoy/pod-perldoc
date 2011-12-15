@@ -59,9 +59,9 @@ sub init {
 	$self->_check_nroffer;
 	}
 
-sub roffer_candidates {  ( 'groff', 'nroff' ) }
+sub _roffer_candidates { qw( groff nroff mandoc ) }
 
-sub find_roffer {
+sub _find_roffer {
 	my( $self, @candidates ) = @_;
 
 	my @found = ();
@@ -198,12 +198,12 @@ sub _have_groff_with_utf8 {
 sub _collect_nroff_switches {
 	my( $self ) = shift;
 
-	my @render_switches = qw(-man);
+	my @render_switches = $self->_is_mandoc ? qw(-mandoc) : qw(-man);
 
 	push @render_switches, $self->_get_device_switches;
 
 	# Thanks to Brendan O'Dea for contributing the following block
-	if( $self->is_linux and -t STDOUT and my ($cols) = $self->_get_columns ) {
+	if( $self->_is_roff and $self->is_linux and -t STDOUT and my ($cols) = $self->_get_columns ) {
 		my $c = $cols * 39 / 40;
 		$cols = $c > $cols - 2 ? $c : $cols -2;
 		push @render_switches, '-rLL=' . (int $c) . 'n' if $cols > 80;
@@ -213,7 +213,7 @@ sub _collect_nroff_switches {
 	# solves many people's problems.  But I also hear that some mans
 	# don't have a -c switch, so that unconditionally adding it here
 	# would presumably be a Bad Thing   -- sburke@cpan.org
-    push @render_switches, '-c' if $self->is_cygwin;
+    push @render_switches, '-c' if( $self->_is_roff and $self->is_cygwin );
 
 	return @render_switches;
 	}
@@ -223,8 +223,15 @@ sub _get_device_switches {
 
 	   if( $self->_is_nroff  )            { qw() }
 	elsif( $self->_have_groff_with_utf8 ) { qw(-Kutf8 -Tutf8) }
+	elsif( $self->_is_mandoc )            { qw(-Tutf8)        }
 	elsif( $self->_is_ebcdic )            { qw(-Tcp1047)      }
 	else                                  { qw(-Tlatin1)      }
+	}
+
+sub _is_roff {
+	my( $self ) = @_;
+
+	$self->_is_nroff or $self->_is_groff;
 	}
 
 sub _is_nroff {

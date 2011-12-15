@@ -162,7 +162,6 @@ sub _parse_with_pod_man {
 
 sub _save_pod_man_output {
 	my( $self ) = @_;
-	next unless $self->debugging;
 	my $file = "podman.out.$$.txt";
 	$self->debug( "Writing $file with Pod::Man output\n" );
 	open my( $fh ), '>', $file;

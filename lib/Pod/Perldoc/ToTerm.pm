@@ -1,4 +1,3 @@
-require 5;
 package Pod::Perldoc::ToTerm;
 use strict;
 use warnings;
@@ -47,7 +46,7 @@ sub parse_from_file {
 
 =head1 NAME
 
-Pod::Perldoc::ToTerm - render Pod with Terminal escapes 
+Pod::Perldoc::ToTerm - render Pod with terminal escapes 
 
 =head1 SYNOPSIS
 
@@ -76,22 +75,18 @@ L<Pod::Text>, L<Pod::Text::Termcap>, L<Pod::Perldoc>
 
 =head1 COPYRIGHT AND DISCLAIMERS
 
-Copyright (c) 2002 Sean M. Burke.  All rights reserved.
+Copyright (c) 2011 Mark Allen.
 
-This library is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it
+under the terms of either: the GNU General Public License as published
+by the Free Software Foundation; or the Artistic License.
 
-This program is distributed in the hope that it will be useful, but
-without any warranty; without even the implied warranty of
-merchantability or fitness for a particular purpose.
+See http://dev.perl.org/licenses/ for more information.
 
 =head1 AUTHOR
 
+Mark Allen C<< <mallen@cpan.org> >>
+
 Current maintainer: brian d foy C<< <bdfoy@cpan.org> >>
-
-Past contributions from:
-Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
-Sean M. Burke C<< <sburke@cpan.org> >>
-
 
 =cut

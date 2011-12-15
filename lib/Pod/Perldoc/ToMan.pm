@@ -7,6 +7,7 @@ use parent qw(Pod::Perldoc::BaseTo);
 use vars qw($VERSION);
 $VERSION = '3.15_13';
 
+use File::Spec::Functions qw(catfile);
 use Pod::Man 2.18;
 # This class is unlike ToText.pm et al, because we're NOT paging thru
 # the output in our particular format -- we make the output and
@@ -86,8 +87,6 @@ sub _check_nroffer {
 
 	# is it good enough for us?
 	}
-
-use File::Spec::Functions qw(catfile);
 
 sub _get_stty { `stty -a` }
 

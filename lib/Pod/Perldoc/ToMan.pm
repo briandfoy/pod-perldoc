@@ -133,7 +133,7 @@ sub _get_podman_switches {
 
 	my @switches = grep !m/^_/s, keys %$self;
 
-	push @switches, utf8 => 1;
+	push @switches, 'utf8';
 	$self->debug( "Pod::Man switches are [@switches]\n" );
 
 	return @switches;
@@ -244,6 +244,12 @@ sub _is_groff {
 	$self->__nroffer =~ /\bgroff\z/;
 	}
 
+sub _is_mandoc {
+	my ( $self ) = @_;
+
+	$self->__nroffer =~ /\bmandoc\z/;
+	}
+
 sub _is_ebcdic {
 	my( $self ) = @_;
 
@@ -276,7 +282,7 @@ sub _filter_through_nroff {
 	use IO::Select;
 	my $selector = IO::Select->new( $reader );
 
-	$self->debug( "Writing to pipe to groff\n" );
+	$self->debug( "Writing to pipe to $render\n" );
 
 	my $offset = 0;
 	my $chunk_size = 4096;
@@ -424,7 +430,7 @@ sub _handle_unicode {
 # we don't need this with groff 1.20 and later.
 	my( $self ) = @_;
 	#$self->warn( "_handle_unicode doesn't work yet\n" );
-	return 1;
+	#return 1;
 
 	use Encode qw( decode );
 

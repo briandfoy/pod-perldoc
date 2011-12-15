@@ -1,5 +1,3 @@
-
-require 5;
 package Pod::Perldoc::GetOptsOO;
 use strict;
 

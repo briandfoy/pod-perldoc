@@ -2,13 +2,12 @@ require 5;
 package Pod::Perldoc::ToNroff;
 use strict;
 use warnings;
+use parent qw(Pod::Perldoc::BaseTo);
 
 use vars qw($VERSION);
 $VERSION = '3.15_13';
 
 # This is unlike ToMan.pm in that it emits the raw nroff source!
-
-use base qw(Pod::Perldoc::BaseTo);
 
 sub is_pageable        { 1 }  # well, if you ask for it...
 sub write_with_binmode { 0 }

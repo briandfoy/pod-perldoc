@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-use base qw( Pod::Simple::XMLOutStream );
+use parent qw( Pod::Simple::XMLOutStream );
 
 use vars qw($VERSION);
 $VERSION = '3.15_13';

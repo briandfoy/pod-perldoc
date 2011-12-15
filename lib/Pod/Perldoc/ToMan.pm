@@ -48,7 +48,7 @@ sub init {
 	my( $self, @args ) = @_;
 
 	unless( $self->__nroffer ) {
-		my $roffer = $self->find_roffer( $self->roffer_candidates );
+		my $roffer = $self->_find_roffer( $self->_roffer_candidates );
 		$self->debug( "Using $roffer\n" );
 		$self->__nroffer( $roffer );
 		}
@@ -66,7 +66,7 @@ sub find_roffer {
 
 	my @found = ();
 	foreach my $candidate ( @candidates ) {
-		push @found, $self->find_executable_in_path( $candidate );
+		push @found, $self->_find_executable_in_path( $candidate );
 		}
 
 	return wantarray ? @found : $found[0];

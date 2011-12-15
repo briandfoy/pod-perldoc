@@ -63,7 +63,7 @@ sub die {
 	croak join "\n", @messages, '';
 	}
 
-sub get_path_components {
+sub _get_path_components {
 	my( $self ) = @_;
 
 	my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
@@ -71,11 +71,11 @@ sub get_path_components {
 	return @paths;
 	}
 
-sub find_executable_in_path {
+sub _find_executable_in_path {
 	my( $self, $program ) = @_;
 
 	my @found = ();
-	foreach my $dir ( $self->get_path_components ) {
+	foreach my $dir ( $self->_get_path_components ) {
 		my $binary = catfile( $dir, $program );
 		$self->debug( "Looking for $binary\n" );
 		next unless -e $binary;

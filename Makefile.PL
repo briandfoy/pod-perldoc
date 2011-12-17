@@ -16,6 +16,7 @@ WriteMakefile(
     'PREREQ_PM' => {
             # Are there any hard dependencies not covered here?
             'Config'                    => '0',
+            'Encode'                    => '0',
             'Fcntl'                     => '0',
             'File::Spec::Functions'     => '0',
             'File::Temp'                => '0.22',

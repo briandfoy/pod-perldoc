@@ -38,6 +38,8 @@ WriteMakefile(
     ( $EUMM_VERSION > 6.31 ? (
         'LICENSE' => 'perl',
     ) : () ),
+
+	test => {TESTS => 't/*.t t/*/*.t'}
 );
 
 package MY;

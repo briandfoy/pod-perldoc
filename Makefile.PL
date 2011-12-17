@@ -20,6 +20,7 @@ WriteMakefile(
             'Fcntl'                     => '0',
             'File::Spec::Functions'     => '0',
             'File::Temp'                => '0.22',
+            'IO::Select'                => '0',
             'parent'                    => '0',
             'Pod::Man'                  => '2.18',
             'Pod::Simple::RTF'          => '3.16',

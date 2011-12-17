@@ -430,7 +430,7 @@ sub _handle_unicode {
 # we don't need this with groff 1.20 and later.
 	my( $self ) = @_;
 	#$self->warn( "_handle_unicode doesn't work yet\n" );
-	#return 1;
+	return 1;
 
 	use Encode qw( decode );
 

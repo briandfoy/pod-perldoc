@@ -440,10 +440,10 @@ sub _handle_unicode {
 
 	return 1 if $self->_unicode_already_handled;
 
-	use Encode qw( decode );
+	require Encode;
 
 	# it's UTF-8 here, but we need character data
-	my $text = decode( 'UTF-8', ${ $self->{_text_ref} } ) ;
+	my $text = Encode::decode( 'UTF-8', ${ $self->{_text_ref} } ) ;
 
 # http://www.mail-archive.com/groff@gnu.org/msg01378.html
 # http://linux.die.net/man/7/groff_char

@@ -416,7 +416,7 @@ sub _remove_nroff_header {
 # newlines in the Pod::Man output
 sub _remove_nroff_footer {
 	my( $self ) = @_;
-	$self->warn( "_remove_nroff_footer is still a stub!\n" );
+	$self->debug( "_remove_nroff_footer is still a stub!\n" );
 	return 1;
 	${ $self->{_text_ref} } =~ s/\n\n+.*\w.*\Z//m;
 

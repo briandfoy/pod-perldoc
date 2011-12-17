@@ -185,7 +185,7 @@ sub _have_groff_with_utf8 {
 	if( $version lt $minimum_groff_version ) {
 		$self->warn(
 			"You have an old groff." .
-			" Update to version $minimum_groff_version to good Unicode support.\n" .
+			" Update to version $minimum_groff_version for good Unicode support.\n" .
 			"If you don't upgrade, wide characters may come out oddly.\n",
 			 );
 		}

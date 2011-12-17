@@ -133,7 +133,7 @@ sub _get_podman_switches {
 
 	my @switches = grep !m/^_/s, keys %$self;
 
-	push @switches, 'utf8';
+	push @switches, 'utf8' => 1;
 	$self->debug( "Pod::Man switches are [@switches]\n" );
 
 	return @switches;

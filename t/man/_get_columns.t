@@ -56,7 +56,7 @@ foreach my $test ( @tests ) {
 		defined $ENV{MANWIDTH} ? $ENV{MANWIDTH} : "(undef)",
 		$Local::ToMan::stty_text,
 		$Local::ToMan::is_linux,
-		);
+		) if $ENV{PERLDOCDEBUG};
 	}
 
 	is( Local::ToMan->_get_columns_from_manwidth(), $test->[MANWIDTH_EXPECTED],

@@ -425,12 +425,20 @@ sub _remove_nroff_footer {
         # 28/Jan/99 perl 5.005, patch 53 1
 	}
 
+sub _unicode_already_handled {
+	my( $self ) = @_;
+
+	$self->_have_groff_with_utf8 ||
+	1  # so, we don't have a case that needs _handle_unicode
+	;
+	}
+
 sub _handle_unicode {
 # this is the job of preconv
 # we don't need this with groff 1.20 and later.
 	my( $self ) = @_;
-	#$self->warn( "_handle_unicode doesn't work yet\n" );
-	return 1;
+
+	return 1 if $self->_unicode_already_handled;
 
 	use Encode qw( decode );
 
@@ -447,6 +455,7 @@ sub _handle_unicode {
 		sprintf '\\[u%04X]', ord $1
 	     /eg;
 
+	# should we encode?
 	${ $self->{_text_ref} } = $text;
 	}
 

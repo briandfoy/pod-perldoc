@@ -47,8 +47,6 @@ sub _perldoc_elem {
 sub debugging {
 	my( $self, @messages ) = @_;
 
-	$self->opt_D
-		||
     ( defined(&Pod::Perldoc::DEBUG) and &Pod::Perldoc::DEBUG() )
 	}
 

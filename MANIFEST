@@ -6,11 +6,13 @@ lib/perldoc.pod
 lib/Pod/Perldoc.pm
 lib/Pod/Perldoc/BaseTo.pm
 lib/Pod/Perldoc/GetOptsOO.pm
+lib/Pod/Perldoc/ToANSI.pm
 lib/Pod/Perldoc/ToChecker.pm
 lib/Pod/Perldoc/ToMan.pm
 lib/Pod/Perldoc/ToNroff.pm
 lib/Pod/Perldoc/ToPod.pm
 lib/Pod/Perldoc/ToRtf.pm
+lib/Pod/Perldoc/ToTerm.pm
 lib/Pod/Perldoc/ToText.pm
 lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm

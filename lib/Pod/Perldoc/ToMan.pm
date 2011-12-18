@@ -176,6 +176,7 @@ sub _save_pod_man_output {
 		my $file = "podman.out.$$.txt";
 		$self->debug( "Writing $file with Pod::Man output\n" );
 		open my $fh2, '>', $file;
+		$fh2;
 		} unless $fh;
 
 	print { $fh } ${ $self->{_text_ref} };

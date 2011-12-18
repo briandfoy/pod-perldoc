@@ -201,6 +201,31 @@ sub _have_groff_with_utf8 {
 	$version gt $minimum_groff_version;
 	}
 
+sub _have_mandoc_with_utf8 {
+	my( $self ) = @_;
+
+	return 0 unless $self->_is_mandoc;
+	my $roffer = $self->__nroffer;
+
+	my $minimum_mandoc_version = '1.11';
+
+	my $version_string = `$roffer -V`;
+	my( $version ) = $version_string =~ /mandoc (\d+)\.(\d+)/;
+	$self->debug( "Found mandoc $version\n" );
+
+	# is a string comparison good enough?
+	if( $version lt $minimum_mandoc_version ) {
+		$self->warn(
+			"You have an older mandoc." .
+			" Update to version $minimum_mandoc_version for good Unicode support.\n" .
+			"If you don't upgrade, wide characters may come out oddly.\n",
+			"Your results still might be odd. If you have groff, that's even better.\n",
+			 );
+		}
+
+	$version gt $minimum_groff_version;
+	}
+
 sub _collect_nroff_switches {
 	my( $self ) = shift;
 
@@ -227,11 +252,11 @@ sub _collect_nroff_switches {
 sub _get_device_switches {
 	my( $self ) = @_;
 
-	   if( $self->_is_nroff  )            { qw() }
-	elsif( $self->_have_groff_with_utf8 ) { qw(-Kutf8 -Tutf8) }
-	elsif( $self->_is_mandoc )            { qw(-Tutf8)        }
-	elsif( $self->_is_ebcdic )            { qw(-Tcp1047)      }
-	else                                  { qw(-Tlatin1)      }
+	   if( $self->_is_nroff  )             { qw()              }
+	elsif( $self->_have_groff_with_utf8 )  { qw(-Kutf8 -Tutf8) }
+	elsif( $self->_is_ebcdic )             { qw(-Tcp1047)      }
+	elsif( $self->_have_mandoc_with_utf8 ) { qw(-Tutf8)        }
+	else                                   { qw(-Tlatin1)      }
 	}
 
 sub _is_roff {

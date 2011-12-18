@@ -195,7 +195,7 @@ sub _have_groff_with_utf8 {
 		$self->warn(
 			"You have an old groff." .
 			" Update to version $minimum_groff_version for good Unicode support.\n" .
-			"If you don't upgrade, wide characters may come out oddly.\n",
+			"If you don't upgrade, wide characters may come out oddly.\n"
 			 );
 		}
 
@@ -211,16 +211,16 @@ sub _have_mandoc_with_utf8 {
 	my $minimum_mandoc_version = '1.11';
 
 	my $version_string = `$roffer -V`;
-	my( $version ) = $version_string =~ /mandoc (\d+)\.(\d+)/;
+	my( $version ) = $version_string =~ /mandoc ((\d+)\.(\d+))/;
 	$self->debug( "Found mandoc $version\n" );
 
 	# is a string comparison good enough?
 	if( $version lt $minimum_mandoc_version ) {
 		$self->warn(
 			"You have an older mandoc." .
-			" Update to version $minimum_mandoc_version for good Unicode support.\n" .
-			"If you don't upgrade, wide characters may come out oddly.\n",
-			"Your results still might be odd. If you have groff, that's even better.\n",
+			" Update to version $minimum_mandoc_version for better Unicode support.\n" .
+			"If you don't upgrade, wide characters may come out oddly.\n" .
+			"Your results still might be odd. If you have groff, that's even better.\n"
 			 );
 		}
 

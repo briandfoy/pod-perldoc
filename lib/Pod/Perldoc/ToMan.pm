@@ -61,12 +61,14 @@ sub init {
 	}
 
 sub _roffer_candidates {
+	my( $self ) = @_;
+
 	# OpenBSD is weird, and I'm punting for the moment. Using
 	# nroff will work just like it did before, but openbsd
 	# people won't get the benefit of the UTF-8 fixes.
 	#
-	if( $^O eq 'openbsd' ) { qw( nroff ) }
-	else                   { qw( groff nroff mandoc ) }
+	if( $self->is_openbsd ) { qw( mandoc nroff groff ) }
+	else                    { qw( groff nroff mandoc ) }
 	}
 
 sub _find_roffer {

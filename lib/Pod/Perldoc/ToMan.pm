@@ -61,12 +61,10 @@ sub init {
 	}
 
 sub _roffer_candidates {
-	# OpenBSD is weird, and I'm punting for the moment. Using
-	# nroff will work just like it did before, but openbsd
-	# people won't get the benefit of the UTF-8 fixes.
-	#
-	if( $^O eq 'openbsd' ) { qw( nroff ) }
-	else                   { qw( groff nroff mandoc ) }
+	my( $self ) = @_;
+
+	if( $self->is_openbsd ) { qw( mandoc groff nroff ) }
+	else                    { qw( groff nroff mandoc ) }
 	}
 
 sub _find_roffer {
@@ -172,9 +170,10 @@ sub _save_pod_man_output {
 
 	$fh = do {
 		my $file = "podman.out.$$.txt";
+		$self->debug( "Writing $file with Pod::Man output\n" );
 		open my $fh2, '>', $file;
+		$fh2;
 		} unless $fh;
-	$self->debug( "Writing $file with Pod::Man output\n" );
 
 	print { $fh } ${ $self->{_text_ref} };
 	}
@@ -196,11 +195,36 @@ sub _have_groff_with_utf8 {
 		$self->warn(
 			"You have an old groff." .
 			" Update to version $minimum_groff_version for good Unicode support.\n" .
-			"If you don't upgrade, wide characters may come out oddly.\n",
+			"If you don't upgrade, wide characters may come out oddly.\n"
 			 );
 		}
 
 	$version gt $minimum_groff_version;
+	}
+
+sub _have_mandoc_with_utf8 {
+	my( $self ) = @_;
+
+	return 0 unless $self->_is_mandoc;
+	my $roffer = $self->__nroffer;
+
+	my $minimum_mandoc_version = '1.11';
+
+	my $version_string = `$roffer -V`;
+	my( $version ) = $version_string =~ /mandoc ((\d+)\.(\d+))/;
+	$self->debug( "Found mandoc $version\n" );
+
+	# is a string comparison good enough?
+	if( $version lt $minimum_mandoc_version ) {
+		$self->warn(
+			"You have an older mandoc." .
+			" Update to version $minimum_mandoc_version for better Unicode support.\n" .
+			"If you don't upgrade, wide characters may come out oddly.\n" .
+			"Your results still might be odd. If you have groff, that's even better.\n"
+			 );
+		}
+
+	$version gt $minimum_mandoc_version;
 	}
 
 sub _collect_nroff_switches {
@@ -229,11 +253,12 @@ sub _collect_nroff_switches {
 sub _get_device_switches {
 	my( $self ) = @_;
 
-	   if( $self->_is_nroff  )            { qw() }
-	elsif( $self->_have_groff_with_utf8 ) { qw(-Kutf8 -Tutf8) }
-	elsif( $self->_is_mandoc )            { qw(-Tutf8)        }
-	elsif( $self->_is_ebcdic )            { qw(-Tcp1047)      }
-	else                                  { qw(-Tlatin1)      }
+	   if( $self->_is_nroff  )             { qw()              }
+	elsif( $self->_have_groff_with_utf8 )  { qw(-Kutf8 -Tutf8) }
+	elsif( $self->_is_ebcdic )             { qw(-Tcp1047)      }
+	elsif( $self->_have_mandoc_with_utf8 ) { qw(-Tutf8)        }
+	elsif( $self->_is_mandoc )             { qw()              }
+	else                                   { qw(-Tlatin1)      }
 	}
 
 sub _is_roff {

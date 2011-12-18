@@ -63,7 +63,8 @@ sub init {
 sub _roffer_candidates {
 	my( $self ) = @_;
 
-	qw( groff nroff mandoc );
+	if( $self->is_openbsd ) { qw( mandoc groff nroff ) }
+	else                    { qw( groff nroff mandoc ) }
 	}
 
 sub _find_roffer {

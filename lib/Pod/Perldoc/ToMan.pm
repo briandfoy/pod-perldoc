@@ -5,7 +5,7 @@ use warnings;
 use parent qw(Pod::Perldoc::BaseTo);
 
 use vars qw($VERSION);
-$VERSION = '3.15_13';
+$VERSION = '3.15_14';
 
 use File::Spec::Functions qw(catfile);
 use Pod::Man 2.18;

@@ -161,12 +161,15 @@ sub _parse_with_pod_man {
 	}
 
 sub _save_pod_man_output {
-	my( $self ) = @_;
-	my $file = "podman.out.$$.txt";
+	my( $self, $fh ) = @_;
+
+	$fh = do {
+		my $file = "podman.out.$$.txt";
+		open my $fh2, '>', $file;
+		} unless $fh;
 	$self->debug( "Writing $file with Pod::Man output\n" );
-	open my( $fh ), '>', $file;
-	print $fh ${ $self->{_text_ref} };
-	close $fh;
+
+	print { $fh } ${ $self->{_text_ref} };
 	}
 
 sub _have_groff_with_utf8 {

@@ -25,13 +25,14 @@ sub TRUE  () {1}
 sub FALSE () {return}
 
 BEGIN {
- *is_vms     = $^O eq 'VMS'     ? \&TRUE : \&FALSE unless defined &is_vms;
- *is_mswin32 = $^O eq 'MSWin32' ? \&TRUE : \&FALSE unless defined &is_mswin32;
- *is_dos     = $^O eq 'dos'     ? \&TRUE : \&FALSE unless defined &is_dos;
- *is_os2     = $^O eq 'os2'     ? \&TRUE : \&FALSE unless defined &is_os2;
- *is_cygwin  = $^O eq 'cygwin'  ? \&TRUE : \&FALSE unless defined &is_cygwin;
- *is_linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &is_linux;
- *is_hpux    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &is_hpux;
+ *is_vms     = $^O eq 'VMS'      ? \&TRUE : \&FALSE unless defined &is_vms;
+ *is_mswin32 = $^O eq 'MSWin32'  ? \&TRUE : \&FALSE unless defined &is_mswin32;
+ *is_dos     = $^O eq 'dos'      ? \&TRUE : \&FALSE unless defined &is_dos;
+ *is_os2     = $^O eq 'os2'      ? \&TRUE : \&FALSE unless defined &is_os2;
+ *is_cygwin  = $^O eq 'cygwin'   ? \&TRUE : \&FALSE unless defined &is_cygwin;
+ *is_linux   = $^O eq 'linux'    ? \&TRUE : \&FALSE unless defined &is_linux;
+ *is_hpux    = $^O =~ m/hpux/    ? \&TRUE : \&FALSE unless defined &is_hpux;
+ *is_openbsd = $^O =~ m/openbsd/ ? \&TRUE : \&FALSE unless defined &is_openbsd;
 }
 
 sub _perldoc_elem {

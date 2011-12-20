@@ -193,92 +193,6 @@ sub opt_o_with { # "o" for output format
   return;
 }
 
-sub opt_C {    # colorize the sources if possible
-    my $self = shift;
-
-    if (@_) {
-        if (not defined $_[0]) {
-            $self->_elem('opt_C', undef);
-            return;
-        }
-        else {
-            eval "require Syntax::Highlight::Perl::Improved";
-            if ($@) {
-                DEBUG > 1
-                    and print "Colorizer module not found; Install Syntax::Highlight::Perl::Improved\n";
-                return;
-            }
-
-            my $colorizer = Syntax::Highlight::Perl::Improved->new;
-
-            # stolen from viewperl
-            $colorizer->unstable(1);
-
-            my %ANSI_colors = (
-                none => "\e[0m",
-
-                red     => "\e[0;31m",
-                green   => "\e[0;32m",
-                yellow  => "\e[0;33m",
-                blue    => "\e[0;34m",
-                magenta => "\e[0;35m",
-                cyan    => "\e[0;36m",
-                white   => "\e[0;37m",
-
-                gray     => "\e[1;30m",
-                bred     => "\e[1;31m",
-                bgreen   => "\e[1;32m",
-                byellow  => "\e[1;33m",
-                bblue    => "\e[1;34m",
-                bmagenta => "\e[1;35m",
-                bcyan    => "\e[1;36m",
-                bwhite   => "\e[1;37m",
-
-                bgred     => "\e[41m",
-                bggreen   => "\e[42m",
-                bgyellow  => "\e[43m",
-                bgblue    => "\e[44m",
-                bgmagenta => "\e[45m",
-                bgcyan    => "\e[46m",
-                bgwhite   => "\e[47m",
-            );
-
-            $colorizer->set_format(
-                'Comment_Normal'    => [ $ANSI_colors{'bblue'},    $ANSI_colors{'none'} ],
-                'Comment_POD'       => [ $ANSI_colors{'bblue'},    $ANSI_colors{'none'} ],
-                'Directive'         => [ $ANSI_colors{'magenta'},  $ANSI_colors{'none'} ],
-                'Label'             => [ $ANSI_colors{'magenta'},  $ANSI_colors{'none'} ],
-                'Quote'             => [ $ANSI_colors{'bwhite'},   $ANSI_colors{'none'} ],
-                'String'            => [ $ANSI_colors{'bcyan'},    $ANSI_colors{'none'} ],
-                'Subroutine'        => [ $ANSI_colors{'byellow'},  $ANSI_colors{'none'} ],
-                'Variable_Scalar'   => [ $ANSI_colors{'bgreen'},   $ANSI_colors{'none'} ],
-                'Variable_Array'    => [ $ANSI_colors{'bgreen'},   $ANSI_colors{'none'} ],
-                'Variable_Hash'     => [ $ANSI_colors{'bgreen'},   $ANSI_colors{'none'} ],
-                'Variable_Typeglob' => [ $ANSI_colors{'bwhite'},   $ANSI_colors{'none'} ],
-                'Whitespace'        => [ '',                       '' ],
-                'Character'         => [ $ANSI_colors{'bred'},     $ANSI_colors{'none'} ],
-                'Keyword'           => [ $ANSI_colors{'bwhite'},   $ANSI_colors{'none'} ],
-                'Builtin_Function'  => [ $ANSI_colors{'bwhite'},   $ANSI_colors{'none'} ],
-                'Builtin_Operator'  => [ $ANSI_colors{'bwhite'},   $ANSI_colors{'none'} ],
-                'Operator'          => [ $ANSI_colors{'white'},    $ANSI_colors{'none'} ],
-                'Bareword'          => [ $ANSI_colors{'white'},    $ANSI_colors{'none'} ],
-                'Package'           => [ $ANSI_colors{'green'},    $ANSI_colors{'none'} ],
-                'Number'            => [ $ANSI_colors{'bmagenta'}, $ANSI_colors{'none'} ],
-                'Symbol'            => [ $ANSI_colors{'white'},    $ANSI_colors{'none'} ],
-                'CodeTerm'          => [ $ANSI_colors{'gray'},     $ANSI_colors{'none'} ],
-                'DATA'              => [ $ANSI_colors{'gray'},     $ANSI_colors{'none'} ],
-                'Line'              => [ $ANSI_colors{'byellow'},  $ANSI_colors{'none'} ],
-                'File_Name'         => [ $ANSI_colors{'red'} . $ANSI_colors{'bgwhite'}, $ANSI_colors{'none'} ],
-            );
-
-            $self->_elem('opt_C', $colorizer);
-        }
-    }
-    else {
-        $self->_elem('opt_C');
-    }
-}
-
 ###########################################################################
 # % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
@@ -493,36 +407,6 @@ sub init_formatter_class_list {
 
 #..........................................................................
 
-sub colorize_sources {
-    my ($self, @sources) = @_;
-
-    DEBUG > 2 and print "colorize_sources: got [", join(", ", @sources), "]\n";
-    my $colorizer = $self->_elem('opt_C');
-    unless ($colorizer) {
-        DEBUG > 1 and print "colorizer object not created; returning original sources.";
-        return @sources;
-    }
-
-    my @colorized_sources;
-    for my $source_file (@sources) {
-        # colorize the source file
-        open my $source_fh, "<", $source_file or $self->die("$source_file: can not open; $!");
-        my $source = join "", <$source_fh>;
-        close $source_fh or $self->die("$source: error while closing; $!");
-
-        my $colorized_source_text = $colorizer->format_string($source);
-        my ($colorized_source_fh, $colorized_source_file) = $self->new_tempfile();
-        print $colorized_source_fh $colorized_source_text;
-        close $colorized_source_fh or $self->die("$colorized_source_file: error while closing; $!");
-        push @colorized_sources, $colorized_source_file;
-        DEBUG > 1 and print "  colorized source for $source_file is saved in $colorized_source_file.\n";
-    }
-    DEBUG > 2 and print "colorize_sources: returning [", join(", ", @colorized_sources), "]\n";
-    return @colorized_sources;
-}
-
-#..........................................................................
-
 sub process {
     # if this ever returns, its retval will be used for exit(RETVAL)
 
@@ -586,11 +470,7 @@ sub process {
 
     $self->tweak_found_pathnames(\@found);
     $self->assert_closing_stdout;
-    if ($self->opt_m) {
-        DEBUG > 2 and $self->aside($self->opt_C ? "" : "NOT ", "colorizing sources before paging.\n");
-        @found = $self->colorize_sources(@found) if $self->opt_C;
-        return $self->page_module_file(@found);
-    }
+    return $self->page_module_file(@found)  if  $self->opt_m;
     DEBUG > 2 and print "Found: [@found]\n";
 
     return $self->render_and_page(\@found);
@@ -1702,7 +1582,7 @@ sub page_module_file {
 
     foreach my $pager ( $self->pagers ) {
         $self->aside("About to try calling $pager @found\n");
-        if (system(join " ", $pager, @found) == 0) { # https://rt.cpan.org/Ticket/Display.html?id=53986
+        if (system(split(/\s+(?=-)/, $pager), @found) == 0) { # https://rt.cpan.org/Ticket/Display.html?id=53986
             $self->aside("Yay, it worked.\n");
             return 0;
         }

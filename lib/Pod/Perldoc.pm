@@ -1582,7 +1582,7 @@ sub page_module_file {
 
     foreach my $pager ( $self->pagers ) {
         $self->aside("About to try calling $pager @found\n");
-        if (system(split(/\s+(?=-)/, $pager), @found) == 0) { # https://rt.cpan.org/Ticket/Display.html?id=53986
+        if (system(join " ", $pager, @found) == 0) { # https://rt.cpan.org/Ticket/Display.html?id=53986
             $self->aside("Yay, it worked.\n");
             return 0;
         }

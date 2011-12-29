@@ -35,6 +35,12 @@ WriteMakefile(
 
     'EXE_FILES' => [qw( perldoc )],
 
+	'META_MERGE' => {
+		no_index => {
+			directory => 'corpus';
+			},
+		};
+
     ($^V >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 
     ( $EUMM_VERSION > 6.31 ? (

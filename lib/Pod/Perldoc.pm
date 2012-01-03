@@ -193,6 +193,29 @@ sub opt_o_with { # "o" for output format
   return;
 }
 
+sub opt_H {    # highlight the sources if possible
+    my $self = shift;
+
+    # not applicable if -m option was not specified
+    return unless $self->opt_m;
+
+    if (@_) {
+        if (not defined $_[0]) {
+            $self->_elem('opt_H', undef);
+            return;
+        }
+        else {
+            require Pod::Perldoc::Highlighter;
+            my $highlighter = Pod::Perldoc::Highlighter->new;
+
+            $self->_elem('opt_H', $highlighter) if $highlighter;
+        }
+    }
+    else {
+        $self->_elem('opt_H');
+    }
+}
+
 ###########################################################################
 # % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
@@ -267,6 +290,7 @@ Options:
              (-t is the default on win32 unless -n is specified)
     -u   Display unformatted pod text
     -m   Display module's file in its entirety
+    -H   Syntax highlight the module's source (valid only with -m option)
     -n   Specify replacement for nroff
     -l   Display the module's file name
     -F   Arguments are file names, not modules
@@ -407,6 +431,36 @@ sub init_formatter_class_list {
 
 #..........................................................................
 
+sub highlight_sources {
+    my ($self, @sources) = @_;
+
+    DEBUG > 2 and print "highlight_sources: got [", join(", ", @sources), "]\n";
+    my $highlighter = $self->_elem('opt_H');
+    unless ($highlighter) {
+        DEBUG > 1 and print "highlighter object not created; returning original sources.";
+        return @sources;
+    }
+
+    my @highlighted_sources;
+    for my $source_file (@sources) {
+        # highlight the source file
+        open my $source_fh, "<", $source_file or $self->die("$source_file: can not open; $!");
+        my $source = join "", <$source_fh>;
+        close $source_fh or $self->die("$source: error while closing; $!");
+
+        my $highlighted_source_text = $highlighter->highlight($source);
+        my ($highlighted_source_fh, $highlighted_source_file) = $self->new_tempfile();
+        print $highlighted_source_fh $highlighted_source_text;
+        close $highlighted_source_fh or $self->die("$highlighted_source_file: error while closing; $!");
+        push @highlighted_sources, $highlighted_source_file;
+        DEBUG > 1 and print "  highlighted source for $source_file is saved in $highlighted_source_file.\n";
+    }
+    DEBUG > 2 and print "highlight_sources: returning [", join(", ", @highlighted_sources), "]\n";
+    return @highlighted_sources;
+}
+
+#..........................................................................
+
 sub process {
     # if this ever returns, its retval will be used for exit(RETVAL)
 
@@ -470,7 +524,11 @@ sub process {
 
     $self->tweak_found_pathnames(\@found);
     $self->assert_closing_stdout;
-    return $self->page_module_file(@found)  if  $self->opt_m;
+    if ($self->opt_m) {
+        DEBUG > 2 and $self->aside($self->opt_H ? "" : "NOT ", "highlighting sources before paging.\n");
+        @found = $self->highlight_sources(@found) if $self->opt_H;
+        return $self->page_module_file(@found);
+    }
     DEBUG > 2 and print "Found: [@found]\n";
 
     return $self->render_and_page(\@found);
@@ -1578,6 +1636,11 @@ sub page_module_file {
         $self->unlink_if_temp_file($output);
     }
     return $any_error; # successful
+    }
+
+    if ($self->opt_H) {
+        # set up pager "less" to display highlighted source properly
+        $ENV{LESS} = $ENV{LESS} ? $ENV{LESS} . " -r" : "-r";
     }
 
     foreach my $pager ( $self->pagers ) {

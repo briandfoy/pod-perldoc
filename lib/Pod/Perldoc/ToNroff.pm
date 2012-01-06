@@ -1,11 +1,10 @@
-require 5;
 package Pod::Perldoc::ToNroff;
 use strict;
 use warnings;
 use parent qw(Pod::Perldoc::BaseTo);
 
 use vars qw($VERSION);
-$VERSION = '3.15_14';
+$VERSION = '3.15_15';
 
 # This is unlike ToMan.pm in that it emits the raw nroff source!
 
@@ -95,9 +94,10 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 
-Current maintainer: brian d foy C<< <bdfoy@cpan.org> >>
+Current maintainer: Mark Allen C<< <mallen@cpan.org> >>
 
 Past contributions from:
+brian d foy C<< <bdfoy@cpan.org> >>
 Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
 Sean M. Burke C<< <sburke@cpan.org> >>
 

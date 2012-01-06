@@ -24,4 +24,5 @@ MYMETA.yml
 perldoc
 README
 t/load.t
+t/pod.t
 t/man/_get_columns.t

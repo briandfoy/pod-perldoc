@@ -1,11 +1,10 @@
-require 5;
 package Pod::Perldoc::ToANSI;
 use strict;
 use warnings;
 use parent qw(Pod::Perldoc::BaseTo);
 
 use vars qw($VERSION);
-$VERSION = '3.15_14';
+$VERSION = '3.15_15';
 
 sub is_pageable        { 1 }
 sub write_with_binmode { 0 }
@@ -75,7 +74,7 @@ L<Pod::Text>, L<Pod::Text::Color>, L<Pod::Perldoc>
 
 =head1 COPYRIGHT AND DISCLAIMERS
 
-Copyright (c) 2002 Sean M. Burke.  All rights reserved.
+Copyright (c) 2011 Mark Allen.  All rights reserved.
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
@@ -86,9 +85,10 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 
-Current maintainer: brian d foy C<< <bdfoy@cpan.org> >>
+Current maintainer: Mark Allen C<< <mallen@cpan.org> >>
 
 Past contributions from:
+brian d foy C<< <bdfoy@cpan.org> >>
 Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
 Sean M. Burke C<< <sburke@cpan.org> >>
 

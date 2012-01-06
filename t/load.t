@@ -4,9 +4,10 @@ use warnings;
 use Test::More;
 
 my @classes = ('Pod::Perldoc', map { "Pod::Perldoc::$_" } qw(
-	BaseTo       ToChecker    ToNroff      ToRtf        
-	GetOptsOO    ToMan        ToPod        ToText       ToXml
-	) );
+    BaseTo       ToChecker    ToNroff      ToRtf        
+    GetOptsOO    ToMan        ToPod        ToText       ToXml
+    ToANSI       ToTerm
+) );
 
 if( eval { require Tk; require Tk::Pod; 1 } ) { push @classes, 'Pod::Perldoc::ToTk' }
 else {

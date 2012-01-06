@@ -1,5 +1,6 @@
 README for Perldoc
-                                   Time-stamp: "2003-07-24 06:30:53 ADT"
+
+Version: 3.15_15
 
 			       Perldoc
 
@@ -29,8 +30,9 @@ See perldoc perlmodinstall for more information on installing modules.
 SUPPORT
 
 Questions, bug reports, useful code bits, and suggestions for this
-module should just be sent to me at sburke@cpan.org
+module should just be sent to 
 
+   http://rt.cpan.org/NoAuth/Bugs.html?Dist=Pod-Perldoc
 
 AVAILABILITY
 

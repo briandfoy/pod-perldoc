@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '3.15_14';
+$VERSION = '3.15_15';
 
 use parent qw(Pod::Perldoc::BaseTo);
 
@@ -86,7 +86,5 @@ See http://dev.perl.org/licenses/ for more information.
 =head1 AUTHOR
 
 Mark Allen C<< <mallen@cpan.org> >>
-
-Current maintainer: brian d foy C<< <bdfoy@cpan.org> >>
 
 =cut

@@ -2,7 +2,7 @@ package Pod::Perldoc::GetOptsOO;
 use strict;
 
 use vars qw($VERSION);
-$VERSION = '3.15_14';
+$VERSION = '3.15_15';
 
 BEGIN { # Make a DEBUG constant ASAP
   *DEBUG = defined( &Pod::Perldoc::DEBUG )
@@ -126,6 +126,8 @@ Rather like Getopt::Std's getopts:
 =item If there's no handle_unknown_option, then we just warn, and then increment
    the error counter
 
+=back
+
 The return value of Pod::Perldoc::GetOptsOO::getopts is true if no errors,
 otherwise it's false.
 
@@ -146,9 +148,10 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 
-Current maintainer: brian d foy C<< <bdfoy@cpan.org> >>
+Current maintainer: Mark Allen C<< <mallen@cpan.org> >>
 
 Past contributions from:
+brian d foy C<< <bdfoy@cpan.org> >>
 Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
 Sean M. Burke C<< <sburke@cpan.org> >>
 

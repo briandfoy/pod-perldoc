@@ -1,5 +1,13 @@
 Revision history for Pod::Perldoc
 
+3.15_15 - Fri Jan  6 15:48:47 UTC 2012
+    * If the name check fails, report the name. RT  #73580
+    * Don't index tests in corpus (RT #73586)
+    * Fix Pod error in GetOptsOO
+    * Add ToANSI and ToTerm to load test
+    * Add Pod check test
+    * Now maintained by Mark Allen <mallen@cpan.org>
+
 3.15_14 - Sun Dec 18 10:06:09 2011
 	* Fix OpenBSD issues. You get to use mandoc. The UTF-8
 	supports sucks though.

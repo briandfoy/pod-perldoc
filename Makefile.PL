@@ -37,9 +37,9 @@ WriteMakefile(
 
 	'META_MERGE' => {
 		no_index => {
-			directory => 'corpus';
+			directory => 'corpus',
 			},
-		};
+		},
 
     ($^V >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 

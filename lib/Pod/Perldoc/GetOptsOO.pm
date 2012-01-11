@@ -35,6 +35,9 @@ sub getopts {
       shift @$args;
       last;
     }
+    if ($first eq '-' and $rest) {      # long-form argument
+        ($first, $rest) = split '=', $rest, 2;
+    }
     my $method = "opt_${first}_with";
     if( $target->can($method) ) {  # it's argumental
       if($rest eq '') {   # like -f bar

@@ -199,7 +199,7 @@ sub _have_groff_with_utf8 {
 			 );
 		}
 
-	$version gt $minimum_groff_version;
+	$version ge $minimum_groff_version;
 	}
 
 sub _have_mandoc_with_utf8 {
@@ -224,7 +224,7 @@ sub _have_mandoc_with_utf8 {
 			 );
 		}
 
-	$version gt $minimum_mandoc_version;
+	$version ge $minimum_mandoc_version;
 	}
 
 sub _collect_nroff_switches {

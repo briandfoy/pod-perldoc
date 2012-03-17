@@ -1,5 +1,13 @@
 Revision history for Pod::Perldoc
 
+3.16 - Sat Mar 17 04:14:30 2012
+    * Make perldoc by itself emit a brief usage RT #75815
+    * Add a space between $ENV{PAGER} and "<" RT #75420
+    * Replace $self->die() with CORE::die in some errors RT #75010
+    * Make load.t use note() instead of diag() RT #74893
+    * Make perldoc -l -q usefully work RT #74254
+    * Fix regex while untainting $0 RT #73580
+
 3.15_15 - Fri Jan  6 15:48:47 UTC 2012
     * If the name check fails, report the name. RT  #73580
     * Don't index tests in corpus (RT #73586)

@@ -1423,7 +1423,7 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
 
      if(!$self->opt_i
         or $self->is_vms or $self->is_mswin32
-        or $self->Is_dos or $self->is_os2
+        or $self->is_dos or $self->is_os2
      ) {
         # On a case-forgiving file system, or if case is important,
     #  that is it, all we can do.

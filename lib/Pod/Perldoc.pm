@@ -1514,7 +1514,7 @@ sub pagers_guessing {
        }
     }
 
-    unshift @pagers, $ENV{PERLDOC_PAGER} if $ENV{PERLDOC_PAGER};
+    unshift @pagers, "$ENV{PERLDOC_PAGER} <" if $ENV{PERLDOC_PAGER};
 
     return;
 }

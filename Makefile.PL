@@ -39,6 +39,9 @@ WriteMakefile(
 		no_index => {
 			directory => 'corpus',
 			},
+        resources => {
+            repository => 'https://github.com/mrallen1/Pod-Perldoc.git',
+            },
 		},
 
     ($^V >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),

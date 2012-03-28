@@ -785,7 +785,7 @@ sub options_sanity {
     if( $self->opt_f or $self->opt_q ) {
     $self->usage("Only one of -f -or -q") if $self->opt_f and $self->opt_q;
     $self->warn(
-        "Perldoc is only really meant for reading one word at a time.\n",
+        "Perldoc is meant for reading one file at a time.\n",
         "So these parameters are being ignored: ",
         join(' ', @{$self->{'args'}}),
         "\n" )

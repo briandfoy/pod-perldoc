@@ -1,5 +1,9 @@
 Revision history for Pod::Perldoc
 
+X.XX - Tue May 15 14:31:07 UTC 2012
+    * Put perldoc.pod into man1 RT #77210 (ppisar@redhat.com)
+    * Remove formatting from literal blocks RT #77209 (ppisar@redhat.com)
+
 3.17 - Sun Mar 18 02:49:26 2012
     * Handle render options set by the user in the '-n' setting RT #75840
 

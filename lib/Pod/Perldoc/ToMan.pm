@@ -298,7 +298,7 @@ sub _filter_through_nroff {
     # Maybe someone set rendering switches as part of the opt_n value
     # Deal with that here.
 
-    my ($render, $switches) = $self->__nroffer() =~ /\A([\/a-zA-Z0-9_-]+)\b(.+)?\z/;
+    my ($render, $switches) = $self->__nroffer() =~ /\A([\/a-zA-Z0-9_\.-]+)\b(.+)?\z/;
 
     $self->die("no nroffer!?") unless $render;
     my @render_switches = $self->_collect_nroff_switches;

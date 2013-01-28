@@ -1,6 +1,9 @@
 Revision history for Pod::Perldoc
 
-X.XX - Tue May 15 14:31:07 UTC 2012
+3.18 - Mon Jan 28 04:17:26 UTC 2013
+    * Document perldoc behavior in build directories (RT #80376)
+    * Don't blindly force UTF8 to Pod::Man (RT #77465)
+    * Fix is_dos typo (RT #76029)
     * Put perldoc.pod into man1 RT #77210 (ppisar@redhat.com)
     * Remove formatting from literal blocks RT #77209 (ppisar@redhat.com)
 

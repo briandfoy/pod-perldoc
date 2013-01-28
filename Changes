@@ -1,5 +1,8 @@
 Revision history for Pod::Perldoc
 
+3.19 - Mon Jan 28 04:29:40 UTC 2013
+    * Really put perldoc.pod into man1
+
 3.18 - Mon Jan 28 04:17:26 UTC 2013
     * Document perldoc behavior in build directories (RT #80376)
     * Don't blindly force UTF8 to Pod::Man (RT #77465)

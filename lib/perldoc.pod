@@ -235,6 +235,12 @@ defined) and C<PATH> environment variables.
 (The latter is so that embedded pods for executables, such as
 C<perldoc> itself, are available.)
 
+In directories where either C<Makefile.PL> or C<Build.PL> exist, C<perldoc>
+will add C<.> and C<lib> first to its search path, and as long as you're not
+the superuser will add C<blib> too.  This is really helpful if you're working
+inside of a build directory and want to read through the docs even if you
+have a version of a module previously installed.
+
 C<perldoc> will use, in order of preference, the pager defined in
 C<PERLDOC_PAGER>, C<MANPAGER>, or C<PAGER> before trying to find a pager
 on its own. (C<MANPAGER> is not used if C<perldoc> was told to display

@@ -44,7 +44,7 @@ WriteMakefile(
             },
 		},
 
-    'MAN1PODS' => { 'perldoc.pod' => 'blib/man1/perldoc.1' },
+    'MAN1PODS' => { 'lib/perldoc.pod' => 'blib/man1/perldoc.1' },
 
     ($^V >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
 

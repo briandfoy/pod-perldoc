@@ -470,7 +470,7 @@ sub init_formatter_class_list {
 
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('man') unless $self->is_mswin32 || $self->is_dos
+  $self->opt_o_with('term') unless $self->is_mswin32 || $self->is_dos
        || !($ENV{TERM} && (
               ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
            ));

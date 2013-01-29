@@ -2,7 +2,6 @@ Changes
 corpus/no-head.pod
 corpus/perlfunc.pod
 corpus/utf8.pod
-lib/perldoc.pod
 lib/Pod/Perldoc.pm
 lib/Pod/Perldoc/BaseTo.pm
 lib/Pod/Perldoc/GetOptsOO.pm
@@ -16,13 +15,16 @@ lib/Pod/Perldoc/ToTerm.pm
 lib/Pod/Perldoc/ToText.pm
 lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm
+Makefile.old
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
 META.yml			Module meta-data (added by MakeMaker)
+MYMETA.json
 MYMETA.yml
 perldoc
+perldoc.pod
 README
 t/load.t
-t/pod.t
 t/man/_get_columns.t
+t/pod.t

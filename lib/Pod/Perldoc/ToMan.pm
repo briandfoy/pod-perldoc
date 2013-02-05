@@ -242,7 +242,7 @@ sub _collect_nroff_switches {
 	push @render_switches, $self->_get_device_switches;
 
 	# Thanks to Brendan O'Dea for contributing the following block
-	if( $self->_is_roff and $self->is_linux and -t STDOUT and my ($cols) = $self->_get_columns ) {
+	if( $self->_is_roff and -t STDOUT and my ($cols) = $self->_get_columns ) {
 		my $c = $cols * 39 / 40;
 		$cols = $c > $cols - 2 ? $c : $cols -2;
 		push @render_switches, '-rLL=' . (int $c) . 'n' if $cols > 80;

@@ -136,7 +136,7 @@ sub _get_columns {
 sub _get_podman_switches {
 	my( $self ) = @_;
 
-	my @switches = grep !m/^_/s, keys %$self;
+	my @switches = map { $_, $self->{$_} } grep !m/^_/s, keys %$self;
 
     # There needs to be a cleaner way to handle setting
     # the UTF-8 flag, but for now, comment out this

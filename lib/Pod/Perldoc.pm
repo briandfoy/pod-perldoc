@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.19_01';
+$VERSION = '3.20';
 
 #..........................................................................
 
@@ -927,6 +927,10 @@ sub maybe_generate_dynamic_pod {
     } elsif ( @dynamic_pod ) {
         $self->aside("Hm, I found some Pod from that search!\n");
         my ($buffd, $buffer) = $self->new_tempfile('pod', 'dyn');
+        if ( $] >= 5.008 && $self->opt_L ) {
+            binmode($buffd, ":utf8");
+            print $buffd "=encoding utf8\n\n";
+        }
 
         push @{ $self->{'temp_file_list'} }, $buffer;
          # I.e., it MIGHT be deleted at the end.
@@ -1162,6 +1166,12 @@ sub search_perlfunc {
     if ( $self->opt_L && defined $self->{'translators'}->[0] ) {
         my $tr = $self->{'translators'}->[0];
         $re =  $tr->search_perlfunc_re if $tr->can('search_perlfunc_re');
+        if ( $] < 5.008 ) {
+            $self->aside("Your old perl doesn't really have proper unicode support.");
+        }
+        else {
+            binmode(PFUNC, ":utf8");
+        }
     }
 
     # Skip introduction

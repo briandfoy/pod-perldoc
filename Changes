@@ -1,5 +1,12 @@
 Revision history for Pod::Perldoc
 
+3.20 - Sat Apr 27 05:25:30 UTC 2013
+    * Make default formatter "ToTerm" instead of "ToMan" for
+      better UTF-8 support
+    * When dynamically building POD from perlfunc (perlvar) 
+      make sure we open filehandles with utf8 and add an
+      =encoding (RT #80527) (RT #80640)
+
 3.19 - Mon Jan 28 04:29:40 UTC 2013
     * Really put perldoc.pod into man1
 

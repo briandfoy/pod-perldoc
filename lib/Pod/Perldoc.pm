@@ -596,7 +596,7 @@ sub find_good_formatter_class {
       } else {
         $^W = 0;
         # The average user just has no reason to be seeing
-        #  $^W-suppressible warnings from the the require!
+        #  $^W-suppressible warnings from the require!
       }
 
       eval "require $c";

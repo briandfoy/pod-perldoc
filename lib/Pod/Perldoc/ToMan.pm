@@ -314,7 +314,7 @@ sub _filter_through_nroff {
         # Eliminate whitespace 
         $switches =~ s/\s//g;
 
-        # Then seperate the switches with a zero-width positive 
+        # Then separate the switches with a zero-width positive 
         # lookahead on the dash.
         #
         # See:

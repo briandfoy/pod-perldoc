@@ -46,7 +46,7 @@ WriteMakefile(
 
     'MAN1PODS' => { 'perldoc.pod' => 'blib/man1/perldoc.1' },
 
-    ($^V >= 5.008001 ? ( 'INSTALLDIRS'  => 'perl' ) : ()),
+    'INSTALLDIRS' => ( ( $] >= 5.008001 && $] < 5.012 ) ? 'perl' : 'site' ),
 
     ( $EUMM_VERSION > 6.31 ? (
         'LICENSE' => 'perl',

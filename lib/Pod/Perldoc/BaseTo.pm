@@ -106,7 +106,7 @@ Pod::Perldoc::BaseTo - Base for Pod::Perldoc formatters
 
     package Pod::Perldoc::ToMyFormat;
 
-    use base qw( Pod::Perldoc::BaseTo );
+    use parent qw( Pod::Perldoc::BaseTo );
     ...
 
 =head1 DESCRIPTION

@@ -1,5 +1,11 @@
 Revision history for Pod::Perldoc
 
+3.21_01 - Tue Nov 19 17:07:46 UTC 2013
+    * Do not modify @INC to look for docs perl RT #120357
+      (Patch by Kent Fredric)
+    * Prefer mandoc on bitrig
+    * Fix typos
+
 3.20 - Sat Apr 27 05:25:30 UTC 2013
     * Make default formatter "ToTerm" instead of "ToMan" for
       better UTF-8 support

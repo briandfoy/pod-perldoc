@@ -1,5 +1,12 @@
 Revision history for Pod::Perldoc
 
+3.21 - Mon Jan  6 02:17:07 UTC 2014
+    * Add '-a' flag to search through perlapi 
+      documentation. Patch by Matthew Horsfall.
+    * Apply RT #91733 to install perldoc.pod in the 
+      right place. Should fix RT #88898 too. Patch
+      by Dave Mitchell.
+
 3.21_01 - Tue Nov 19 17:07:46 UTC 2013
     * Do not modify @INC to look for docs perl RT #120357
       (Patch by Kent Fredric)

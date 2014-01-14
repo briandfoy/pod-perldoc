@@ -1108,45 +1108,71 @@ sub search_perlop {
   $self->not_dynamic( 1 );
 
   my $perlop = shift @$found_things;
+  # XXX FIXME: getting filehandles should probably be done in a single place
+  # especially since we need to support UTF8 or other encoding when dealing
+  # with perlop, perlfunc, perlapi, perlfaq[1-9]
   open( PERLOP, '<', $perlop ) or $self->die( "Can't open $perlop: $!" );
 
-  my $paragraph = "";
-  my $has_text_seen = 0;
   my $thing = $self->opt_f;
-  my $list = 0;
 
-  while( my $line = <PERLOP> ){
-    if( $paragraph and $line =~ m!^=(?:head|item)! and $paragraph =~ m!X<+\s*\Q$thing\E\s*>+! ){
-      if( $list ){
-        $paragraph =~ s!=back.*?\z!!s;
-      }
+  my $previous_line;
+  my $push = 0;
+  my $seen_item = 0;
+  my $skip = 1;
 
-      if( $paragraph =~ m!^=item! ){
-        $paragraph = "=over 8\n\n" . $paragraph . "=back\n";
-      }
-
-      push @$pod, $paragraph;
-      $paragraph = "";
-      $has_text_seen = 0;
-      $list = 0;
+  while( my $line = <PERLOP> ) {
+    # only start search after we hit the operator section
+    if ($line =~ m!^X<operator, regexp>!) {
+        $skip = 0;
     }
 
-    if( $line =~ m!^=over! ){
-      $list++;
+    next if $skip;
+
+    # strategy is to capture the previous line until we get a match on X<$thingy>
+    # if the current line contains X<$thingy>, then we push "=over", the previous line, 
+    # the current line and keep pushing current line until we see a ^X<some-other-thing>, 
+    # then we chop off final line from @$pod and add =back
+    #
+    # At that point, Bob's your uncle.
+
+    if ( $line =~ m!X<+\s*\Q$thing\E\s*>+!) {
+        if ( $previous_line ) {
+            push @$pod, "=over 8\n\n", $previous_line;
+            $previous_line = "";
+        }
+        push @$pod, $line;
+        $push = 1;
+
     }
-    elsif( $line =~ m!^=back! ){
-      $list--;
+    elsif ( $push and $line =~ m!^=item\s*.*$! ) {
+        $seen_item = 1;
+    }
+    elsif ( $push and $seen_item and $line =~ m!^X<+\s*[ a-z,?-]+\s*>+!) {
+        $push = 0;
+        $seen_item = 0;
+        last;
+    }
+    elsif ( $push ) {
+        push @$pod, $line;
     }
 
-    if( $line =~ m!^=(?:head|item)! and $has_text_seen ){
-      $paragraph = "";
-    }
-    elsif( $line !~ m!^=(?:head|item)! and $line !~ m!^\s*$! and $line !~ m!^\s*X<! ){
-      $has_text_seen = 1;
+    else {
+        $previous_line = $line;
     }
 
-    $paragraph .= $line;
-    }
+  } #end while
+
+  # we overfilled by 1 line, so pop off final array element if we have any
+  if ( scalar @$pod ) {
+    pop @$pod;
+
+    # and add the =back
+    push @$pod, "\n\n=back\n";
+    DEBUG > 8 and print "PERLOP POD --->" . (join "", @$pod) . "<---\n";
+  }
+  else {
+    DEBUG > 4 and print "No pod from perlop\n";
+  }
 
   close PERLOP;
 

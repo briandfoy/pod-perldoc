@@ -1287,7 +1287,7 @@ sub search_perlfunc {
                 $found = 1;
             }
             else {
-                last;
+                last if $found > 1 and not $inlist;
             }
         }
         elsif (/^=item/) {

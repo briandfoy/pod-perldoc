@@ -34,7 +34,7 @@ sub parse_from_file {
   defined(&Pod::Perldoc::DEBUG)
    and Pod::Perldoc::DEBUG()
    and print "About to call new Pod::Text::Termcap ",
-    $Pod::Text::VERSION ? "(v$Pod::Text::VERSION) " : '',
+    $Pod::Text::VERSION ? "(v$Pod::Text::Termcap::VERSION) " : '',
     "with options: ",
     @options ? "[@options]" : "(nil)", "\n";
   ;

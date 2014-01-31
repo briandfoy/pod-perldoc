@@ -1304,7 +1304,16 @@ sub search_perlfunc {
     my $related_re;
     while (<PFUNC>) {  # "The Mothership Connection is here!"
         last if( grep{ $self->opt_f eq $_ }@perlops );
-        if ( m/^=item\s+$search_re\b/ )  {
+
+        if ( /^=over/ and not $found ) {
+            ++$inlist;
+        }
+        elsif ( /^=back/ and not $found and $inlist ) {
+            --$inlist;
+        }
+
+
+        if ( m/^=item\s+$search_re\b/ and $inlist < 2 )  {
             $found = 1;
         }
         elsif (@related > 1 and /^=item/) {
@@ -1313,11 +1322,11 @@ sub search_perlfunc {
                 $found = 1;
             }
             else {
-                last if $found > 1 and not $inlist;
+                last if $found > 1 and $inlist < 2;
             }
         }
         elsif (/^=item/) {
-            last if $found > 1 and not $inlist;
+            last if $found > 1 and $inlist < 2;
         }
         elsif ($found and /^X<[^>]+>/) {
             push @related, m/X<([^>]+)>/g;
@@ -1327,7 +1336,6 @@ sub search_perlfunc {
             ++$inlist;
         }
         elsif (/^=back/) {
-            last if $found > 1 and not $inlist;
             --$inlist;
         }
         push @$pod, $_;
@@ -1344,7 +1352,7 @@ sub search_perlfunc {
           $self->opt_f )
         ;
     }
-    close PFUNC                or $self->die( "Can't open $perlfunc: $!" );
+    close PFUNC                or $self->die( "Can't close $perlfunc: $!" );
 
     return;
 }

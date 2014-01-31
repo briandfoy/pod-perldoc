@@ -509,7 +509,7 @@ sub process {
     $self->pagers_guessing;
     $self->options_reading;
     $self->aside(sprintf "$0 => %s v%s\n", ref($self), $self->VERSION);
-    $self->drop_privs_maybe;
+    $self->drop_privs_maybe unless $self->opt_U;
     $self->options_processing;
 
     # Hm, we have @pages and @found, but we only really act on one
@@ -1989,6 +1989,8 @@ sub is_tainted { # just a function
 
 sub drop_privs_maybe {
     my $self = shift;
+
+    DEBUG and print "Attempting to drop privs...\n";
 
     # Attempt to drop privs if we should be tainting and aren't
     if (!( $self->is_vms || $self->is_mswin32 || $self->is_dos

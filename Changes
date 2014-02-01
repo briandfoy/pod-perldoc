@@ -1,5 +1,22 @@
 Revision history for Pod::Perldoc
 
+3.22_01 - Sat Feb  1 05:00:13 UTC 2014
+    * Match =item more carefully when scanning perlfunc. 
+      Fixes RT #86795. Previously matches could be generated 
+      on words like 'size' and 'precision' which are not 
+      Perl functions.
+    * Cleanup code related to mandoc RT #85844
+      Patch by Ingo Schwarze
+    * Re-add '-U' flag to skip attempting to drop 
+      privileges. RT #87837
+    * Do not install to INSTALLDIRS after Perl 5.11 RT #89756
+    * Refactor search_perlop (finds operators like 'q' 
+      'qq' 'tr' and others) RT #86506. Previously most of
+      the text generated was incorrect.
+    * Fix wrong version in DEBUG output from ToTerm.pm RT #85468
+    * Fix POD errors when scanning parts of perlfunc RT #86472
+      Patch by Shlomi Fish.
+
 3.21 - Mon Jan  6 02:17:07 UTC 2014
     * Add '-a' flag to search through perlapi 
       documentation. Patch by Matthew Horsfall.

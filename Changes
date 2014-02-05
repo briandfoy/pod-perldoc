@@ -1,5 +1,23 @@
 Revision history for Pod::Perldoc
 
+3.22_02 - Wed Feb  5 05:08:34 UTC 2014
+    * Add a pager that doesn't redirect stdin RT#85173
+      Added a special pager environment variable for use
+      when perldoc is in the -m mode that doesn't
+      redirect STDIN.  Set PERLDOC_SRC_PAGER to use. 
+      
+      As in:
+
+      PERLDOC_SRC_PAGER=/usr/bin/vim perldoc -m File::Temp
+
+    * Teach ToTerm.pm to get terminal width RT#85467
+      Get a terminal width and pass it to Pod::Text::Termcap
+      from one of these sources (in order):
+          1. An explicit width set from command line with -w
+          2. MANWIDTH environment variable
+          3. stty output
+          4. The default width of 76 (same as Pod::Text)
+
 3.22_01 - Sat Feb  1 05:00:13 UTC 2014
     * Match =item more carefully when scanning perlfunc. 
       Fixes RT #86795. Previously matches could be generated 

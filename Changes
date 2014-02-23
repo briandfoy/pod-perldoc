@@ -1,5 +1,14 @@
 Revision history for Pod::Perldoc
 
+3.23 - Sun Feb 23 18:54:43 UTC 2014
+    * Release 3.23
+
+    Yes, this is a packaging error. Mea culpa. In the future
+    test releases will be 3.23_01, etc. 
+
+    See https://twitter.com/frioux/status/429245594180128769
+    for context.
+
 3.22_02 - Wed Feb  5 05:08:34 UTC 2014
     * Add a pager that doesn't redirect stdin RT#85173
       Added a special pager environment variable for use

@@ -1,5 +1,16 @@
 Revision history for Pod::Perldoc
 
+3.24 - Tue Aug 19 03:38:07 UTC 2014
+    * Release 3.24
+
+    Make sure when we open a filehandle for reading
+    or writing, we set ':encoding(UTF-8)' on it 
+    everywhere.  Closes RT#98019.
+
+3.23_01 - Sat Aug 16 16:47:45 UTC 2014
+    * Test release to test UTF8 filehandles.
+    * Happy CPAN Day!
+
 3.23 - Sun Feb 23 18:54:43 UTC 2014
     * Release 3.23
 

@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.24';
+$VERSION = '3.24'; # ++
 
 #..........................................................................
 
@@ -1043,7 +1043,11 @@ sub search_perlvar {
     open(PVAR, "<", $perlvar)               # "Funk is its own reward"
         or $self->die("Can't open $perlvar: $!");
 
-    binmode(PVAR, ":encoding(UTF-8)");
+    my $binmode = $] < 5.008;	# to do not call binmode()
+    if ( $binmode ) {
+        $self->aside("Your old perl doesn't really have proper unicode support.");
+    }
+
     if ( $opt ne '$0' && $opt =~ /^\$\d+$/ ) { # handle $1, $2, ...
       $opt = '$<I<digits>>';
     }
@@ -1055,6 +1059,8 @@ sub search_perlvar {
     # Skip introduction
     local $_;
     while (<PVAR>) {
+        # checks =encoding in some lines from the beginning.
+        $binmode ||= /^=encoding\s+(\S+)/ && binmode(PVAR, ":encoding($1)");
         last if /^=over 8/;
     }
 
@@ -1112,8 +1118,12 @@ sub search_perlop {
   # XXX FIXME: getting filehandles should probably be done in a single place
   # especially since we need to support UTF8 or other encoding when dealing
   # with perlop, perlfunc, perlapi, perlfaq[1-9]
+
   open( PERLOP, '<', $perlop ) or $self->die( "Can't open $perlop: $!" );
-  binmode(PERLOP, ":encoding(UTF-8)");
+  my $binmode = $] < 5.008;
+  if ( $binmode ) {
+      $self->aside("Your old perl doesn't really have proper unicode support.");
+  }
 
   my $thing = $self->opt_f;
 
@@ -1123,6 +1133,7 @@ sub search_perlop {
   my $skip = 1;
 
   while( my $line = <PERLOP> ) {
+    $binmode ||= $line =~ /^=encoding\s+(\S+)/ && binmode(PERLOP, ":encoding($1)");
     # only start search after we hit the operator section
     if ($line =~ m!^X<operator, regexp>!) {
         $skip = 0;
@@ -1198,13 +1209,11 @@ sub search_perlapi {
      print "Going to perlapi-scan for $search_re in $perlapi\n";
 
     # Check available translator or backup to default (english)
+    my $binmode = $] < 5.008;
     if ( $self->opt_L && defined $self->{'translators'}->[0] ) {
         my $tr = $self->{'translators'}->[0];
-        if ( $] < 5.008 ) {
+        if ( $binmode ) {
             $self->aside("Your old perl doesn't really have proper unicode support.");
-        }
-        else {
-            binmode(PAPI, ":encoding(UTF-8)");
         }
     }
 
@@ -1217,6 +1226,7 @@ sub search_perlapi {
     my @related;
     my $related_re;
     while (<PAPI>) {  # "The Mothership Connection is here!"
+	$binmode ||= /^=encoding\s+(\S+)/ && binmode(PAPI, ":encoding($1)");
         if ( m/^=item\s+$search_re\b/ )  {
             $found = 1;
         }
@@ -1279,20 +1289,19 @@ sub search_perlfunc {
     my $re = 'Alphabetical Listing of Perl Functions';
 
     # Check available translator or backup to default (english)
+    my $binmode = $] < 5.008;
     if ( $self->opt_L && defined $self->{'translators'}->[0] ) {
         my $tr = $self->{'translators'}->[0];
         $re =  $tr->search_perlfunc_re if $tr->can('search_perlfunc_re');
-        if ( $] < 5.008 ) {
+        if ( $binmode ) {
             $self->aside("Your old perl doesn't really have proper unicode support.");
-        }
-        else {
-            binmode(PFUNC, ":encoding(UTF-8)");
         }
     }
 
     # Skip introduction
     local $_;
     while (<PFUNC>) {
+        $binmode ||= /^=encoding\s+(\S+)/ && binmode(PFUNC, ":encoding($1)");
         last if /^=head2 $re/;
     }
 
@@ -1381,8 +1390,14 @@ EOD
         $self->die( "invalid file spec: $!" ) if $file =~ /[<>|]/;
         open(INFAQ, "<", $file)  # XXX 5.6ism
          or $self->die( "Can't read-open $file: $!\nAborting" );
-        binmode(INFAQ, ":encoding(UTF-8)");
+
+        my $binmode = $] < 5.008;
+        if ( $binmode ) {
+            $self->aside("Your old perl doesn't really have proper unicode support.");
+        }
+
         while (<INFAQ>) {
+            $binmode ||= /^=encoding\s+(\S+)/ && binmode(INFAQ, ":encoding($1)");
             if ( m/^=head2\s+.*(?:$search_key)/i ) {
                 $found = 1;
                 push @$pod, "=head1 Found in $file\n\n" unless $found_in{$file}++;

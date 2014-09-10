@@ -1,5 +1,19 @@
 Revision history for Pod::Perldoc
 
+3.24_01 - Wed Sep 10 03:13:58 UTC 2014
+    * The 'ToTerm' backend generates terminal escape sequences that
+      the 'less' pager does not display by default. The "-R" option
+      controls this, so pass it in the LESS environment variable
+      to avoid disturbing other pager invocations. Patch by 
+      Niko Tyni. Closes RT#98636
+
+    * Unify filehandle opens and encoding into two methods
+      'open_fh' and 'set_encoding'.  Based on a pull request
+      by Koichi KUBO. Closes RT#98019 better than c3fd47f :)
+
+    * Applied PR by Olivier Mengué to 'use parent' instead 
+      of 'use base'
+
 3.24 - Tue Aug 19 03:38:07 UTC 2014
     * Release 3.24
 

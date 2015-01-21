@@ -1,5 +1,15 @@
 Revision history for Pod::Perldoc
 
+3.24_02 - Wed Jan 21 03:12:37 UTC 2015
+    * Dave Mitchell sent a patch to reduce stderr spam
+      during core perl builds. Resolves RT#101493
+
+    * Make perldoc honor the MANPAGER environment
+      variable as documented. Resolves RT#100933
+
+    * Decode command line arguments at UTF-8 data.
+      Resolves RT#9806
+
 3.24_01 - Wed Sep 10 03:13:58 UTC 2014
     * The 'ToTerm' backend generates terminal escape sequences that
       the 'less' pager does not display by default. The "-R" option

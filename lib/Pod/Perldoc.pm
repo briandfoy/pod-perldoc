@@ -1632,6 +1632,9 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
 #..........................................................................
 
 sub pagers_guessing {
+    # TODO: This whole subroutine needs to be rewritten. It's semi-insane
+    # right now.
+
     my $self = shift;
 
     my @pagers;
@@ -1668,6 +1671,7 @@ sub pagers_guessing {
         unshift @pagers, "$ENV{PERLDOC_SRC_PAGER}" if $ENV{PERLDOC_SRC_PAGER}
     }
     else {
+        unshift @pagers, "$ENV{MANPAGER} <" if $ENV{MANPAGER};
         unshift @pagers, "$ENV{PERLDOC_PAGER} <" if $ENV{PERLDOC_PAGER};
     }
 

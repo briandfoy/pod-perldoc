@@ -432,6 +432,16 @@ sub init {
   # Make sure creat()s are neither too much nor too little
   eval { umask(0077) };   # doubtless someone has no mask
 
+  if ( $] < 5.008 ) {
+      $self->aside("Your old perl doesn't have proper unicode support.");
+    }
+  else {
+      # http://www.perl.com/pub/2012/04/perlunicookbook-decode-argv-as-utf8.html
+      # Decode command line arguments as UTF-8. See RT#98906 for example problem.
+      use Encode qw(decode_utf8);
+      @ARGV = map { decode_utf8($_, 1) } @ARGV;
+    }
+
   $self->{'args'}              ||= \@ARGV;
   $self->{'found'}             ||= [];
   $self->{'temp_file_list'}    ||= [];

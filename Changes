@@ -1,5 +1,9 @@
 Revision history for Pod::Perldoc
 
+3.25 - Thu Feb 12 03:06:43 UTC 2015
+    * No changes - roll an official
+      release for inclusion in Perl 5.22
+
 3.24_02 - Wed Jan 21 03:12:37 UTC 2015
     * Dave Mitchell sent a patch to reduce stderr spam
       during core perl builds. Resolves RT#101493

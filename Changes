@@ -1,5 +1,8 @@
 Revision history for Pod::Perldoc
 
+next-ver
+    * -U now documented and implied with -F (RT#87837)
+
 3.25 - Thu Feb 12 03:06:43 UTC 2015
     * No changes - roll an official
       release for inclusion in Perl 5.22

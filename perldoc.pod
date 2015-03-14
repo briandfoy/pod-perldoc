@@ -5,7 +5,7 @@ perldoc - Look up Perl documentation in Pod format.
 
 =head1 SYNOPSIS
 
-    perldoc [-h] [-D] [-t] [-u] [-m] [-l] [-F]
+    perldoc [-h] [-D] [-t] [-u] [-m] [-l] [-U] [-F]
         [-i] [-V] [-T] [-r]
         [-d destination_file]
         [-o formatname]
@@ -78,9 +78,13 @@ the file for you and simply hand it off for display.
 
 Display onB<l>y the file name of the module found.
 
+=item B<-U>
+
+Don't attempt drop privs for security. This option is implied with B<-F>.
+
 =item B<-F>
 
-Consider arguments as file names; no search in directories will be performed.
+Consider arguments as file names; no search in directories will be performed. Implies B<-U>.
 
 =item B<-f> I<perlfunc>
 

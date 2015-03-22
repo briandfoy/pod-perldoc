@@ -283,7 +283,8 @@ Options:
     -m   Display module's file in its entirety
     -n   Specify replacement for groff
     -l   Display the module's file name
-    -F   Arguments are file names, not modules
+    -U   Don't attempt to drop privs for security
+    -F   Arguments are file names, not modules (implies -U)
     -D   Verbosely describe what's going on
     -T   Send output to STDOUT without any pager
     -d output_filename_to_send_to
@@ -391,7 +392,7 @@ sub usage_brief {
   my $program_name = $self->program_name;
 
   CORE::die( <<"EOUSAGE" );
-Usage: $program_name [-hVriDtumFXlT] [-n nroffer_program]
+Usage: $program_name [-hVriDtumUFXlT] [-n nroffer_program]
     [-d output_filename] [-o output_format] [-M FormatterModule]
     [-w formatter_option:option_value] [-L translation_code]
     PageName|ModuleName|ProgramName
@@ -519,7 +520,7 @@ sub process {
     $self->options_reading;
     $self->pagers_guessing;
     $self->aside(sprintf "$0 => %s v%s\n", ref($self), $self->VERSION);
-    $self->drop_privs_maybe unless $self->opt_U;
+    $self->drop_privs_maybe unless ($self->opt_U || $self->opt_F);
     $self->options_processing;
 
     # Hm, we have @pages and @found, but we only really act on one

@@ -1,6 +1,7 @@
 Revision history for Pod::Perldoc
 
 next-ver
+    * FreeBSD has mandoc too, with UTF-8 support.
     * -U now documented and implied with -F (RT#87837)
 
 3.25 - Thu Feb 12 03:06:43 UTC 2015

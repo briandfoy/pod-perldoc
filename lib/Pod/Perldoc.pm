@@ -1320,7 +1320,7 @@ sub search_perlfunc {
     local $_;
     while (<$fh>) {
         /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
-        last if /^=head2 $re/;
+        last if /^=head2 (?:$re|Alphabetical Listing of Perl Functions)/;
     }
 
     # Look for our function

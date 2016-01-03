@@ -3,6 +3,8 @@ perl:
   - "5.22"
   - "5.20"
   - "5.18"
+  - "5.10"
+  - "5.8.9"
 install:
 # Deal with dependencies
 - cpanm --notest --installdeps .

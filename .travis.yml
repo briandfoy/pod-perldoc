@@ -1,0 +1,11 @@
+language: perl
+perl:
+  - "5.20"
+  - "5.18"
+install:
+# Deal with dependencies
+- cpanm --notest --installdeps .
+script:
+- perl Makefile.PL
+- make
+- make test

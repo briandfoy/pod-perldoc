@@ -35,7 +35,7 @@ WriteMakefile(
 
     'TEST_REQUIRES' => {
 	    'Test::Output'              => '1.03',
-	    'perlfunc'                  => '0',
+	   
 			},
 
     ($ENV{PERL_CORE} ? () : ('EXE_FILES' => [qw( perldoc )])),

@@ -32,6 +32,10 @@ WriteMakefile(
             'Text::ParseWords'          => '0',
             'warnings'                  => '0',
            },
+    'TEST_REQUIRES' => {
+	    'Test::Output'              => '1.03',
+	   },
+	  
 
     ($ENV{PERL_CORE} ? () : ('EXE_FILES' => [qw( perldoc )])),
 

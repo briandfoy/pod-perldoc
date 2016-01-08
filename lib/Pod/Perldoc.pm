@@ -1356,7 +1356,7 @@ sub search_perlfunc {
                 last if $found > 1 and $inlist < 2;
             }
         }
-        elsif (/^=item/) {
+        elsif (/^=item|^=back/) {
             last if $found > 1 and $inlist < 2;
         }
         elsif ($found and /^X<[^>]+>/) {

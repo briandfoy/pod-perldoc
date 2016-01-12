@@ -1,5 +1,6 @@
 package Pod::Perldoc::GetOptsOO;
 use strict;
+use warnings;
 
 use vars qw($VERSION);
 $VERSION = '3.25';

@@ -1,6 +1,20 @@
 Revision history for Pod::Perldoc
 
-next-ver
+3.26 - Thu Jul 28 04:14:29 UTC 2016
+
+    * Fix CVE-2016-1238 by temporarily removing '.' from @INC in world writable directories.
+
+3.25_02 - Tue Jan 12 08:55:45 2016 -0600
+
+    * Update MANIFEST
+    * Rename load test so it runs first
+    * Additional smoke test
+    * Fix =head3 appearing in some perlfunc lookups
+    * AmigaOS patches (RT#106798) (RT#110368)
+
+3.25_01 - Tue Jun 2 08:58:40 2015 -0500
+
+    * Fall back to an English perlfunc if translation doesn't exist (RT#104695)
     * FreeBSD has mandoc too, with UTF-8 support.
     * -U now documented and implied with -F (RT#87837)
 

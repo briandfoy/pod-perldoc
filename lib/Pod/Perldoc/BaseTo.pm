@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '3.25';
+$VERSION = '3.26';
 
 use Carp                  qw(croak carp);
 use Config                qw(%Config);

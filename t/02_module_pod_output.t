@@ -24,7 +24,7 @@ plan tests => 7;
 
 eval{
 
-$pid = open3(\*CHLD_IN,\*CHLD_OUT1,\*CHLD_ERR1,$perldoc." ".$good_podfile);
+$pid = open3(\*CHLD_IN,\*CHLD_OUT1,\*CHLD_ERR1,"perl " .$perldoc." ".$good_podfile);
 
 };
 
@@ -51,7 +51,7 @@ $stderr = undef;
 
 eval{
 
-$pid = open3(\*CHLD_IN,\*CHLD_OUT2,\*CHLD_ERR2,$perldoc." ".$bad_podfile);
+$pid = open3(\*CHLD_IN,\*CHLD_OUT2,\*CHLD_ERR2,"perl " .$perldoc." ".$bad_podfile);
 
 };
 

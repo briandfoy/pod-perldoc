@@ -1,5 +1,9 @@
 Revision history for Pod::Perldoc
 
+3.26_01 - Sat Jul 30 16:08:30 UTC 2016
+
+    * Fix broken test on Windows and FreeBSD (RT#116551)
+
 3.26 - Thu Jul 28 04:14:29 UTC 2016
 
     * Fix CVE-2016-1238 by temporarily removing '.' from @INC in world writable directories.

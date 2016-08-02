@@ -12,7 +12,7 @@ my $stderr = undef;
 
 # get path to perldoc exec in a hopefully platform neutral way..
 my ($volume, $bindir, undef) = File::Spec->splitpath($Bin);
-my $perldoc = File::Spec->catpath($volume,$bindir,"perldoc");
+my $perldoc = File::Spec->catpath($volume,$bindir, File::Spec->catfile(qw(blib script perldoc)));
 my @dir = ($bindir,"lib","Pod");
 my $podpath = File::Spec->catdir(@dir);
 my $good_podfile = File::Spec->catpath($volume,$podpath,"Perldoc.pm");

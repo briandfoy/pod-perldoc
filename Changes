@@ -1,5 +1,9 @@
 Revision history for Pod::Perldoc
 
+3.27 - Wed Aug  3 20:42:54 UTC 2016
+
+    * No changes. Roll an official release.
+
 3.26_02 - Tue Aug  2 16:34:46 UTC 2016
 
     * Better fix for broken test (GH#27)

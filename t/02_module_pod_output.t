@@ -4,7 +4,7 @@ use FindBin qw($Bin);
 
 use IPC::Open3;
 use Test::More;
-
+use Config;
 
 my $pid = undef;
 my $stdout = undef;
@@ -17,6 +17,13 @@ my @dir = ($bindir,"lib","Pod");
 my $podpath = File::Spec->catdir(@dir);
 my $good_podfile = File::Spec->catpath($volume,$podpath,"Perldoc.pm");
 my $bad_podfile = File::Spec->catpath($volume,$podpath,"asdfsdaf.pm");
+if ($ENV{PERL_CORE}) {
+    $perldoc = File::Spec->catfile('..','..','utils',
+                                   ($Config{usecperl}?'c':'').'perldoc');
+    @dir = ("lib","Pod");
+    $good_podfile = File::Spec->catfile(@dir,"Perldoc.pm");
+    $bad_podfile  = File::Spec->catfile(@dir,"asdfsdaf.pm");
+}
 
 plan tests => 7;
 
@@ -24,7 +31,7 @@ plan tests => 7;
 
 eval{
 
-$pid = open3(\*CHLD_IN,\*CHLD_OUT1,\*CHLD_ERR1,"perl " .$perldoc." ".$good_podfile);
+$pid = open3(\*CHLD_IN,\*CHLD_OUT1,\*CHLD_ERR1,"$^X " .$perldoc." ".$good_podfile);
 
 };
 
@@ -51,7 +58,7 @@ $stderr = undef;
 
 eval{
 
-$pid = open3(\*CHLD_IN,\*CHLD_OUT2,\*CHLD_ERR2,"perl " .$perldoc." ".$bad_podfile);
+$pid = open3(\*CHLD_IN,\*CHLD_OUT2,\*CHLD_ERR2,"$^X " .$perldoc." ".$bad_podfile);
 
 };
 

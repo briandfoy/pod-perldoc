@@ -1931,6 +1931,8 @@ sub page {  # apply a pager to the output file
             $self->aside("About to try calling $pager $output\n");
             if ($self->is_vms) {
                 last if system("$pager $output") == 0;
+	    } elsif($self->is_mswin32) {
+                last if system("$pager $output") == 0;
 	    } elsif($self->is_amigaos) { 
                 last if system($pager, $output) == 0;
             } else {

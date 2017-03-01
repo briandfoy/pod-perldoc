@@ -1697,7 +1697,7 @@ sub pagers_guessing {
         unshift @pagers, "$ENV{PERLDOC_PAGER} <" if $ENV{PERLDOC_PAGER};
     }
 
-    $self->aside("Pagers: ", @pagers);
+    $self->aside("Pagers: ", (join ", ", @pagers));
 
     return;
 }
@@ -1931,16 +1931,22 @@ sub page {  # apply a pager to the output file
             $self->aside("About to try calling $pager $output\n");
             if ($self->is_vms) {
                 last if system("$pager $output") == 0;
-	    } elsif($self->is_mswin32) {
-                last if system("$pager \"$output\"") == 0;
 	    } elsif($self->is_amigaos) { 
                 last if system($pager, $output) == 0;
             } else {
-                # fix visible escape codes in ToTerm output
-                # https://bugs.debian.org/758689
-                local $ENV{LESS} = defined $ENV{LESS} ? "$ENV{LESS} -R" : "-R";
-		# On FreeBSD, the default pager is more.
-                local $ENV{MORE} = defined $ENV{MORE} ? "$ENV{MORE} -R" : "-R";
+                if ( $self->{'formatter_class'} =~ /ToTerm/i ) {
+                  # fix visible escape codes in ToTerm output
+                  # https://bugs.debian.org/758689
+                  $self->aside("Possibly changing environment variables for less or more pagers\n");
+                  $ENV{LESS} = defined $ENV{LESS} ? $ENV{LESS} : "-R";
+                  # Don't mess with the environment for MORE on Windows or DOS
+                  if ( ! $self->is_mswin32 || ! $self->is_dos ) {
+                    # On FreeBSD, the default pager is more.
+                    $ENV{MORE} = defined $ENV{MORE} ? $ENV{MORE} : "-R";
+                  }
+                  $self->aside("less environment: " . $ENV{LESS} ."\n") if $ENV{LESS};
+                  $self->aside("more environment: " . $ENV{MORE} ."\n") if $ENV{MORE};
+                }
                 last if system("$pager \"$output\"") == 0;
             }
         }

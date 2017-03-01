@@ -851,8 +851,11 @@ sub grand_search_init {
                    =~ s/\.P(?:[ML]|OD)\z//;
             }
             else {
-                print STDERR "No " .
+              print STDERR "No " .
                     ($self->opt_m ? "module" : "documentation") . " found for \"$_\".\n";
+              if ( /^https/ ) {
+                print STDERR "You may need an SSL library (such as IO::Socket::SSL) for that URL.\n";
+              }
             }
             next;
         }

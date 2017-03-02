@@ -26,6 +26,34 @@ sub width     {
 	$self->_get_default_width;
 }
 
+sub pager_configuration {
+  my($self, $pager, $perldoc) = @_;
+
+  # do not modify anything on Windows or DOS
+  return if ( $perldoc->is_mswin32 || $perldoc->is_dos );
+
+  if ( $pager =~ /less/ ) {
+    $self->_maybe_modify_environment('LESS');
+  }
+  elsif ( $pager =~ /more/ ) {
+    $self->_maybe_modify_environment('MORE');
+  }
+
+  return;
+}
+
+sub _maybe_modify_environment {
+  my($self, $name) = @_;
+
+  if ( ! defined $ENV{$name} ) {
+    $ENV{$name} = "-R";
+  }
+
+  # if the environment is set, don't modify
+  # anything
+
+}
+
 sub _get_stty { `stty -a` }
 
 sub _get_columns_from_stty {

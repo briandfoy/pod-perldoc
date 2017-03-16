@@ -1,5 +1,14 @@
 Revision history for Pod::Perldoc
 
+3.28 - Thu Mar 16 01:07:42 UTC 2017
+
+    * Commited an alternate fix for GH#28
+    * Rolling a release for 5.26
+
+3.27_02 - Wed Mar 2 01:09:22 UTC 2017
+
+    * Testing a fix for GH#28
+
 3.27_01 - Sun Oct 16 02:41:23 UTC 2016
 
     * Another fix for t/02 (RT#118401)

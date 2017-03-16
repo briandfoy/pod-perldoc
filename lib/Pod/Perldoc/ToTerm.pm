@@ -117,7 +117,7 @@ sub parse_from_file {
 
 =head1 NAME
 
-Pod::Perldoc::ToTerm - render Pod with terminal escapes 
+Pod::Perldoc::ToTerm - render Pod with terminal escapes
 
 =head1 SYNOPSIS
 
@@ -135,6 +135,14 @@ For example:
 
   perldoc -o term -w indent:5 Some::Modulename
 
+=head1 PAGER FORMATTING
+
+Depending on the platform, and because this class emits terminal escapes it
+will attempt to set the C<-R> flag on your pager by injecting the flag into
+your environment variable for C<less> or C<more>.
+
+On Windows and DOS, this class will not modify any environment variables.
+
 =head1 CAVEAT
 
 This module may change to use a different text formatter class in the
@@ -146,7 +154,7 @@ L<Pod::Text>, L<Pod::Text::Termcap>, L<Pod::Perldoc>
 
 =head1 COPYRIGHT AND DISCLAIMERS
 
-Copyright (c) 2011 Mark Allen.
+Copyright (c) 2017 Mark Allen.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

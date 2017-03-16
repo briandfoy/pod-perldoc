@@ -1937,18 +1937,10 @@ sub page {  # apply a pager to the output file
 	    } elsif($self->is_amigaos) { 
                 last if system($pager, $output) == 0;
             } else {
-                if ( $self->{'formatter_class'} =~ /ToTerm/i ) {
-                  # fix visible escape codes in ToTerm output
-                  # https://bugs.debian.org/758689
-                  $self->aside("Possibly changing environment variables for less or more pagers\n");
-                  $ENV{LESS} = defined $ENV{LESS} ? $ENV{LESS} : "-R";
-                  # Don't mess with the environment for MORE on Windows or DOS
-                  if ( ! $self->is_mswin32 || ! $self->is_dos ) {
-                    # On FreeBSD, the default pager is more.
-                    $ENV{MORE} = defined $ENV{MORE} ? $ENV{MORE} : "-R";
-                  }
-                  $self->aside("less environment: " . $ENV{LESS} ."\n") if $ENV{LESS};
-                  $self->aside("more environment: " . $ENV{MORE} ."\n") if $ENV{MORE};
+                my $formatter = $self->{'formatter_class'};
+                if ( $formatter->can('pager_configuration') ) {
+                  $self->aside("About to call $formatter" . "->pager_configuration(\"$pager\")\n");
+                  $formatter->pager_configuration($pager, $self);
                 }
                 last if system("$pager \"$output\"") == 0;
             }

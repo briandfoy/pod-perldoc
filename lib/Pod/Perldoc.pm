@@ -1813,7 +1813,7 @@ sub containspod {
     local($_);
     my $fh = $self->open_fh("<", $file);
     while (<$fh>) {
-    if (/^=head/) {
+    if (/^=(head|pod)/) {
         close($fh)     or $self->die( "Can't close $file: $!" );
         return 1;
     }

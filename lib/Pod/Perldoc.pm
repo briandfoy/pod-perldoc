@@ -590,7 +590,34 @@ sub init_formatter_class_list {
   ( $ENV{TERM} || '' ) =~ /dumb|emacs|none|unknown/i
 	and return;
 
-  $self->opt_o_with('term');
+  # We need a version that properly supports ANSI escape codes
+  # Only those will work propertly with ToMan
+  # The rest is either ToTerm or ToMan again
+  if ( my $roffer = $self->{'executables'}{'nroffer'} ) {
+    my $minimum_groff_version = '1.20.1';
+    my $version_string        = `$roffer -v`;
+    my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
+
+    $version ge $minimum_groff_version
+      and return $self->opt_o_with('man');
+
+	# groff is old, we need to check if our pager is less
+	# because if so, we can use ToTerm
+	# We can only know if it's one of the detected pagers
+	# (there could be others that would be tried)
+
+	if ( my ($less_bin) = grep /less/, $self->pagers ) {
+	  my $minimum = '346'; # added between 340 and 346
+      my $version_string = `$less_bin --version`;
+      my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
+
+      $version ge $minimum
+        and return $self->opt_o_with('term');
+    }
+  }
+
+  # No fallback listed here, which means we will use ToText
+  # (provided above)
 }
 
 #..........................................................................

@@ -453,7 +453,7 @@ sub init {
 
 
   $self->{'target'} = undef;
-
+  $self->{'executables'} = $self->inspect_execs();
   $self->init_formatter_class_list;
 
   $self->{'pagers' } = [@Pagers] unless exists $self->{'pagers'};
@@ -480,6 +480,97 @@ sub init {
 
 #..........................................................................
 
+sub _roffer_candidates {
+    my( $self ) = @_;
+
+    if( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig ) { qw( mandoc groff nroff ) }
+    else                    { qw( groff nroff mandoc ) }
+    }
+
+sub _check_nroffer {
+    return 1;
+    # where is it in the PATH?
+
+    # is it executable?
+
+    # what is its real name?
+
+    # what is its version?
+
+    # does it support the flags we need?
+
+    # is it good enough for us?
+    }
+
+#..........................................................................
+
+# Inspect each program to determine if it's available and what version it is
+# This is important because it helps determine which formatter we can use
+# It used to choose and then the formatter would inspect if it has the binaries it needs
+# But we need to know whether binaries are available in order to determine the formatter
+sub _exec_data {
+	my $self = shift;
+	return +{
+		'nroffer' => {
+			'candidates' => [ $self->_roffer_candidates ],
+			'check'      => sub { $self->_check_nroffer(@_) },
+		},
+	};
+}
+
+sub inspect_execs {
+    my $self = shift;
+
+	# nroffer
+	my $nroffer_data = $self->_exec_data->{'nroffer'};
+	my $nroffer      = $self->_find_executable( @{ $nroffer_data->{'candidates'} } );
+	$nroffer_data->{'check'}->($nroffer);
+
+	return +{
+		'nroffer' => $nroffer,
+	};
+}
+
+sub _find_executable {
+    my( $self, @candidates ) = @_;
+
+    my @found = ();
+    foreach my $candidate ( @candidates ) {
+        push @found, $self->_find_executable_in_path( $candidate );
+        }
+
+    return wantarray ? @found : $found[0];
+    }
+
+sub _get_path_components {
+    my( $self ) = @_;
+
+    my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
+
+    return @paths;
+    }
+
+sub _find_executable_in_path {
+    my( $self, $program ) = @_;
+
+    my @found = ();
+    foreach my $dir ( $self->_get_path_components ) {
+        my $binary = catfile( $dir, $program );
+        $self->debug( "Looking for $binary\n" );
+        next unless -e $binary;
+        unless( -x $binary ) {
+            $self->warn( "Found $binary but it's not executable. Skipping.\n" );
+            next;
+            }
+        $self->debug( "Found $binary\n" );
+        push @found, $binary;
+        }
+
+    return @found;
+    }
+
+#..........................................................................
+
 sub init_formatter_class_list {
   my $self = shift;
   $self->{'formatter_classes'} ||= [];
@@ -487,9 +578,11 @@ sub init_formatter_class_list {
   # Remember, no switches have been read yet, when
   # we've started this routine.
 
+  # Here we decide the different formatter classes
+  # but do *not* instantiate them yet, despite the subroutine name!
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('term') 
+  $self->opt_o_with('term')
     unless $self->is_mswin32 || $self->is_dos || $self->is_amigaos
        || !($ENV{TERM} && (
               ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
@@ -777,11 +870,14 @@ sub options_processing {
 
     $self->options_sanity;
 
-    # This used to set a default, but that's now moved into any
+    # This used to set a default, but then moved into any
     # formatter that cares to have a default.
+	# However, we need to set the default nroffer
     if( $self->opt_n ) {
         $self->add_formatter_option( '__nroffer' => $self->opt_n );
-    }
+    } else {
+		$self->add_formatter_option( '__nroffer' => $self->{'executables'}{'nroffer'} );
+	}
 
     # Get language from PERLDOC_POD2 environment variable
     if ( ! $self->opt_L && $ENV{PERLDOC_POD2} ) {

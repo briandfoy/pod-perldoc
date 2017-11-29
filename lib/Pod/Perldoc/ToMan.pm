@@ -47,50 +47,10 @@ sub new {
 
 sub init {
 	my( $self, @args ) = @_;
-
-	unless( $self->__nroffer ) {
-		my $roffer = $self->_find_roffer( $self->_roffer_candidates );
-		$self->debug( "Using $roffer\n" );
-		$self->__nroffer( $roffer );
-		}
-    else {
-	    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
-        }
-
-	$self->_check_nroffer;
-	}
-
-sub _roffer_candidates {
-	my( $self ) = @_;
-
-	if( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig ) { qw( mandoc groff nroff ) }
-	else                    { qw( groff nroff mandoc ) }
-	}
-
-sub _find_roffer {
-	my( $self, @candidates ) = @_;
-
-	my @found = ();
-	foreach my $candidate ( @candidates ) {
-		push @found, $self->_find_executable_in_path( $candidate );
-		}
-
-	return wantarray ? @found : $found[0];
-	}
-
-sub _check_nroffer {
-	return 1;
-	# where is it in the PATH?
-
-	# is it executable?
-
-	# what is its real name?
-
-	# what is its version?
-
-	# does it support the flags we need?
-
-	# is it good enough for us?
+    # We used to print the __nroffer here, but we can't anymore
+    # Because it only gets applied after the new() and init() calls
+    # Check Pod::Perldoc::render_findings() (under formatter_switches)
+    #$self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
 	}
 
 sub _get_stty { `stty -a` }

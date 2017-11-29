@@ -69,33 +69,6 @@ sub die {
 	croak join "\n", @messages, '';
 	}
 
-sub _get_path_components {
-	my( $self ) = @_;
-
-	my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
-
-	return @paths;
-	}
-
-sub _find_executable_in_path {
-	my( $self, $program ) = @_;
-
-	my @found = ();
-	foreach my $dir ( $self->_get_path_components ) {
-		my $binary = catfile( $dir, $program );
-		$self->debug( "Looking for $binary\n" );
-		next unless -e $binary;
-		unless( -x $binary ) {
-			$self->warn( "Found $binary but it's not executable. Skipping.\n" );
-			next;
-			}
-		$self->debug( "Found $binary\n" );
-		push @found, $binary;
-		}
-
-	return @found;
-	}
-
 1;
 
 __END__

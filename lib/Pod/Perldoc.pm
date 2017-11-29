@@ -454,12 +454,13 @@ sub init {
 
   $self->{'target'} = undef;
   $self->{'executables'} = $self->inspect_execs();
-  $self->init_formatter_class_list;
 
   $self->{'pagers' } = [@Pagers] unless exists $self->{'pagers'};
   $self->{'bindir' } = $Bindir   unless exists $self->{'bindir'};
   $self->{'pod2man'} = $Pod2man  unless exists $self->{'pod2man'};
   $self->{'search_path'} = [ ]   unless exists $self->{'search_path'};
+
+  $self->init_formatter_class_list;
 
   push @{ $self->{'formatter_switches'} = [] }, (
    # Yeah, we could use a hashref, but maybe there's some class where options

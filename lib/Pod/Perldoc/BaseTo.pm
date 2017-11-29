@@ -32,6 +32,7 @@ BEGIN {
  *is_cygwin  = $^O eq 'cygwin'   ? \&TRUE : \&FALSE unless defined &is_cygwin;
  *is_linux   = $^O eq 'linux'    ? \&TRUE : \&FALSE unless defined &is_linux;
  *is_hpux    = $^O =~ m/hpux/    ? \&TRUE : \&FALSE unless defined &is_hpux;
+ *is_amigaos = $^O eq 'amigaos' ? \&TRUE : \&FALSE unless defined &is_amigaos;
  *is_openbsd = $^O =~ m/openbsd/ ? \&TRUE : \&FALSE unless defined &is_openbsd;
  *is_freebsd = $^O =~ m/freebsd/ ? \&TRUE : \&FALSE unless defined &is_freebsd;
  *is_bitrig = $^O =~ m/bitrig/ ? \&TRUE : \&FALSE unless defined &is_bitrig;

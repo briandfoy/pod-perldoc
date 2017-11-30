@@ -609,7 +609,7 @@ sub init_formatter_class_list {
 	if ( my ($less_bin) = grep /less/, $self->pagers ) {
 	  my $minimum = '346'; # added between 340 and 346
       my $version_string = `$less_bin --version`;
-      my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
+      my( $version ) = $version_string =~ /less (\d+)/;
 
       $version ge $minimum
         and return $self->opt_o_with('term');

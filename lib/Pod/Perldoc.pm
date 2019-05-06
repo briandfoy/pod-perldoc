@@ -606,8 +606,10 @@ sub init_formatter_class_list {
 	# We can only know if it's one of the detected pagers
 	# (there could be others that would be tried)
 
-	if ( my ($less_bin) = grep /less/, $self->pagers ) {
+	if ( my @less_bins = grep /less/, $self->pagers ) {
 	  my $minimum = '346'; # added between 340 and 346
+
+    foreach my $less_bin (@less_bins) {
       # The less binary can have shell redirection characters
       # So we're cleaning that up and everything afterwards
       my ($less_bin_clean) = $less_bin =~ /^([^<>]+)/;
@@ -617,6 +619,7 @@ sub init_formatter_class_list {
       $version ge $minimum
         and return $self->opt_o_with('term');
     }
+  }
   }
 
   # No fallback listed here, which means we will use ToText

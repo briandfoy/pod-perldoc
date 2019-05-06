@@ -146,6 +146,12 @@ sub _get_podman_switches {
     #
     #push @switches, 'utf8' => 1;
 
+    # mandoc handles UTF-8 input just fine.
+	if ( $self->_is_mandoc ) {
+		push @switches, 'utf8' => 1;
+	}
+
+
 	$self->debug( "Pod::Man switches are [@switches]\n" );
 
 	return @switches;

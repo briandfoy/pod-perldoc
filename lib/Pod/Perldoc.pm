@@ -608,7 +608,10 @@ sub init_formatter_class_list {
 
 	if ( my ($less_bin) = grep /less/, $self->pagers ) {
 	  my $minimum = '346'; # added between 340 and 346
-      my $version_string = `$less_bin --version`;
+      # The less binary can have shell redirection characters
+      # So we're cleaning that up and everything afterwards
+      my ($less_bin_clean) = $less_bin =~ /^([^<>]+)/;
+      my $version_string = `$less_bin_clean --version`;
       my( $version ) = $version_string =~ /less (\d+)/;
 
       $version ge $minimum

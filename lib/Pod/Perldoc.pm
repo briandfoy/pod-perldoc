@@ -70,6 +70,9 @@ BEGIN {
  *is_linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &is_linux;
  *is_hpux    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &is_hpux;
  *is_amigaos = $^O eq 'amigaos' ? \&TRUE : \&FALSE unless defined &is_amigaos;
+ *is_openbsd = $^O =~ m/openbsd/ ? \&TRUE : \&FALSE unless defined &is_openbsd;
+ *is_freebsd = $^O =~ m/freebsd/ ? \&TRUE : \&FALSE unless defined &is_freebsd;
+ *is_bitrig = $^O =~ m/bitrig/ ? \&TRUE : \&FALSE unless defined &is_bitrig;
 }
 
 $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;
@@ -450,13 +453,14 @@ sub init {
 
 
   $self->{'target'} = undef;
-
-  $self->init_formatter_class_list;
+  $self->{'executables'} = $self->inspect_execs();
 
   $self->{'pagers' } = [@Pagers] unless exists $self->{'pagers'};
   $self->{'bindir' } = $Bindir   unless exists $self->{'bindir'};
   $self->{'pod2man'} = $Pod2man  unless exists $self->{'pod2man'};
   $self->{'search_path'} = [ ]   unless exists $self->{'search_path'};
+
+  $self->init_formatter_class_list;
 
   push @{ $self->{'formatter_switches'} = [] }, (
    # Yeah, we could use a hashref, but maybe there's some class where options
@@ -477,6 +481,97 @@ sub init {
 
 #..........................................................................
 
+sub _roffer_candidates {
+    my( $self ) = @_;
+
+    if( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig ) { qw( mandoc groff nroff ) }
+    else                    { qw( groff nroff mandoc ) }
+    }
+
+sub _check_nroffer {
+    return 1;
+    # where is it in the PATH?
+
+    # is it executable?
+
+    # what is its real name?
+
+    # what is its version?
+
+    # does it support the flags we need?
+
+    # is it good enough for us?
+    }
+
+#..........................................................................
+
+# Inspect each program to determine if it's available and what version it is
+# This is important because it helps determine which formatter we can use
+# It used to choose and then the formatter would inspect if it has the binaries it needs
+# But we need to know whether binaries are available in order to determine the formatter
+sub _exec_data {
+	my $self = shift;
+	return +{
+		'nroffer' => {
+			'candidates' => [ $self->_roffer_candidates ],
+			'check'      => sub { $self->_check_nroffer(@_) },
+		},
+	};
+}
+
+sub inspect_execs {
+    my $self = shift;
+
+	# nroffer
+	my $nroffer_data = $self->_exec_data->{'nroffer'};
+	my $nroffer      = $self->_find_executable( @{ $nroffer_data->{'candidates'} } );
+	$nroffer_data->{'check'}->($nroffer);
+
+	return +{
+		'nroffer' => $nroffer,
+	};
+}
+
+sub _find_executable {
+    my( $self, @candidates ) = @_;
+
+    my @found = ();
+    foreach my $candidate ( @candidates ) {
+        push @found, $self->_find_executable_in_path( $candidate );
+        }
+
+    return wantarray ? @found : $found[0];
+    }
+
+sub _get_path_components {
+    my( $self ) = @_;
+
+    my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
+
+    return @paths;
+    }
+
+sub _find_executable_in_path {
+    my( $self, $program ) = @_;
+
+    my @found = ();
+    foreach my $dir ( $self->_get_path_components ) {
+        my $binary = catfile( $dir, $program );
+        $self->debug( "Looking for $binary\n" );
+        next unless -e $binary;
+        unless( -x $binary ) {
+            $self->warn( "Found $binary but it's not executable. Skipping.\n" );
+            next;
+            }
+        $self->debug( "Found $binary\n" );
+        push @found, $binary;
+        }
+
+    return @found;
+    }
+
+#..........................................................................
+
 sub init_formatter_class_list {
   my $self = shift;
   $self->{'formatter_classes'} ||= [];
@@ -484,15 +579,51 @@ sub init_formatter_class_list {
   # Remember, no switches have been read yet, when
   # we've started this routine.
 
+  # Here we decide the different formatter classes
+  # but do *not* instantiate them yet, despite the subroutine name!
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('term') 
-    unless $self->is_mswin32 || $self->is_dos || $self->is_amigaos
-       || !($ENV{TERM} && (
-              ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
-           ));
 
-  return;
+  $self->is_mswin32 || $self->is_dos || $self->is_amigaos
+    and return;
+
+  ( $ENV{TERM} || '' ) =~ /dumb|emacs|none|unknown/i
+	and return;
+
+  # We need a version that properly supports ANSI escape codes
+  # Only those will work propertly with ToMan
+  # The rest is either ToTerm or ToMan again
+  if ( my $roffer = $self->{'executables'}{'nroffer'} ) {
+    my $minimum_groff_version = '1.20.1';
+    my $version_string        = `$roffer -v`;
+    my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
+
+    $version ge $minimum_groff_version
+      and return $self->opt_o_with('man');
+
+	# groff is old, we need to check if our pager is less
+	# because if so, we can use ToTerm
+	# We can only know if it's one of the detected pagers
+	# (there could be others that would be tried)
+
+	if ( my @less_bins = grep /less/, $self->pagers ) {
+	  my $minimum = '346'; # added between 340 and 346
+
+    foreach my $less_bin (@less_bins) {
+      # The less binary can have shell redirection characters
+      # So we're cleaning that up and everything afterwards
+      my ($less_bin_clean) = $less_bin =~ /^([^<>]+)/;
+      my $version_string = `$less_bin_clean --version`;
+      my( $version ) = $version_string =~ /less (\d+)/;
+
+      $version ge $minimum
+        and return $self->opt_o_with('term');
+    }
+  }
+  }
+
+  # No fallback listed here, which means we will use ToText
+  # (provided above)
 }
 
 #..........................................................................
@@ -774,11 +905,14 @@ sub options_processing {
 
     $self->options_sanity;
 
-    # This used to set a default, but that's now moved into any
+    # This used to set a default, but then moved into any
     # formatter that cares to have a default.
+	# However, we need to set the default nroffer
     if( $self->opt_n ) {
         $self->add_formatter_option( '__nroffer' => $self->opt_n );
-    }
+    } else {
+		$self->add_formatter_option( '__nroffer' => $self->{'executables'}{'nroffer'} );
+	}
 
     # Get language from PERLDOC_POD2 environment variable
     if ( ! $self->opt_L && $ENV{PERLDOC_POD2} ) {

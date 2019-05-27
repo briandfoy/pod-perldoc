@@ -32,6 +32,7 @@ BEGIN {
  *is_cygwin  = $^O eq 'cygwin'   ? \&TRUE : \&FALSE unless defined &is_cygwin;
  *is_linux   = $^O eq 'linux'    ? \&TRUE : \&FALSE unless defined &is_linux;
  *is_hpux    = $^O =~ m/hpux/    ? \&TRUE : \&FALSE unless defined &is_hpux;
+ *is_amigaos = $^O eq 'amigaos' ? \&TRUE : \&FALSE unless defined &is_amigaos;
  *is_openbsd = $^O =~ m/openbsd/ ? \&TRUE : \&FALSE unless defined &is_openbsd;
  *is_freebsd = $^O =~ m/freebsd/ ? \&TRUE : \&FALSE unless defined &is_freebsd;
  *is_bitrig = $^O =~ m/bitrig/ ? \&TRUE : \&FALSE unless defined &is_bitrig;
@@ -66,33 +67,6 @@ sub warn {
 sub die {
 	my( $self, @messages ) = @_;
 	croak join "\n", @messages, '';
-	}
-
-sub _get_path_components {
-	my( $self ) = @_;
-
-	my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
-
-	return @paths;
-	}
-
-sub _find_executable_in_path {
-	my( $self, $program ) = @_;
-
-	my @found = ();
-	foreach my $dir ( $self->_get_path_components ) {
-		my $binary = catfile( $dir, $program );
-		$self->debug( "Looking for $binary\n" );
-		next unless -e $binary;
-		unless( -x $binary ) {
-			$self->warn( "Found $binary but it's not executable. Skipping.\n" );
-			next;
-			}
-		$self->debug( "Found $binary\n" );
-		push @found, $binary;
-		}
-
-	return @found;
 	}
 
 1;

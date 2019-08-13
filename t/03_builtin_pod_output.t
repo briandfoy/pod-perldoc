@@ -24,6 +24,14 @@ my %builtins = (
         qr/\A\s+"tr\/\*SEARCHLIST\*\/\*REPLACEMENTLIST\*\/cdsr"\n/,
         qr/\n\s+eval "tr\/\$oldlist\/\$newlist\/, 1" or die \$\@;\n\n\z/
     ],
+    '==' => [ # CPAN RT#126015
+        qr/\A\s+Equality Operators\n/,
+        qr/\n\s+if \( fc\(\$x\) eq fc\(\$y\) \) \{ \.\.\. \}\n\n\z/
+    ],
+    '<>' => [ # CPAN RT#126015
+        qr/\A\s+I\/O Operators\n/,
+        qr/\n\s+for its regular truth value\.\n\n\z/
+    ]
 );
 
 plan tests => 5 * scalar keys %builtins;

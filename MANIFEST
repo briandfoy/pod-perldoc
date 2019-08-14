@@ -1,6 +1,7 @@
 Changes
 corpus/no-head.pod
 corpus/perlfunc.pod
+corpus/perlop.pod
 corpus/utf8.pod
 lib/Pod/Perldoc.pm
 lib/Pod/Perldoc/BaseTo.pm
@@ -28,3 +29,4 @@ t/man/_get_columns.t
 t/pod.t
 t/01_about_verbose.t
 t/02_module_pod_output.t
+t/03_builtin_pod_output.t

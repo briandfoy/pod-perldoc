@@ -15,6 +15,7 @@ WriteMakefile(
 
     'PREREQ_PM' => {
             # Are there any hard dependencies not covered here?
+            'blib'                      => '0',
             'Config'                    => '0',
             'Encode'                    => '0',
             'Fcntl'                     => '0',

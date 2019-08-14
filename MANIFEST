@@ -6,6 +6,7 @@ corpus/mandoc/Perldoc.man
 corpus/no-head.pod
 corpus/perlfunc.pod
 corpus/polish_utf8.pod
+corpus/perlop.pod
 corpus/utf8.pod
 lib/Pod/Perldoc.pm
 lib/Pod/Perldoc/BaseTo.pm
@@ -35,3 +36,4 @@ t/02_url_pod_output.t
 t/lib/TestUtils.pm
 t/man/_get_columns.t
 t/pod.t
+t/03_builtin_pod_output.t

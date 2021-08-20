@@ -521,7 +521,7 @@ sub process {
     return $self->usage_brief  unless  @{ $self->{'args'} };
     $self->options_reading;
     $self->pagers_guessing;
-    $self->aside(sprintf "$0 => %s v%s\n", ref($self), $self->VERSION);
+    $self->aside(sprintf "%s => %s v%s\n", $0, ref($self), $self->VERSION);
     $self->drop_privs_maybe unless ($self->opt_U || $self->opt_F);
     $self->options_processing;
 

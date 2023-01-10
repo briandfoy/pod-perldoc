@@ -1590,7 +1590,7 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
 
      my($self, $dir, $file) = @_;
      my $path = catfile($dir,$file);
-     return $path if -f $path and -r _;
+     return $path if -e $path and -r _;
 
      if(!$self->opt_i
         or $self->is_vms or $self->is_mswin32
@@ -1598,7 +1598,7 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
      ) {
         # On a case-forgiving file system, or if case is important,
     #  that is it, all we can do.
-    $self->warn( "Ignored $path: unreadable\n" ) if -f _;
+    $self->warn( "Ignored $path: unreadable\n" ) if -e _;
     return '';
      }
 
@@ -1643,8 +1643,8 @@ sub minus_f_nocase {   # i.e., do like -f, but without regard to case
 
         push @p, $cip;
         my $p_filespec = catfile(@p);
-        return $p_filespec if -f $p_filespec and -r _;
-        $self->warn( "Ignored $p_filespec: unreadable\n" ) if -f _;
+        return $p_filespec if -e $p_filespec and -r _;
+        $self->warn( "Ignored $p_filespec: unreadable\n" ) if -e _;
     }
      }
      return "";
@@ -1955,7 +1955,7 @@ sub searchfor {
     my($self, $recurse,$s,@dirs) = @_;
     $s =~ s!::!/!g;
     $s = VMS::Filespec::unixify($s) if $self->is_vms;
-    return $s if -f $s && $self->containspod($s);
+    return $s if -e $s && $self->containspod($s);
     $self->aside( "Looking for $s in @dirs\n" );
     my $ret;
     my $i;

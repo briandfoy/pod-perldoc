@@ -54,7 +54,22 @@ sub _maybe_modify_environment {
 
 }
 
-sub _get_stty { `stty -a` }
+sub _get_stty {
+
+  if ( !-t STDIN && -e "/dev/tty" ) {
+     # I went with this more-baroque method because `local *STDIN`
+     # doesn't stay localized during:  return `stty -a`;
+
+     open my $OLDFH, '<&' => \*STDIN or die "Can't dup STDIN\n";
+     open *STDIN, '<' => "/dev/tty";
+     my $retval = `stty -a`;
+     open *STDIN, '<&' => $OLDFH;
+     return $retval;
+  }
+
+  ### Else...
+  return `stty -a`;
+}
 
 sub _get_columns_from_stty {
 	my $output = $_[0]->_get_stty;

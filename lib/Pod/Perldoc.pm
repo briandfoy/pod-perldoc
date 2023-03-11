@@ -1810,6 +1810,12 @@ sub containspod {
         return 0;
     }
 
+    if ( -p $file )
+    {
+        $self->warn( "$file is a PIPE/FIFO; assuming it contains POD\n" ) if DEBUG or $self->opt_D;
+        return 1;
+    }
+
     local($_);
     my $fh = $self->open_fh("<", $file);
     while (<$fh>) {

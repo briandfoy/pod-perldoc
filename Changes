@@ -1,5 +1,9 @@
 Revision history for Pod::Perldoc
 
+3.28_01 2023-12-06T07:19:15Z
+	* A dev release to try to avoid test failures for root by not testing
+	when root (GitHub #44). 
+
 3.28 - Thu Mar 16 01:07:42 UTC 2017
 
     * Commited an alternate fix for GH#28

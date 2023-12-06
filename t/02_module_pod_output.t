@@ -6,10 +6,6 @@ use IPC::Open3;
 use Test::More;
 use Config;
 
-my $pid = undef;
-my $stdout = undef;
-my $stderr = undef;
-
 # get path to perldoc exec in a hopefully platform neutral way..
 my ($volume, $bindir, undef) = File::Spec->splitpath($Bin);
 my $perldoc = File::Spec->catpath($volume,$bindir, File::Spec->catfile(qw(blib script perldoc)));
@@ -25,57 +21,42 @@ if ($ENV{PERL_CORE}) {
     $bad_podfile  = File::Spec->catfile(@dir,"asdfsdaf.pm");
 }
 
-plan tests => 7;
-
-# First, look for something that should be there
-
-eval{
-
-$pid = open3(\*CHLD_IN,\*CHLD_OUT1,\*CHLD_ERR1,"$^X " .$perldoc." ".$good_podfile);
-
-};
-
-is(length($@),0,"open succeeded"); # returns '' not undef
-ok(defined($pid),"got process id");
-
-#gather STDOUT
-while(<CHLD_OUT1>){
- $stdout .=$_;
+if( $> == 0 and $< == 0 ) {
+	plan skip_all => 'Refusing to run under root';
+}
+else {
+	plan tests => 7;
 }
 
-#check STDOUT
-like($stdout,qr/Look up Perl documentation/,"got expected output in STDOUT");
+GOOD_FILE: {
+	my( $stdout, $stderr );
+	my $pid = eval{
+		open3(\*CHLD_IN,\*CHLD_OUT1,\*CHLD_ERR1,"$^X " .$perldoc." ".$good_podfile);
+	};
 
-while(<CHLD_ERR1>){
- $stderr .=$_;
+	is(length($@),0,"open succeeded"); # returns '' not undef
+	ok(defined($pid),"got process id");
+
+	$stdout .= $_ while <CHLD_OUT1>;
+	$stderr .= $_ while <CHLD_ERR1>;
+
+	like($stdout,qr/Look up Perl documentation/,"got expected output in STDOUT");
+	#is($stderr,undef,"no output to STDERR as expected");
 }
 
-#is($stderr,undef,"no output to STDERR as expected");
 
-# Then look for something that should not be there
-$stdout = undef;
-$stderr = undef;
+BAD_FILE: {
+	my( $stdout, $stderr );
+	my $pid = eval{
+		open3(\*CHLD_IN,\*CHLD_OUT2,\*CHLD_ERR2,"$^X " .$perldoc." ".$bad_podfile);
+	};
 
-eval{
+	is(length($@),0,"open succeeded"); # returns '' not undef
+	ok(defined($pid),"got process id");
 
-$pid = open3(\*CHLD_IN,\*CHLD_OUT2,\*CHLD_ERR2,"$^X " .$perldoc." ".$bad_podfile);
+	$stdout .= $_ while <CHLD_OUT2>;
+	$stderr .= $_ while <CHLD_ERR2>;
 
-};
-
-is(length($@),0,"open succeeded"); # returns '' not undef
-ok(defined($pid),"got process id");
-
-#gather STDOUT
-while(<CHLD_OUT2>){
- $stdout .=$_;
+	is($stdout,undef,"no output to STDOUT as expected");
+	like($stderr,qr/No documentation/,"got expected output in STDERR");
 }
-
-#check STDOUT
-is($stdout,undef,"no output to STDOUT as expected");
-
-while(<CHLD_ERR2>){
- $stderr .=$_;
-}
-
-like($stderr,qr/No documentation/,"got expected output in STDERR");
-

@@ -1,3 +1,22 @@
+package MY;
+
+sub libscan
+{ # Determine things that should *not* be installed
+    my($self, $path) = @_;
+    return '' if $path =~ m/~/;
+    $path;
+}
+
+sub init_dirscan
+{
+    my($self) = shift;
+    $self->SUPER::init_dirscan;
+    # Need to force perldoc.pod to install at the top level of the lib dir:
+    $self->{PM}{'perldoc.pod'} = $self->catfile($self->{INST_LIB}, 'perldoc.pod');
+    return;
+}
+
+
 package Pod::Perldoc;
 use strict;
 use warnings;
@@ -134,22 +153,6 @@ sub do_it {
 
 	WriteMakefile( %$arguments );
 	}
-
-sub MY::libscan
-{ # Determine things that should *not* be installed
-    my($self, $path) = @_;
-    return '' if $path =~ m/~/;
-    $path;
-}
-
-sub MY::init_dirscan
-{
-    my($self) = shift;
-    $self->SUPER::init_dirscan;
-    # Need to force perldoc.pod to install at the top level of the lib dir:
-    $self->{PM}{'perldoc.pod'} = $self->catfile($self->{INST_LIB}, 'perldoc.pod');
-    return;
-}
 
 no warnings;
 

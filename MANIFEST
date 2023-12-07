@@ -26,4 +26,5 @@ README
 t/00_load.t
 t/02_module_pod_output.t
 t/man/_get_columns.t
+t/lib/TestUtils.pm
 t/pod.t

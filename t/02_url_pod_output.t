@@ -66,7 +66,7 @@ subtest 'fetch https with redirection' => sub {
 sub test_translation {
 	my( $pod ) = @_;
 	subtest 'check pod' => sub {
-		like $pod, qr/^NAME\R+^\h+Pod::Perldoc/m, 'Found NAME header'
+		like $pod, qr/^(?:\x1B\[1m)?NAME(?:\x1B\[0m)?\R+^\h*Pod::Perldoc/m, 'Found NAME header'
 		};
 	}
 

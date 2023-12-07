@@ -3,6 +3,7 @@ package Pod::Perldoc::ToMan;
 use strict;
 use warnings;
 use parent qw(Pod::Perldoc::BaseTo);
+use POSIX qw( WNOHANG );
 
 use vars qw($VERSION);
 $VERSION = '3.28';
@@ -362,7 +363,7 @@ sub _filter_through_nroff {
 		);
 
 	# wait for it to exit
-	waitpid( $pid, 0 ) unless $^O eq 'MSWin32'; # see perlport, this will hang on Windows
+	waitpid( $pid, WNOHANG );
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );

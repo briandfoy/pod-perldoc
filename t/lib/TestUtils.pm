@@ -6,6 +6,7 @@ use Data::Dumper;
 use Exporter qw(import);
 use File::Spec::Functions qw(catfile);
 use IPC::Open3;
+use POSIX qw( WNOHANG );
 use Symbol;
 
 our @EXPORT = qw(
@@ -36,7 +37,7 @@ sub run_perldoc {
 	my $success = length($at) == 0;
 
 	return { success => !!0 } unless $pid;
-	waitpid( $pid, 0 ) unless $^O eq 'MSWin32'; # see perlport, this will hang
+	waitpid( $pid, WNOHANG );
 
 	my $output = do { local $/; <$child_out> };
 	my $error  = do { local $/; <$child_err> };

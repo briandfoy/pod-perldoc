@@ -845,6 +845,7 @@ sub grand_search_init {
             if ($response->{success}) {
                 my ($fh, $filename) = File::Temp::tempfile(UNLINK => 1);
                 $fh->print($response->{content});
+                $fh->flush;
                 push @found, $filename;
                 ($self->{podnames}{$filename} =
                   m{.*/([^/#?]+)} ? uc $1 : "UNKNOWN")

@@ -30,7 +30,7 @@ if ($ENV{PERL_CORE}) {
 
 # If the files are under /root, maybe in a container, we might not
 # be able to see them after dropping privileges.
-if( $> == 0 and $< == 0 ) {
+if( $^O ne 'MSWin32' and ($> == 0 or $< == 0) ) {
 	plan skip_all => 'Refusing to run under root';
 }
 else {

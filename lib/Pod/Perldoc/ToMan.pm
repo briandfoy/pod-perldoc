@@ -362,7 +362,7 @@ sub _filter_through_nroff {
 		);
 
 	# wait for it to exit
-	waitpid( $pid, 0 );
+	waitpid( $pid, 0 ) unless $^O eq 'MSWin32'; # see perlport, this will hang on Windows
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );

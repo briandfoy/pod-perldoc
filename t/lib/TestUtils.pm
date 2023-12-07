@@ -35,8 +35,8 @@ sub run_perldoc {
 	my $at = $@;
 	my $success = length($at) == 0;
 
-	return unless $pid;
-	waitpid( $pid, 0 );
+	return { success => !!0 } unless $pid;
+	waitpid( $pid, 0 ) unless $^O eq 'MSWin32'; # see perlport, this will hang
 
 	my $output = do { local $/; <$child_out> };
 	my $error  = do { local $/; <$child_err> };

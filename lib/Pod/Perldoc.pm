@@ -770,7 +770,7 @@ sub options_processing {
         $self->{'podidx'} = $podidx;
     }
 
-    $self->{'output_to_stdout'} = 1  if  $self->opt_T or ! -t STDOUT;
+    $self->{'output_to_stdout'} = 1    if  $self->opt_T  or  ! -t STDOUT  or  ($ENV{TERM} // '') eq 'dumb';
 
     $self->options_sanity;
 

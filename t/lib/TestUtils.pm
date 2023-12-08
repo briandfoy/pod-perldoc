@@ -37,7 +37,11 @@ sub run_perldoc {
 	my $success = length($at) == 0;
 
 	return { success => !!0 } unless $pid;
-	waitpid( $pid, WNOHANG );
+
+	my $kid;
+	do {
+        $kid = waitpid(-1, WNOHANG);
+    } while $kid > 0;
 
 	my $output = do { local $/; <$child_out> };
 	my $error  = do { local $/; <$child_err> };

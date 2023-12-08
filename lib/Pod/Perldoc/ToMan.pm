@@ -362,8 +362,10 @@ sub _filter_through_nroff {
 		length $done
 		);
 
-	# wait for it to exit
-	waitpid( $pid, WNOHANG );
+	my $kid;
+	do {
+        $kid = waitpid(-1, WNOHANG);
+    } while $kid > 0;
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );

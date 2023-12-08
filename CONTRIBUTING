@@ -1,0 +1,161 @@
+# Contributing to Pod::Perldoc
+
+Pod::Perldoc is the module behind Perl's `perldoc` utility that comes
+with `perl`. It's a "dual-lived" module, meaning that although it comes
+with `perl`, it's development is not in the `perl5/perl` repo. Instead,
+it's developed as a separate module and imported by the perl release manager
+later.
+
+## The Scope of perldoc
+
+`perldoc` is a traffic cop. Given an input source, it chooses something
+to parse the input. Whatever that handler does becomes the output.
+None of these handlers are part of the Pod::Perldoc distribution, and
+Pod::Perldoc does not control how they work or what they do.
+
+One of `perldoc`'s major tasks is displaying documentation on the
+console. As such, it uses various information and guesses to figure
+out which translator is best for the situation. This means that what
+you see in your environment may be different than what other people
+see in theirs. As such, we have to be very careful that any changes we
+make not only work for you, but work everywhere else too. This is not
+an easy task, and it has driven many developers to tears.
+
+In some cases, Pod::Perldoc tries to parse select Perl documentation
+pages itself. For example, the `-f` switch looks in `perlfunc.pod` and
+expects to see very particular formatting and structure. Some of this
+structure is not what we might choose if we had to start over, but the
+structure has been stable for a couple decades. It is what it is.
+
+Finally, `perldoc` has been around for a couple of decades and has
+encountered many insane situations in that time. There's a lot of
+historical knowledge baked into that. We try to keep `perldoc` acting
+just like it did in the past, when reasonable.
+
+## Table of Contents
+
+- [Our intent in managing Pod::Perldoc](#our-intent)
+- [Reporting a bug](#reporting-a-bug)
+- [Requesting a feature](#requesting-a-feature)
+- [Sending a pull request](#sending-a-pull-request)
+- [Testing](#testing)
+- [Becoming a part of the team](#becoming-a-part-of-the-team)
+
+## Our intent
+
+We try to respond to all issues in the same day, or as soon as I can.
+Sometimes I'm off the grid. With that, we try to move the process forward
+as much as I can or explain what's holding it up. We try to respond to
+every issue as soon as we see it, even if that means our response is "We saw
+your issue".
+
+We use GitHub labels on issues to note what stage it is in. Each issue
+or pull request should have a "Status: " label, a "Priority: ", and a
+"Type: " label. Everything starts as "Priority: low", but that's just
+an automatic thing. We'll adjust labels as necessary.
+
+If you see the label "Status: stalled", that usually means there's
+something we don't control that needs to happen for the issue to move forward.
+That might mean the requestor needs to supply some details, respond to
+change requests, or something else.
+
+The "Status: Backlog" label means there's nothing blocking the issue,
+but we've decided not to work on it immediately (although anyone can
+decide to work on it). Usually this means that we have other development
+we are prioritizing.
+
+If you think that we have ignored your issue for too long, feel free
+to ask about it's status. You might get the same answer back, but at
+least you know we are alive.
+
+## Reporting a bug
+
+To report a bug, [use the bug template](https://github.com/briandfoy/pod-perldoc/issues/new/choose)
+in GitHub. The issue template shows you what we would like to know.
+
+If you don't want to use GitHub for whatever reason, send email to
+briandfoy@pobox.com. There might be a significant delay in responding
+to that.
+
+There are several bits of information that can help us, and if you don't
+provide it we will ask for it. You can put this inline with the text
+or attach files. We'll figure it out.
+
+* Your version of perldoc
+* Your environment
+* Your perl config
+* A sample run under perldoc debugging
+
+Show us your version of `perldoc`:
+
+	$ perldoc -h
+
+We also would like to see your perl config:
+
+    $ perl -V
+
+Here's a Perl one-liner to grab the environment values we care about
+(there may be others):
+
+    $ perl -le 'print qq($_: $ENV{$_}) for @ARGV' LANG LC_ALL LC_LANG LESS MANPAGER MANWIDTH MORE PAGER PERLDOC PERLDOC_PAGER PERLDOCDEBUG RTFREADER TERM
+
+Run `perldoc` under debugging and include all the output:
+
+	$ env PERLDOCDEBUG=5 perldoc -D ...
+
+## Requesting a feature
+
+All Pod formatting is handled by modules outside of the Pod::Perldoc
+repo. If your feature is about formatting Pod, find the right translator
+and work there.
+
+If your feature is about the operation of `perldoc`, for example, a
+new switch to search a particular page of the perl documentation, that's
+something that we can consider. Here's some things to think about as
+you prepare your proposal:
+
+* what command-line switch do you want, and does that fit in with all of the other switches?
+* which perl doc pages will perldoc need to examine?
+* is it possible to isolate the parts of that page that you want to extract?
+* how would you pass that extract to the Pod formatters so they know what to do?
+
+## Sending a pull request
+
+You can clone this repo and make a pull request in the usual GitHub
+fashion. We don't have particular guidance on that at the moment beyond
+the usual wisdom:
+
+* ask about big changes before you do a lot of work.
+* don't make unrelated changes in one pull request.
+* follow the style in the file you edit. Some files use different styles (yeah, we know).
+* everything has to work on Windows too.
+
+If you do not want to make a pull request, you can send patch files
+to briandfoy@pobox.com. These will be converted to pull requests. Note
+if you want to mask your name or email address; otherwise we will use that
+info for the git author and email.
+
+## Testing
+
+We want to be very careful about testing before we send out a stable
+release:
+
+* the Pod::Perldoc test suite must pass.
+* all workflows must pass.
+* the coverage of the test suite should not have decreased.
+* all new features must be fully tested.
+* we want to test against good and bad inputs.
+* we must address all significant issues found by CPAN Testers.
+
+At the moment, the Pod::Perldoc package has very limited testing. That's
+something that we want to fix. In particular, we want to take known
+Pod pages and translate them to see if the output changed.
+
+There are various GitHub workflows that run the test suite, but there
+could be more tests.
+
+## Becoming a part of the team
+
+I'm inclined to give collaborator status in the repo to people with a
+track record of good development.
+.

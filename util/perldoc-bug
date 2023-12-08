@@ -95,20 +95,6 @@ sub collect_env_info {
 	return \%hash;
 	}
 
-sub collect_os_info {
-	my %hash;
-
-	$hash{type} = $^O;
-	if( $osname eq 'MSWin32' and eval { require Win32; } ) {
-		$hash{name} = Win32::GetOSName();
-		}
-	else {
-		$hash{uname} = `uname -a`;
-		}
-
-	return \%hash;
-	}
-
 sub collect_module_info {
 	my %hash;
 
@@ -127,6 +113,20 @@ sub collect_module_info {
 		next unless eval "require $module";
 		$hash{$module}{version} = $module->VERSION;
 		$hash{$module}{path} = $INC{ $module =~ s/::/\//gr . '.pm' };
+		}
+
+	return \%hash;
+	}
+
+sub collect_os_info {
+	my %hash;
+
+	$hash{type} = $^O;
+	if( $osname eq 'MSWin32' and eval { require Win32; } ) {
+		$hash{name} = Win32::GetOSName();
+		}
+	else {
+		$hash{uname} = `uname -a`;
 		}
 
 	return \%hash;

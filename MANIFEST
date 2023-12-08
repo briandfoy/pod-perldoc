@@ -17,6 +17,9 @@ lib/Pod/Perldoc/ToTerm.pm
 lib/Pod/Perldoc/ToText.pm
 lib/Pod/Perldoc/ToTk.pm
 lib/Pod/Perldoc/ToXml.pm
+LICENSE
+LICENSE-Artistic
+LICENSE-gplv1
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP

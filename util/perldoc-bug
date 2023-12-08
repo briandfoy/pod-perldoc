@@ -72,78 +72,133 @@ This software is available under the Artistic License 2.0.
 
 my %hash;
 
-$hash{os}{type} = $^O;
-if( $osname eq 'MSWin32' and eval { require Win32; } ) {
-	$hash{os}{name} = Win32::GetOSName();
-	}
-else {
-	$hash{os}{uname} = `uname -a`;
-	}
+my @subs = qw( os module pod_perldoc perl env perldoc );
+foreach my $sub ( @subs ) {
+	$hash{$sub} = __PACKAGE__->can("collect_${sub}_info")->();
+	};
 
+say JSON::PP::encode_json( \%hash );
 
-$hash{pod_perldoc}{cwd} = getcwd();
-$hash{pod_perldoc}{version} = Pod::Perldoc->VERSION;
-$hash{pod_perldoc}{path} = $INC{'Pod/Perldoc.pm'};
-if( $hash{pod_perldoc}{cwd} =~ /\bpod-perldoc\z/i and -e '.git' ) {
-	$hash{pod_perldoc}{commit} = `git log --format="%H" -n 1`;
-	chomp $hash{pod_perldoc}{commit};
-	}
+sub collect_env_info {
+	my %hash;
+	my @env_keys = qw(
+		LANG LC_ALL LC_LANG LESS MANPAGER MANWIDTH MORE PAGER PERLDOC PERLDOC_PAGER
+		PERLDOCDEBUG RTFREADER TERM
+		LESSCHARSET TERM_PROGRAM TERM_PROGRAM_VERSION
+		LC_TERMINAL LC_TERMINAL_VERSION
+		);
 
-say STDERR "Found Pod::Perldoc <$hash{pod_perldoc}{version}> from <$INC{'Pod/Perldoc.pm'}>. Set PERL5LIB is you want to use a different module location.";
-$hash{perl}{version} = "$^V";
-$hash{perl}{config} = \%Config;
+	foreach my $key ( @env_keys ) {
+		$hash{$key} = $ENV{$key};
+		}
 
-my @env_keys = qw(
-	LANG LC_ALL LC_LANG LESS MANPAGER MANWIDTH MORE PAGER PERLDOC PERLDOC_PAGER
-	PERLDOCDEBUG RTFREADER TERM
-	LESSCHARSET TERM_PROGRAM TERM_PROGRAM_VERSION
-	LC_TERMINAL LC_TERMINAL_VERSION
-	);
-
-foreach my $key ( @env_keys ) {
-	$hash{env}{$key} = $ENV{$key};
+	return \%hash;
 	}
 
-my $perldoc_path = find_perldoc();
-if( length $perldoc_path ) {
-	say STDERR "Found <$perldoc_path>. Set PERLDOC_PATH is you want to use a different perldoc.";
-	$hash{perldoc_path} = $perldoc_path;
+sub collect_os_info {
+	my %hash;
 
-	my $loaded = eval { require Capture::Tiny; Capture::Tiny->import('capture'); 1};
-	if( $loaded ) {
-		local $ENV{PERLDOCDEBUG} = 0;
-		$hash{perldoc}{'-h'} = ( capture( sub {
-		  system $^X, $perldoc_path, '-h';
-		  }) )[1];  # -h output is on stderr
+	$hash{type} = $^O;
+	if( $osname eq 'MSWin32' and eval { require Win32; } ) {
+		$hash{name} = Win32::GetOSName();
+		}
+	else {
+		$hash{uname} = `uname -a`;
+		}
 
-		if( @ARGV ) {
-			local $ENV{PERLDOCDEBUG} = 5;
-			say STDERR "Running <$^X $perldoc_path -D @ARGV> to collect a sample run.";
-			@{ $hash{perldoc} }{ qw(stdout stderr exit) } = capture( sub {
-			  system $^X, $perldoc_path, '-D', @ARGV;
-			  });
+	return \%hash;
+	}
 
-			$hash{perldoc}{input}{arg} = $ARGV[-1];
-			if( open my $fh, '<:raw', $ARGV[-1] ) {
-				$hash{perldoc}{input}{contents} = do { local $/; <$fh> };
+sub collect_module_info {
+	my %hash;
+
+	my @modules = qw(
+		Pod::Man Pod::Simple::RTF Pod::Text Pod::Simple::Checker Pod::Man
+		Tk::Pod Pod::Text::Color Pod::Simple::XMLOutStream Pod::Text::Termcap
+		);
+	my( $module ) = map {
+		$ARGV[$_] =~ /\A-M([\w:]+)?/;
+		my $module = $1 ? $1 : $ARGV[$_+1];
+		$module ? $module : ();
+		} 0 .. $#ARGV;
+	push @modules, $module if $module;
+
+	foreach my $module ( @modules ) {
+		next unless eval "require $module";
+		$hash{$module}{version} = $module->VERSION;
+		$hash{$module}{path} = $INC{ $module =~ s/::/\//gr . '.pm' };
+		}
+
+	return \%hash;
+	}
+
+sub collect_pod_perldoc_info {
+	my %hash;
+	$hash{cwd} = getcwd();
+	$hash{version} = Pod::Perldoc->VERSION;
+	$hash{path} = $INC{'Pod/Perldoc.pm'};
+	if( $hash{cwd} =~ /\bpod-perldoc\z/i and -e '.git' ) {
+		$hash{commit} = `git log --format="%H" -n 1`;
+		chomp $hash{commit};
+		}
+
+	say STDERR "Found Pod::Perldoc <$hash{pod_perldoc}{version}> from <$INC{'Pod/Perldoc.pm'}>. Set PERL5LIB is you want to use a different module location.";
+
+	return \%hash;
+	}
+
+sub collect_perl_info {
+	my %hash;
+	$hash{version} = "$^V";
+	$hash{path} = $^X;
+	#$hash{config} = \%Config;
+	return \%hash;
+	}
+
+sub collect_perldoc_info {
+	my %hash;
+
+	my $perldoc_path = find_perldoc();
+	if( length $perldoc_path ) {
+		say STDERR "Found <$perldoc_path>. Set PERLDOC_PATH is you want to use a different perldoc.";
+		$hash{perldoc_path} = $perldoc_path;
+
+		my $loaded = eval { require Capture::Tiny; Capture::Tiny->import('capture'); 1};
+		if( $loaded ) {
+			local $ENV{PERLDOCDEBUG} = 0;
+			$hash{perldoc}{'-h'} = ( capture( sub {
+			  system $^X, $perldoc_path, '-h';
+			  }) )[1];  # -h output is on stderr
+
+			if( @ARGV ) {
+				local $ENV{PERLDOCDEBUG} = 5;
+				say STDERR "Running <$^X $perldoc_path -D @ARGV> to collect a sample run.";
+				@{ $hash{perldoc} }{ qw(stdout stderr exit) } = capture( sub {
+				  system $^X, $perldoc_path, '-D', @ARGV;
+				  });
+
+				$hash{perldoc}{input}{arg} = $ARGV[-1];
+				if( open my $fh, '<:raw', $ARGV[-1] ) {
+					$hash{perldoc}{input}{contents} = do { local $/; <$fh> };
+					}
+				else {
+					$hash{perldoc}{input}{error} = "$!";
+					}
 				}
 			else {
-				$hash{perldoc}{input}{error} = "$!";
+				say STDERR "There were no arguments, so not running perldoc to collect a sample run.";
 				}
 			}
 		else {
-			say STDERR "There were no arguments, so not running perldoc to collect a sample run.";
+			say STDERR "Install Capture::Tiny to collect sample runs.";
 			}
 		}
 	else {
-		say STDERR "Install Capture::Tiny to collect sample runs.";
+		say STDERR "Could not find perldoc. Set PERLDOC_PATH to get the one you want.";
 		}
-	}
-else {
-	say STDERR "Could not find perldoc. Set PERLDOC_PATH to get the one you want.";
-	}
 
-say JSON::PP::encode_json( \%hash );
+	return \%hash;
+	}
 
 sub find_perldoc {
 	return $ENV{PERLDOC_PATH} if -e $ENV{PERLDOC_PATH};

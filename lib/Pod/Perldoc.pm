@@ -1,4 +1,4 @@
-use 5.006;  # we use some open(X, "<", $y) syntax
+use 5.010; # podlaters and Pod::Man require this
 
 package Pod::Perldoc;
 use strict;

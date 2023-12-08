@@ -1,4 +1,4 @@
-require 5.006;
+require 5.010; # Pod::Man requires this
 package Pod::Perldoc::ToMan;
 use strict;
 use warnings;

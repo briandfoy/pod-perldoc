@@ -3,6 +3,7 @@ package Pod::Perldoc::ToMan;
 use strict;
 use warnings;
 use parent qw(Pod::Perldoc::BaseTo);
+use POSIX qw( WNOHANG );
 
 use vars qw($VERSION);
 $VERSION = '3.28';
@@ -279,7 +280,7 @@ sub _is_ebcdic {
 
 	return 0;
 	}
-	
+
 sub _filter_through_nroff {
 	my( $self ) = shift;
 	$self->debug( "Filtering through " . $self->__nroffer() . "\n" );
@@ -293,10 +294,10 @@ sub _filter_through_nroff {
     my @render_switches = $self->_collect_nroff_switches;
 
     if ( $switches ) {
-        # Eliminate whitespace 
+        # Eliminate whitespace
         $switches =~ s/\s//g;
 
-        # Then separate the switches with a zero-width positive 
+        # Then separate the switches with a zero-width positive
         # lookahead on the dash.
         #
         # See:
@@ -361,8 +362,10 @@ sub _filter_through_nroff {
 		length $done
 		);
 
-	# wait for it to exit
-	waitpid( $pid, 0 );
+	my $kid;
+	do {
+        $kid = waitpid(-1, WNOHANG);
+    } while $kid > 0;
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );

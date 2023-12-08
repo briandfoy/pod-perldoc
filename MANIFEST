@@ -1,5 +1,8 @@
 Changes
+CONTRIBUTING
+corpus/gh-56-1.pod
 corpus/Header.pm
+corpus/mandoc/Perldoc.man
 corpus/no-head.pod
 corpus/perlfunc.pod
 corpus/polish_utf8.pod
@@ -28,6 +31,7 @@ perldoc.pod
 README
 t/00_load.t
 t/02_module_pod_output.t
-t/man/_get_columns.t
+t/02_url_pod_output.t
 t/lib/TestUtils.pm
+t/man/_get_columns.t
 t/pod.t

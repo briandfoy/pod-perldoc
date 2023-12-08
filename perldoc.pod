@@ -248,7 +248,8 @@ above the nobody/nogroup level.
 Any switches in the C<PERLDOC> environment variable will be used before the
 command line arguments.
 
-Useful values for C<PERLDOC> include C<-oterm>, C<-otext>, C<-ortf>,
+Useful values for C<PERLDOC> include C<-oterm>, C<-otext> (the default
+if no -o is given), C<-ortf>,
 C<-oxml>, and so on, depending on what modules you have on hand; or
 the formatter class may be specified exactly with C<-MPod::Perldoc::ToTerm>
 or the like.

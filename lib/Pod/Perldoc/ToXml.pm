@@ -52,12 +52,13 @@ merchantability or fitness for a particular purpose.
 
 =head1 AUTHOR
 
-Current maintainer: Mark Allen C<< <mallen@cpan.org> >>
+Current maintainer: brian d foy C<< <briandfoy@pobox.com> >>
 
 Past contributions from:
-brian d foy C<< <bdfoy@cpan.org> >>
+Mark Allen C<< <mallen@cpan.org> >>
 Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
 Sean M. Burke C<< <sburke@cpan.org> >>
+
 
 =cut
 

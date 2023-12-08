@@ -9,9 +9,12 @@ later.
 ## The Scope of perldoc
 
 `perldoc` is a traffic cop. Given an input source, it chooses something
-to parse the input. Whatever that handler does becomes the output.
+to parse the input. Whatever that handler does becomes the output, but
+that output is then give to a pager which also makes its own decisions.
 None of these handlers are part of the Pod::Perldoc distribution, and
-Pod::Perldoc does not control how they work or what they do.
+Pod::Perldoc does not control how they work or what they do. There are
+so many places that things can go awry, and we try to anticipate all of
+those. That makes the code quite a rat's nest of decisions.
 
 One of `perldoc`'s major tasks is displaying documentation on the
 console. As such, it uses various information and guesses to figure
@@ -72,6 +75,10 @@ least you know we are alive.
 
 To report a bug, [use the bug template](https://github.com/briandfoy/pod-perldoc/issues/new/choose)
 in GitHub. The issue template shows you what we would like to know.
+
+You can also use the `util/perldoc-bug` program in the repo to collect
+a lot of information at once. It outputs some JSON that you can
+inspect and attach to an issue.
 
 If you don't want to use GitHub for whatever reason, send email to
 briandfoy@pobox.com. There might be a significant delay in responding

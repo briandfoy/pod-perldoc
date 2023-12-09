@@ -293,11 +293,10 @@ L<perlpod>, L<Pod::Perldoc>
 
 =head1 AUTHOR
 
-Current maintainer: Mark Allen C<< <mallen@cpan.org> >>
+Current maintainer: brian d foy C<< <briandfoy@pobox.com> >>
 
 Past contributors are:
-brian d foy C<< <bdfoy@cpan.org> >> 
-Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
+Adriano R. Ferreira C<< <adriano@ferreira.pm> >>,
 Sean M. Burke C<< <sburke@cpan.org> >>,
 Kenneth Albanowski C<< <kjahds@kjahds.com> >>,
 Andy Dougherty  C<< <doughera@lafcol.lafayette.edu> >>,

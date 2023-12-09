@@ -2,7 +2,7 @@ Revision history for Pod::Perldoc
 
 3.28_01 2023-12-06T07:19:15Z
 	* A dev release to try to avoid test failures for root by not testing
-	when root (GitHub #44). 
+	when root (GitHub #44).
 
 3.28 - Thu Mar 16 01:07:42 UTC 2017
 
@@ -65,21 +65,21 @@ Revision history for Pod::Perldoc
     * The 'ToTerm' backend generates terminal escape sequences that
       the 'less' pager does not display by default. The "-R" option
       controls this, so pass it in the LESS environment variable
-      to avoid disturbing other pager invocations. Patch by 
+      to avoid disturbing other pager invocations. Patch by
       Niko Tyni. Closes RT#98636
 
     * Unify filehandle opens and encoding into two methods
       'open_fh' and 'set_encoding'.  Based on a pull request
       by Koichi KUBO. Closes RT#98019 better than c3fd47f :)
 
-    * Applied PR by Olivier Mengué to 'use parent' instead 
+    * Applied PR by Olivier Mengué to 'use parent' instead
       of 'use base'
 
 3.24 - Tue Aug 19 03:38:07 UTC 2014
     * Release 3.24
 
     Make sure when we open a filehandle for reading
-    or writing, we set ':encoding(UTF-8)' on it 
+    or writing, we set ':encoding(UTF-8)' on it
     everywhere.  Closes RT#98019.
 
 3.23_01 - Sat Aug 16 16:47:45 UTC 2014
@@ -90,7 +90,7 @@ Revision history for Pod::Perldoc
     * Release 3.23
 
     Yes, this is a packaging error. Mea culpa. In the future
-    test releases will be 3.23_01, etc. 
+    test releases will be 3.23_01, etc.
 
     See https://twitter.com/frioux/status/429245594180128769
     for context.
@@ -99,8 +99,8 @@ Revision history for Pod::Perldoc
     * Add a pager that doesn't redirect stdin RT#85173
       Added a special pager environment variable for use
       when perldoc is in the -m mode that doesn't
-      redirect STDIN.  Set PERLDOC_SRC_PAGER to use. 
-      
+      redirect STDIN.  Set PERLDOC_SRC_PAGER to use.
+
       As in:
 
       PERLDOC_SRC_PAGER=/usr/bin/vim perldoc -m File::Temp
@@ -114,16 +114,16 @@ Revision history for Pod::Perldoc
           4. The default width of 76 (same as Pod::Text)
 
 3.22_01 - Sat Feb  1 05:00:13 UTC 2014
-    * Match =item more carefully when scanning perlfunc. 
-      Fixes RT #86795. Previously matches could be generated 
-      on words like 'size' and 'precision' which are not 
+    * Match =item more carefully when scanning perlfunc.
+      Fixes RT #86795. Previously matches could be generated
+      on words like 'size' and 'precision' which are not
       Perl functions.
     * Cleanup code related to mandoc RT #85844
       Patch by Ingo Schwarze
-    * Re-add '-U' flag to skip attempting to drop 
+    * Re-add '-U' flag to skip attempting to drop
       privileges. RT #87837
     * Do not install to INSTALLDIRS after Perl 5.11 RT #89756
-    * Refactor search_perlop (finds operators like 'q' 
+    * Refactor search_perlop (finds operators like 'q'
       'qq' 'tr' and others) RT #86506. Previously most of
       the text generated was incorrect.
     * Fix wrong version in DEBUG output from ToTerm.pm RT #85468
@@ -131,9 +131,9 @@ Revision history for Pod::Perldoc
       Patch by Shlomi Fish.
 
 3.21 - Mon Jan  6 02:17:07 UTC 2014
-    * Add '-a' flag to search through perlapi 
+    * Add '-a' flag to search through perlapi
       documentation. Patch by Matthew Horsfall.
-    * Apply RT #91733 to install perldoc.pod in the 
+    * Apply RT #91733 to install perldoc.pod in the
       right place. Should fix RT #88898 too. Patch
       by Dave Mitchell.
 
@@ -146,7 +146,7 @@ Revision history for Pod::Perldoc
 3.20 - Sat Apr 27 05:25:30 UTC 2013
     * Make default formatter "ToTerm" instead of "ToMan" for
       better UTF-8 support
-    * When dynamically building POD from perlfunc (perlvar) 
+    * When dynamically building POD from perlfunc (perlvar)
       make sure we open filehandles with utf8 and add an
       =encoding (RT #80527) (RT #80640)
 
@@ -177,7 +177,6 @@ Revision history for Pod::Perldoc
     * Fix Pod error in GetOptsOO
     * Add ToANSI and ToTerm to load test
     * Add Pod check test
-    * Now maintained by Mark Allen <mallen@cpan.org>
 
 3.15_14 - Sun Dec 18 10:06:09 2011
 	* Fix OpenBSD issues. You get to use mandoc. The UTF-8
@@ -187,8 +186,7 @@ Revision history for Pod::Perldoc
 	* Fix up some issues with switches to nroff/groff (RT 73236)
 
 3.15_12
-	* Now maintained by brian d foy <bdfoy@cpan.org>
-	* Lots of fixes from Mark Allen <mallen@cpan.org>
+	* Now maintained by brian d foy <briandfoy@pobox.com>
 	* Most of the changes discard the call to pod2man and use
 	Pod::Man directly.
 	* Preparing Pod::Perldoc to be dual-lived
@@ -309,25 +307,25 @@ Revision history for Pod::Perldoc
 
 3.13 - 2004-04-09  Sean M. Burke  sburke@cpan.org
 	* minor bugfixes
-	
+
 	Ken Willians notes that Pod::Perldoc::ToMan breaks when the
 	pod2man program isn't in $Config{'scriptdirexp'}.  So I make it
 	look there first, but then fall back to not specifying where it
 	should be found.
-	
+
 	James Michael Du Pont notes that Carp::croak isn't always loaded
 	by all versions of the modules perldoc uses.  So I add an explicit
 	"require Carp::croak".
-	
+
 	I add t/01_about_verbose.t just to give more diagnostics.
 
 3.12 - 2003-10-21  Sean M. Burke  sburke@cpan.org
 	* tweak for Linux man.
-	
+
 	Slaven Rezic notes that Makefile.PL should say INSTALLDIRS => "perl"
 	for perl versions 5.8.1 and newer, to make installation work right
 	on those perls.  Change made.
-	
+
 	Slaven Rezic notes that -q was generating an erroneous =over 8 ...
 	around the sliced text from perlfaq searched via -q.  Change made
 	-- this =over 8 ... =back stuff is now generated only if you're
@@ -355,9 +353,9 @@ Revision history for Pod::Perldoc
 	whether it's coded as =item -X or =item I<-X>.
 	* In README, changed "This is an experimental distribution of
 	Perldoc," to "This is the distribution of Perldoc,"
-	
+
 	Wee little things:
-	
+
 	* Added a "use 5.006;" to the start of Perldoc.pm and the
 	Makefile.PL, since we do actually need that version of perl
 	for the module to even compile right.  (Altho backporting is an
@@ -384,7 +382,7 @@ Revision history for Pod::Perldoc
 	* Corrected a few minor typoes in the usage messages.
 	* Updated perldoc.pod to document the switches that were
 	previously documented only in perldoc -h
-	
+
 	* Many thanks to David Hand, Avi Finkel, Iain "Spoon" Truskett,
 	Conrad Heiney, Casey West, Pete Sergeant, David Dyck, Michael
 	Schwern, Slaven Rezic, Hugo van der Sanden, and many others for

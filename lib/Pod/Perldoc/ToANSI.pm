@@ -88,8 +88,7 @@ merchantability or fitness for a particular purpose.
 Current maintainer: brian d foy C<< <briandfoy@pobox.com> >>
 
 Past contributions from:
-Mark Allen C<< <mallen@cpan.org> >>
-Adriano R. Ferreira C<< <ferreira@cpan.org> >>,
+Adriano R. Ferreira C<< <adriano@ferreira.pm> >>,
 Sean M. Burke C<< <sburke@cpan.org> >>
 
 

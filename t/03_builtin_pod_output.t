@@ -9,16 +9,16 @@ use Test::More;
 # Hash of builtin => [output_start_regexp, output_end_regexp]
 my %builtins = (
     'tr' => [ # CPAN RT#86506
-        qr/\A\ h+ "tr\/\*SEARCHLIST\*\/\*REPLACEMENTLIST\*\/cdsr" \R/x,
-        qr/\R\s+eval "tr\/\$oldlist\/\$newlist\/, 1" or die \$\@;\R{2}\z/;
+        qr/\A \h+ "tr\/\*SEARCHLIST\*\/\*REPLACEMENTLIST\*\/cdsr" \R/x,
+        qr/\R\s+eval "tr\/\$oldlist\/\$newlist\/, 1" or die \$\@;\R{2}\z/,
     ],
     '==' => [ # CPAN RT#126015
         qr/\A\s+Equality Operators\n/,
-        qr/\n\s+if \( fc\(\$x\) eq fc\(\$y\) \) \{ \.\.\. \}\R{2}\z/
+        qr/\n\s+if \( fc\(\$x\) eq fc\(\$y\) \) \{ \.\.\. \}\R{2}\z/,
     ],
     '<>' => [ # CPAN RT#126015
         qr/\A\s+I\/O Operators\R/,
-        qr/\n\s+for its regular truth value\.\R{2}\z/
+        qr/\n\s+for its regular truth value\.\R{2}\z/,
     ]
 );
 

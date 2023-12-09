@@ -1,67 +1,42 @@
+use strict;
+use warnings;
 
-use File::Spec;
-use FindBin qw($Bin);
+use lib qw(t/lib);
+use TestUtils;
 
-use IPC::Open3;
 use Test::More;
-use Config;
-
-my $pid = undef;
-my $stdout = undef;
-my $stderr = undef;
-
-# get path to perldoc exec in a hopefully platform neutral way..
-my ($volume, $bindir, undef) = File::Spec->splitpath($Bin);
-my $perldoc = File::Spec->catpath($volume,$bindir, File::Spec->catfile(qw(blib script perldoc)));
-if ($ENV{PERL_CORE}) {
-    $perldoc = File::Spec->catfile('..','..','utils',
-                                   ($Config{usecperl}?'c':'').'perldoc');
-}
 
 # Hash of builtin => [output_start_regexp, output_end_regexp]
 my %builtins = (
     'tr' => [ # CPAN RT#86506
-        qr/\A\s+"tr\/\*SEARCHLIST\*\/\*REPLACEMENTLIST\*\/cdsr"\n/,
-        qr/\n\s+eval "tr\/\$oldlist\/\$newlist\/, 1" or die \$\@;\n\n\z/
+        qr/\A\ h+ "tr\/\*SEARCHLIST\*\/\*REPLACEMENTLIST\*\/cdsr" \R/x,
+        qr/\R\s+eval "tr\/\$oldlist\/\$newlist\/, 1" or die \$\@;\R{2}\z/;
     ],
     '==' => [ # CPAN RT#126015
         qr/\A\s+Equality Operators\n/,
-        qr/\n\s+if \( fc\(\$x\) eq fc\(\$y\) \) \{ \.\.\. \}\n\n\z/
+        qr/\n\s+if \( fc\(\$x\) eq fc\(\$y\) \) \{ \.\.\. \}\R{2}\z/
     ],
     '<>' => [ # CPAN RT#126015
-        qr/\A\s+I\/O Operators\n/,
-        qr/\n\s+for its regular truth value\.\n\n\z/
+        qr/\A\s+I\/O Operators\R/,
+        qr/\n\s+for its regular truth value\.\R{2}\z/
     ]
 );
 
-plan tests => 5 * scalar keys %builtins;
-
 for my $builtin (sort keys %builtins) {
-    my ($pid, $stdout, $stderr);
+	subtest $builtin => sub {
+		my ($pid, $stdout, $stderr);
 
-    eval {
-        $pid = open3(\*CHLD_IN, \*CHLD_OUT1, \*CHLD_ERR1,
-            $^X, '-Mblib', '-Icorpus', $perldoc, '-T', '-t', '-f', $builtin);
-    };
+		local $ENV{PERL5LIB} = 'corpus';
+		my $result = run_perldoc( '-T', '-t', '-f', $builtin );
 
-    is(length($@), 0, "open for $builtin succeeded"); # returns '' not undef
-    ok(defined($pid), "got process ID for $builtin");
+		is length $result->{at}, 0, "open for $builtin succeeded";
+		ok defined $result->{pid}, "got process ID for $builtin";
 
-    # gather STDERR
-    while(<CHLD_ERR1>){
-        $stderr .= $_;
-    }
+		is $result->{error}, "", "no STDERR for $builtin";
 
-    # check STDERR
-    is($stderr, undef, "no STDERR for $builtin");
+		like $result->{output}, $builtins{$builtin}->[0], "output for $builtin starts as expected";
+		like $result->{output}, $builtins{$builtin}->[1], "output for $builtin ends as expected";
+		};
+	}
 
-    # gather STDOUT
-    while(<CHLD_OUT1>){
-        $stdout .= $_;
-    }
-
-    # check STDOUT
-    like($stdout, $builtins{$builtin}->[0], "output for $builtin starts as expected");
-    like($stdout, $builtins{$builtin}->[1], "output for $builtin ends as expected");
-}
-
+done_testing();

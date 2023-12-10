@@ -69,7 +69,7 @@ my %WriteMakefile = (
 	'NAME'		    => $module,
 	'ABSTRACT_FROM' => $main_file,
 	'VERSION_FROM'	=> $main_file,
-	'AUTHOR'        => 'Sean M. Burke <sburke@cpan.org>', # maintained by brian d foy, bdfoy@cpan.org
+	'AUTHOR'        => 'Sean M. Burke <sburke@cpan.org>', # maintained by brian d foy, briandfoy@pobox.com
 
 	'CONFIGURE_REQUIRES' => {
 		'ExtUtils::MakeMaker'   => '6.64',

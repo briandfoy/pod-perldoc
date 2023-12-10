@@ -18,7 +18,7 @@ sub indent    { shift->_perldoc_elem('indent'  , @_) }
 sub loose     { shift->_perldoc_elem('loose'   , @_) }
 sub quotes    { shift->_perldoc_elem('quotes'  , @_) }
 sub sentence  { shift->_perldoc_elem('sentence', @_) }
-sub width     { 
+sub width     {
     my $self = shift;
     $self->_perldoc_elem('width' , @_) ||
     $self->_get_columns_from_manwidth  ||
@@ -179,6 +179,6 @@ See http://dev.perl.org/licenses/ for more information.
 
 =head1 AUTHOR
 
-Mark Allen C<< <mallen@cpan.org> >>
+Jade Allen
 
 =cut

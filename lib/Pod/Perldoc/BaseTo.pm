@@ -148,6 +148,6 @@ Current maintainer: brian d foy C<< <briandfoy@pobox.com> >>
 
 Past contributions from:
 Adriano R. Ferreira C<< <adriano@ferreira.pm> >>,
-Sean M. Burke C<< <sburke@cpan.org> >>
+Sean M. Burke
 
 =cut

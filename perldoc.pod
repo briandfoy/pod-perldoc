@@ -297,7 +297,7 @@ Current maintainer: brian d foy C<< <briandfoy@pobox.com> >>
 
 Past contributors are:
 Adriano R. Ferreira C<< <adriano@ferreira.pm> >>,
-Sean M. Burke C<< <sburke@cpan.org> >>,
+Sean M. Burke,
 Kenneth Albanowski C<< <kjahds@kjahds.com> >>,
 Andy Dougherty  C<< <doughera@lafcol.lafayette.edu> >>,
 and many others.

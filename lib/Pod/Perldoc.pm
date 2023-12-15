@@ -14,6 +14,8 @@ use vars qw($VERSION @Pagers $Bindir $Pod2man
 );
 $VERSION = '3.28';
 
+sub MIN_GROFF_VERSION () { '1.20.1' }
+
 #..........................................................................
 
 BEGIN {  # Make a DEBUG constant very first thing...
@@ -594,11 +596,10 @@ sub init_formatter_class_list {
   # Only those will work propertly with ToMan
   # The rest is either ToTerm or ToMan again
   if ( my $roffer = $self->{'executables'}{'nroffer'} ) {
-    my $minimum_groff_version = '1.20.1';
-    my $version_string        = `$roffer -v`;
+    my $version_string = `$roffer -v`;
     my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 
-    $version ge $minimum_groff_version
+    $version ge MIN_GROFF_VERSION()
       and return $self->opt_o_with('man');
 
 	# groff is old, we need to check if our pager is less

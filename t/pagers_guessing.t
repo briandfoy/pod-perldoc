@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use Pod::Perldoc;
-use Test::More 'tests' => 22;
+use Test::More 'tests' => 23;
 
 {
 
@@ -108,6 +108,8 @@ test_with_env( { 'opt_m' => 1 }, );
 
 test_with_env( { 'opt_m' => 0 }, );
 
+test_less_version();
+
 sub test_with_env {
     my ($args) = @_;
     local $ENV{'PERLDOC_SRC_PAGER'} = $env_pdoc_src_pager;
@@ -136,6 +138,56 @@ sub test_with_env {
             @{ $perldoc->{'pagers'} },
         );
     }
+}
+
+sub test_less_version {
+    my $less_version_high = 'less 347 (GNU regular expressions)';
+    my $less_version_low  = 'less 345';
+    my $minimum   = '346'; # added between 340 and 346
+    my @found_bins;
+
+    foreach my $os ( sort keys %test_cases ) {
+        for ( my $i = 0; $i <= $#{ $test_cases{$os}{'test'} }; $i++ ) {
+            my $less_bin = $test_cases{$os}{'test'}[$i];
+
+            $less_bin =~ /less/
+                or next;
+
+            foreach my $version_string ( $less_version_high, $less_version_low ) {
+                # The less binary can have shell redirection characters
+                # So we're cleaning that up and everything afterwards
+                my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
+                my ($version)        = $version_string =~ /less (\d+)/;
+
+                $version ge $minimum
+                    and push @found_bins, [ $os, $less_bin_clean, $i ];
+            }
+        }
+    }
+
+    is_deeply(
+        \@found_bins,
+        [
+            [ 'Cygwin (with /usr/bin/less with PAGER)', '/usr/bin/less', 1 ],
+            [ 'Cygwin (with /usr/bin/less with PAGER)', 'less', 3 ],
+            [ 'Cygwin (with /usr/bin/less without PAGER)', '/usr/bin/less', 0 ],
+            [ 'Cygwin (with /usr/bin/less without PAGER)', '/usr/bin/less', 1 ],
+            [ 'Cygwin (with /usr/bin/less without PAGER)', 'less', 3 ],
+            [ 'Cygwin (with less with PAGER)', 'less', 1 ],
+            [ 'Cygwin (with less with PAGER)', 'less', 3 ],
+            [ 'Cygwin (with less without PAGER)', '/usr/bin/less', 0 ],
+            [ 'Cygwin (with less without PAGER)', 'less', 1 ],
+            [ 'Cygwin (with less without PAGER)', 'less', 3 ],
+            [ 'Cygwin (without less)', 'less', 2 ],
+            [ 'DOS', 'less.exe', 1 ],
+            [ 'MSWin', 'less', 2 ],
+            [ 'OS2', 'less', 1 ],
+            [ 'OS2', 'less', 4 ],
+            [ 'Unix', 'less', 2],
+            [ 'VMS', 'less', 2 ],
+        ],
+        'All less versions handled without redirection and arguments',
+    );
 }
 
 sub _pagers_guessing {

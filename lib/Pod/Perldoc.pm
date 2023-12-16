@@ -462,6 +462,8 @@ sub init {
   $self->{'pod2man'} = $Pod2man  unless exists $self->{'pod2man'};
   $self->{'search_path'} = [ ]   unless exists $self->{'search_path'};
 
+  # Formatters are dependent on available pagers
+  $self->pagers_guessing;
   $self->init_formatter_class_list;
 
   push @{ $self->{'formatter_switches'} = [] }, (
@@ -652,7 +654,6 @@ sub process {
 
     return $self->usage_brief  unless  @{ $self->{'args'} };
     $self->options_reading;
-    $self->pagers_guessing;
     $self->aside(sprintf "$0 => %s v%s\n", ref($self), $self->VERSION);
     $self->drop_privs_maybe unless ($self->opt_U || $self->opt_F);
     $self->options_processing;

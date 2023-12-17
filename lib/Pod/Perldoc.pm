@@ -615,7 +615,7 @@ sub init_formatter_class_list {
     foreach my $less_bin (@less_bins) {
       # The less binary can have shell redirection characters
       # So we're cleaning that up and everything afterwards
-      my ($less_bin_clean) = $less_bin =~ /^([^<>]+)/;
+      my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
       my $version_string = `$less_bin_clean --version`;
       my( $version ) = $version_string =~ /less (\d+)/;
 

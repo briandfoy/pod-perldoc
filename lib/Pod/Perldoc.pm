@@ -601,7 +601,7 @@ sub init_formatter_class_list {
     my $version_string = `$roffer -v`;
     my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 
-    $version ge MIN_GROFF_VERSION()
+    semver_ge( $version, MIN_GROFF_VERSION() )
       and return $self->opt_o_with('man');
 
 	# groff is old, we need to check if our pager is less
@@ -701,6 +701,31 @@ sub process {
 }
 
 #..........................................................................
+
+sub semver_ge {
+    my ( $version, $target_version ) = @_;
+
+    my @version_parts        = split /\./, $version;
+    my @target_version_parts = split /\./, $target_version;
+
+    for (my $i = 0; $i <= $#version_parts; $i++) {
+        # Version part greater, return true
+        $version_parts[$i] > $target_version_parts[$i]
+            and return 1;
+
+        # Version part less, return false
+        $version_parts[$i] < $target_version_parts[$i]
+            and return 0;
+
+        # Parts equal, keep going
+    }
+
+    # All parts equal, return true
+    return 1;
+}
+
+#..........................................................................
+
 {
 
 my( %class_seen, %class_loaded );

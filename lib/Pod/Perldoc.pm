@@ -15,6 +15,7 @@ use vars qw($VERSION @Pagers $Bindir $Pod2man
 $VERSION = '3.28';
 
 sub MIN_GROFF_VERSION () { '1.20.1' }
+sub MIN_LESS_VERSION  () { '346'    }
 
 #..........................................................................
 
@@ -610,8 +611,6 @@ sub init_formatter_class_list {
 	# (there could be others that would be tried)
 
 	if ( my @less_bins = grep /less/, $self->pagers ) {
-	  my $minimum = '346'; # added between 340 and 346
-
     foreach my $less_bin (@less_bins) {
       # The less binary can have shell redirection characters
       # So we're cleaning that up and everything afterwards
@@ -619,7 +618,8 @@ sub init_formatter_class_list {
       my $version_string = `$less_bin_clean --version`;
       my( $version ) = $version_string =~ /less (\d+)/;
 
-      $version ge $minimum
+	  # added between 340 and 346
+      $version ge MIN_LESS_VERSION()
         and return $self->opt_o_with('term');
     }
   }

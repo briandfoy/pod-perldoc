@@ -618,6 +618,12 @@ sub init_formatter_class_list {
       my $version_string = `$less_bin_clean --version`;
       my( $version ) = $version_string =~ /less (\d+)/;
 
+      # We're using the regexp match here to figure out
+      # if we found less to begin with, because the initial
+      # regexp match for @less_bins is too permissive
+      $version
+        or next;
+
 	  # added between 340 and 346
       $version ge MIN_LESS_VERSION()
         and return $self->opt_o_with('term');

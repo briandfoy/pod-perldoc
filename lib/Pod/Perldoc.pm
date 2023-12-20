@@ -610,25 +610,25 @@ sub init_formatter_class_list {
 	# We can only know if it's one of the detected pagers
 	# (there could be others that would be tried)
 
-	if ( my @less_bins = grep /less/, $self->pagers ) {
-    foreach my $less_bin (@less_bins) {
-      # The less binary can have shell redirection characters
-      # So we're cleaning that up and everything afterwards
-      my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
-      my $version_string = `$less_bin_clean --version`;
-      my( $version ) = $version_string =~ /less (\d+)/;
+    if ( my @less_bins = grep /less/, $self->pagers ) {
+      foreach my $less_bin (@less_bins) {
+        # The less binary can have shell redirection characters
+        # So we're cleaning that up and everything afterwards
+        my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
+        my $version_string = `$less_bin_clean --version`;
+        my( $version ) = $version_string =~ /less (\d+)/;
 
-      # We're using the regexp match here to figure out
-      # if we found less to begin with, because the initial
-      # regexp match for @less_bins is too permissive
-      $version
-        or next;
+        # We're using the regexp match here to figure out
+        # if we found less to begin with, because the initial
+        # regexp match for @less_bins is too permissive
+        $version
+          or next;
 
-	  # added between 340 and 346
-      $version ge MIN_LESS_VERSION()
-        and return $self->opt_o_with('term');
+        # added between 340 and 346
+        $version ge MIN_LESS_VERSION()
+          and return $self->opt_o_with('term');
+      }
     }
-  }
   }
 
   # No fallback listed here, which means we will use ToText

@@ -6,7 +6,14 @@ use Test::More 1;
 use lib qw(t/lib);
 use TestUtils;
 
-use HTTP::Tiny;
+BEGIN {
+	eval {
+		require HTTP::Tiny;
+	};
+	if ($@) {
+		plan skip_all => 'Missing HTTP::Tiny.';
+	}
+}
 
 our $url = 'https://fastapi.metacpan.org/source/MALLEN/Pod-Perldoc-3.28/lib/Pod/Perldoc.pm';
 

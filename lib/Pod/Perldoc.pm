@@ -839,25 +839,32 @@ sub grand_search_init {
 
     foreach (@$pages) {
         if (/^http(s)?:\/\//) {
-            require HTTP::Tiny;
-            require File::Temp;
-            my $response = HTTP::Tiny->new->get($_);
-            if ($response->{success}) {
-                my ($fh, $filename) = File::Temp::tempfile(UNLINK => 1);
-                $fh->print($response->{content});
-                $fh->flush;
-                push @found, $filename;
-                ($self->{podnames}{$filename} =
-                  m{.*/([^/#?]+)} ? uc $1 : "UNKNOWN")
-                   =~ s/\.P(?:[ML]|OD)\z//;
-            }
-            else {
-              print STDERR "No " .
-                    ($self->opt_m ? "module" : "documentation") . " found for \"$_\".\n";
-              if ( /^https/ ) {
-                print STDERR "You may need an SSL library (such as IO::Socket::SSL) for that URL.\n";
-              }
-            }
+	    eval {
+                require HTTP::Tiny;
+                require File::Temp;
+	    };
+	    if ($@) {
+		print STDERR "Missing support for read documentation from internet. ".
+		    "You need to install HTTP::Tiny and File::Temp.\n";
+	    } else {
+                my $response = HTTP::Tiny->new->get($_);
+                if ($response->{success}) {
+                    my ($fh, $filename) = File::Temp::tempfile(UNLINK => 1);
+                    $fh->print($response->{content});
+                    $fh->flush;
+                    push @found, $filename;
+                    ($self->{podnames}{$filename} =
+                      m{.*/([^/#?]+)} ? uc $1 : "UNKNOWN")
+                       =~ s/\.P(?:[ML]|OD)\z//;
+                }
+                else {
+                  print STDERR "No " .
+                        ($self->opt_m ? "module" : "documentation") . " found for \"$_\".\n";
+                  if ( /^https/ ) {
+                    print STDERR "You may need an SSL library (such as IO::Socket::SSL) for that URL.\n";
+                  }
+                }
+	    }
             next;
         }
         if ($self->{'podidx'} && open(PODIDX, $self->{'podidx'})) {

@@ -1,0 +1,34 @@
+Pod::Perldoc(3)       User Contributed Perl Documentation      Pod::Perldoc(3)
+
+
+NNAAMMEE
+       Pod::Perldoc - Look up Perl documentation in Pod format.
+
+SSYYNNOOPPSSIISS
+           use Pod::Perldoc ();
+
+           Pod::Perldoc->run();
+
+DDEESSCCRRIIPPTTIIOONN
+       The guts of perldoc utility.
+
+SSEEEE AALLSSOO
+       perldoc
+
+CCOOPPYYRRIIGGHHTT AANNDD DDIISSCCLLAAIIMMEERRSS
+       Copyright (c) 2002-2007 Sean M. Burke.
+
+       This library is free software; you can redistribute it and/or modify it
+       under the same terms as Perl itself.
+
+       This program is distributed in the hope that it will be useful, but
+       without any warranty; without even the implied warranty of
+       merchantability or fitness for a particular purpose.
+
+AAUUTTHHOORR
+       Current maintainer: Mark Allen "<mallen@cpan.org>"
+
+       Past contributions from: brian d foy "<bdfoy@cpan.org>" Adriano R.
+       Ferreira "<ferreira@cpan.org>", Sean M. Burke "<sburke@cpan.org>"
+
+perl v5.38.2                      2023-12-07                   Pod::Perldoc(3)

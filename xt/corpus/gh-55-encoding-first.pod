@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+1;
+
+=encoding utf8
+
+=pod
+
+=head1 blahblah
+
+Blah blah blah.  The following forumula should not be folded:
+S< a + b + c + d + e + f + g + h + i >
+but it is.
+
+=cut

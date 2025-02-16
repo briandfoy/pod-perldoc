@@ -1258,7 +1258,7 @@ sub search_perlapi {
     while (<$fh>) {
         /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
 
-        if ( m/^=item\s+$search_re\b/ )  {
+        if ( m/^=item\s+(?:C<)?$search_re(?:>)?\b/ )  {
             $found = 1;
         }
         elsif (@related > 1 and /^=item/) {

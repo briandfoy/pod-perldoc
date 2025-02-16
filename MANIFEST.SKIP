@@ -20,3 +20,7 @@ MYMETA*
 
 # This doesn't test anything, but maybe I'm wrong
 t/01_about_verbose.t
+
+# for now
+xt/
+util/perldoc-bug

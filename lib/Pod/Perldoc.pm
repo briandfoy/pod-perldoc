@@ -1154,6 +1154,20 @@ sub search_perlvar {
 
 #..........................................................................
 
+# Check whether an item POD section contains any documentation text. The POD
+# section is passed as refernce to list of lines.
+# If there is no text, return true; otherwise false.
+sub item_has_no_text {
+    for (@{$_[0]}) {
+        next if /^=over\s/;
+        next if /^=item\s/;
+        next if /^X</;
+        next if /^\s*$/;
+        return 0;
+    }
+    return 1;
+}
+
 sub search_perlop {
   my ($self,$found_things,$pod) = @_;
 
@@ -1167,60 +1181,92 @@ sub search_perlop {
 
   my $thing = $self->opt_f;
 
-  my $previous_line;
+  my @previous_lines;
+  my $stop_line;
+  my $wrap_into_over;
   my $push = 0;
-  my $seen_item = 0;
-  my $skip = 1;
+  my $pod_candidate = [];
 
   while( my $line = <$fh> ) {
     $line =~ /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
-    # only start search after we hit the operator section
-    if ($line =~ m!^X<operator, regexp>!) {
-        $skip = 0;
-    }
 
-    next if $skip;
-
-    # strategy is to capture the previous line until we get a match on X<$thingy>
-    # if the current line contains X<$thingy>, then we push "=over", the previous line,
-    # the current line and keep pushing current line until we see a ^X<some-other-thing>,
-    # then we chop off final line from @$pod and add =back
+    # A strategy is to capture the previous lines from =head or =item until we
+    # get a match on X<$thing>.  If the current line contains X<$thing>, then
+    # we push "=over" (in case of =item), the previous lines, the current line
+    # and keep pushing current line until we see a terminating POD keyworkd
+    # (=head, =item, =over, corrsponding to the starting POD keyword). Then we
+    # append =back (in case of =item).
     #
-    # At that point, Bob's your uncle.
+    # If this was =item, we are done. If the =item was empty (like two
+    # consequtive =item-s documented at once) we continue gathering other
+    # =item-s until we get some content. Then we are done.
+    #
+    # If this was a =head, we stash the POD section and do another search in
+    # hope we will found =item section. (=item sections tends to be more
+    # focused on =X<$thing> than =head sections.) If did not found any =item
+    # section, we will return the last found =head section.
 
-    if ( $line =~ m!X<+\s*\Q$thing\E\s*>+!) {
-        if ( $previous_line ) {
-            push @$pod, "=over 8\n\n", $previous_line;
-            $previous_line = "";
+    if ( $line =~ m!X<+\s*\Q$thing\E\s*>+! ) {
+        if ( @previous_lines ) {
+            push @$pod_candidate, "=over 8\n\n" if $wrap_into_over;
+            push @$pod_candidate, @previous_lines;
+            @previous_lines = ();
         }
-        push @$pod, $line;
+        push @$pod_candidate, $line;
         $push = 1;
 
     }
-    elsif ( $push and $line =~ m!^=item\s*.*$! ) {
-        $seen_item = 1;
-    }
-    elsif ( $push and $seen_item and $line =~ m!^X<+\s*[ a-z,?-]+\s*>+!) {
+    elsif ( $push and $line =~ m/$stop_line/ ) {
         $push = 0;
-        $seen_item = 0;
-        last;
+
+        # X<tr> exists twice in perlop. Prefer =item location over =head
+        # location. We assume =item is more specific.
+        if ($wrap_into_over) {
+            # However, the X<tr> =item section is empty (except of bunch of
+            # X<> kewords) and documented in the next =item section. Thus
+            # continue until the so far gathered text looks empty.
+            if ($line =~ /^=item\s/ && item_has_no_text($pod_candidate)) {
+                $push = 1;
+                push @$pod_candidate, $line;
+                # and continue appending following =item section
+            } else {
+                # We have an =item with a content.
+                push @$pod_candidate, "\n\n=back\n";
+                # Replace pod with the candidate
+                @$pod = @$pod_candidate;
+                last;
+            }
+        } else {
+            # Copy the candidate to pod
+            push @$pod, @$pod_candidate;
+            $pod_candidate = [];
+            # And search for another occurance of the X<> reference with the
+            # prospect it will be an =item.
+        }
     }
     elsif ( $push ) {
-        push @$pod, $line;
+        push @$pod_candidate, $line;
     }
 
-    else {
-        $previous_line = $line;
+    if ( !$push ) {
+        # Gather a smallest block starting with "=head" or "=item"
+        if ($line =~ /^=head([1234])\s/) {
+            $stop_line = join('', 1..$1);
+            $stop_line = qr/^=head[$stop_line]\s/;
+            $wrap_into_over = 0;
+            @previous_lines = ();
+        } elsif ($line =~ /^=item\s/) {
+            $stop_line = qr/^=(?:item\s|back\b)/;
+            $wrap_into_over = 1;
+            @previous_lines = ();
+        }
+        push @previous_lines, $line;
     }
 
   } #end while
 
   # we overfilled by 1 line, so pop off final array element if we have any
   if ( scalar @$pod ) {
-    pop @$pod;
-
-    # and add the =back
-    push @$pod, "\n\n=back\n";
     DEBUG > 8 and print "PERLOP POD --->" . (join "", @$pod) . "<---\n";
   }
   else {

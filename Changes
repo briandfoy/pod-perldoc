@@ -1,5 +1,17 @@
 Revision history for Pod::Perldoc
 
+3.29 2025-02-16T01:44:05Z
+	* make `perldoc -a` work again (#76 from Matthew Horsfall)
+	* add check for MidnightBSD, which uses mandoc (#73 from Lucas Holt)
+	* don't check for UTF8 in mandoc (#42 from Theo Buehler)
+	* call waitpid to clean up after calling mandoc (#39 from Andrew Hewus Fresh)
+	* respect MANWIDTH (#41 from  Andrew Hewus Fresh)
+	* use utf8 switch in calling man (#40 from Andrew Hewus Fresh)
+	* don't try to use a pager on a dumb terminal (#37 from Paul Horton)
+	* Don't interpolate program name into sprintf templates, which causes
+	setgid scripts to complain (#51 from sneeper)
+	* set minimum perl version to v5.10 to accomodate Pod::Man
+
 3.28_01 2023-12-06T07:19:15Z
 	* A dev release to try to avoid test failures for root by not testing
 	when root (GitHub #44).

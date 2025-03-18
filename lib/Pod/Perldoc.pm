@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.28_01';
+$VERSION = '3.29';
 
 #..........................................................................
 
@@ -1270,7 +1270,7 @@ sub search_perlapi {
     while (<$fh>) {
         /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
 
-        if ( m/^=item\s+$search_re\b/ )  {
+        if ( m/^=item\s+(?:C<)?$search_re(?:>)?\b/ )  {
             $found = 1;
         }
         elsif (@related > 1 and /^=item/) {

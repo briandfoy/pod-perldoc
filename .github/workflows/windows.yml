@@ -1,9 +1,37 @@
 # brian's standard GitHub Actions Windows config for Perl 5 modules
-# version 20220902.001
+# version 20250126.001
 # https://github.com/briandfoy/github_workflows
 # https://github.com/features/actions
 # This file is licensed under the Artistic License 2.0
+#
+# This uses the AUTOMATED_TESTING environment that you can set up
+# in your repo settings. Or not. It still works if it isn't defined.
+# In that environment, add whatever environment variables or secrets
+# that you want.
+#
+# EXTRA_CPAN_MODULES  - extra arguments to the first call to cpan.
+#                       Just use EXTRA_CPANM_MODULES though. This is
+#                       here for legacy
+#
+# EXTRA_CPANM_MODULES - extra arguments to the first call to cpanm.
+#                       this is useful to install very particular
+#                       modules, such as DBD::mysql@4.050
+#
+# WINDOWS_EXTRA_CPANM_MODULES - extra arguments to the first call to cpanm
+#                       but only on Windows. Other workflows won't use this.
+#                       this is useful to install very particular
+#                       modules, such as DBD::mysql@4.050
+---
 name: windows
+
+# https://github.com/actions/checkout/issues/1590
+env:
+    ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+# https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/using-concurrency
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref || github.run_id }}
+    cancel-in-progress: true
 
 on:
     push:
@@ -32,35 +60,51 @@ on:
             - 'Changes'
             - 'LICENSE'
             - 'README.pod'
-        pull_request:
+            - 'README.md'
+            - 'SECURITY.md'
+    pull_request:
 
 jobs:
     perl:
+        environment: automated_testing
         runs-on: ${{ matrix.os }}
         # store any secrets in an environment named "testing"
         strategy:
-          matrix:
-            os:
-                - windows-2019
-                - windows-2022
+            matrix:
+                os:
+                    - windows-2019
+                    - windows-2022
         steps:
             - run: git config --global core.autocrlf false
             - uses: actions/checkout@v3
             - name: Set up Perl
               run: |
-                choco install strawberryperl
+                choco uninstall strawberryperl
+                choco upgrade strawberryperl
                 echo "C:\strawberry\c\bin"         | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
                 echo "C:\strawberry\perl\site\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
                 echo "C:\strawberry\perl\bin"      | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
             - name: Perl version
               run: perl -V
+# cpan can operate with https, but we need IO::SSL::Socket, which
+# does not come with Perl.
+#
+# When using cpan, use -M to specify the CDN-backed www.cpan.org
+# mirror. I've noticed that letting CPAN.pm auto-choose mirrors
+# sometimes selects things that the action can't reach.
+#
+# Also, use the -T option to not test the dependencies. Assume these
+# mainline modules are good and save lots of CI minutes.
+            - name: Install cpanm and multiple modules
+              run: |
+                cpan -M http://www.cpan.org -T App::cpanminus ${{ vars.EXTRA_CPAN_MODULES }}
+                cpanm --notest IO::Socket::SSL LWP::Protocol::https HTTP::Tiny ExtUtils::MakeMaker Test::Manifest Test::More ${{ vars.EXTRA_CPANM_MODULES }} ${{ vars.WINDOWS_EXTRA_CPANM_MODULES }}
 # Install the dependencies, again not testing them. This installs the
 # module in the current directory, so we end up installing the module,
 # but that's not a big deal.
             - name: Install dependencies
               run: |
                 cpan -M https://www.cpan.org -T .
-                cpan -M https://www.cpan.org -T Test::Manifest
             - name: Run tests
               run: |
                 perl Makefile.PL
@@ -78,7 +122,7 @@ jobs:
 # stuff in parallel.
             - name: Run tests in parallel
               env:
-                HARNESS_OPTIONS: j10
+                  HARNESS_OPTIONS: j10
               run: |
                 perl Makefile.PL
                 make test
@@ -92,10 +136,12 @@ jobs:
                 perl Makefile.PL
                 make disttest
                 make clean
-# And, coverage reports
+# And, coverage reports. Windows Devel::Coverage can't handle threads,
+# so set the env var WINDOWS_SKIP_COVERAGE to skip this part.
             - name: Run coverage tests
+              if: env.WINDOWS_SKIP_COVERAGE != 0
               env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                 cpan -M https://www.cpan.org -T Devel::Cover Devel::Cover::Report::Coveralls
                 perl Makefile.PL

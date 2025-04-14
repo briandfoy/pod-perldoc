@@ -4,12 +4,11 @@ use warnings;
 use lib qw(t/lib);
 use TestUtils;
 
+use Config;
 use File::Spec;
 use FindBin qw($Bin);
 
-use IPC::Open3;
 use Test::More;
-use Config;
 
 # get path to perldoc exec in a hopefully platform neutral way..
 my ($volume, $bindir, undef) = File::Spec->splitpath($Bin);

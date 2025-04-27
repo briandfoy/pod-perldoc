@@ -1,0 +1,14 @@
+=pod
+
+=head1 Test Heading
+
+This paragraph has a B<very long
+very long very long very long very long very long very long very long
+very long very long very long very long very long very long very long
+very long very long very long very long very long very long very long
+very long very long very long very long very long very long very long
+very long very long very long very long very long very long very long
+very long very long very long very long very long very long very long
+very long bold string which should stop here> and continue in normal text.
+
+=cut

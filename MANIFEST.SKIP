@@ -18,6 +18,10 @@ MYMETA*
 \.old$
 \.github/
 
+#
+corpus/perl(?:func|op|var)/
+xt/
+
 # This doesn't test anything, but maybe I'm wrong
 t/01_about_verbose.t
 

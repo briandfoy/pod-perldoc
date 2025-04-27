@@ -1,5 +1,9 @@
 Changes
 CONTRIBUTING
+corpus/fetch_pages.pl
+corpus/gh-55-encoding-first.pod
+corpus/gh-55-encoding-second.pod
+corpus/gh-55-no-encoding.pod
 corpus/gh-56-1.pod
 corpus/Header.pm
 corpus/mandoc/Perldoc.man
@@ -35,3 +39,4 @@ t/02_url_pod_output.t
 t/lib/TestUtils.pm
 t/man/_get_columns.t
 t/pod.t
+util/perldoc-bug

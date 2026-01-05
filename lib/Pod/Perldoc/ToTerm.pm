@@ -52,18 +52,6 @@ sub pager_configuration {
   return;
 }
 
-sub _maybe_modify_environment {
-  my($self, $name) = @_;
-
-  if ( ! defined $ENV{$name} ) {
-    $ENV{$name} = "-R";
-  }
-
-  # if the environment is set, don't modify
-  # anything
-
-}
-
 sub _get_stty {
 
   if ( !-t STDIN && -e "/dev/tty" ) {

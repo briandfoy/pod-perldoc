@@ -164,4 +164,24 @@ sub with_fake_versions {
     ok( !$perldoc->can_use_toterm, 'complex explicit pager blocks ToTerm' );
 }
 
+{
+    my $perldoc = make_perldoc();
+    subtest '_can_pass_r_safely cases' => sub {
+        local $ENV{LESS};
+        ok( $perldoc->_can_pass_r_safely('-R'), 'accepts explicit -R in args' );
+
+        local $ENV{LESS} = 'FRSX';
+        ok( $perldoc->_can_pass_r_safely(' -R '), 'accepts -R in args even when LESS set' );
+
+        local $ENV{LESS};
+        ok( $perldoc->_can_pass_r_safely(''), 'accepts when LESS is undefined' );
+
+        local $ENV{LESS} = '-R';
+        ok( $perldoc->_can_pass_r_safely(''), 'accepts when LESS already has -R' );
+
+        local $ENV{LESS} = 'FRSX';
+        ok( !$perldoc->_can_pass_r_safely(''), 'rejects when LESS is set without -R' );
+    };
+}
+
 done_testing();

@@ -718,7 +718,8 @@ sub _can_pass_r_safely {
   my ( $self, $args ) = @_;
 
   return 1 if $args =~ /(?:^|\s)-R(?:\s|$)/;
-  return 1 if !defined $ENV{LESS} || $ENV{LESS} =~ /(?:^|\s)-R(?:\s|$)/;
+  return 1 if !defined $ENV{LESS};
+  return 1 if $ENV{LESS} =~ /(?:^|\s)-R(?:\s|$)/;
 
   return;
 }

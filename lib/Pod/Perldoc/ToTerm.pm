@@ -32,12 +32,22 @@ sub pager_configuration {
   # do not modify anything on Windows or DOS
   return if ( $perldoc->is_mswin32 || $perldoc->is_dos );
 
-  if ( $pager =~ /less/ ) {
-    $self->_maybe_modify_environment('LESS');
-  }
-  elsif ( $pager =~ /more/ ) {
-    $self->_maybe_modify_environment('MORE');
-  }
+  $perldoc->can_use_toterm
+    or return;
+
+  $perldoc->_pager_can_use_toterm($pager)
+    or return;
+
+  my ( $command, $args ) = $perldoc->_parse_pager_command($pager)
+    or return;
+
+  $perldoc->_pager_is_less_command($command)
+    or return;
+
+  return if $args =~ /(?:^|\s)-R(?:\s|$)/;
+  return if defined $ENV{LESS};
+
+  $ENV{LESS} = '-R';
 
   return;
 }

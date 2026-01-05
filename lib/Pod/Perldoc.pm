@@ -619,15 +619,14 @@ sub choose_formatter {
 sub can_use_toman {
   my $self = shift;
 
-  # We need a version that properly supports ANSI escape codes
-  # Only those will work propertly with ToMan
-  # The rest is either ToTerm or ToMan again
+  # We need a roff toolchain that properly supports Unicode output.
   if ( my $roffer = $self->{'executables'}{'nroffer'} ) {
     my $version_string = $self->_run_command("$roffer -v");
     my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 
-    semver_ge( $version, MIN_GROFF_VERSION() )
-      and return 1;
+    if ( defined $version && semver_ge( $version, MIN_GROFF_VERSION() ) ) {
+        return 1;
+    }
   }
 
   return;
@@ -636,30 +635,93 @@ sub can_use_toman {
 sub can_use_toterm {
   my $self = shift;
 
-	# groff is old, we need to check if our pager is less
-	# because if so, we can use ToTerm
-	# We can only know if it's one of the detected pagers
-	# (there could be others that would be tried)
+  return unless $self->terminal_accepts_ansi;
 
-  if ( my @less_bins = grep /less/, $self->pagers ) {
-    foreach my $less_bin (@less_bins) {
-      # The less binary can have shell redirection characters
-      # So we're cleaning that up and everything afterwards
-      my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
-      my $version_string = $self->_run_command("$less_bin_clean --version");
-      my( $version ) = $version_string =~ /less (\d+)/;
-
-      # We're using the regexp match here to figure out
-      # if we found less to begin with, because the initial
-      # regexp match for @less_bins is too permissive
-      $version
-        or next;
-
-      # added between 340 and 346
-      $version ge MIN_LESS_VERSION()
-        and return 1;
-    }
+  if ( defined( my $explicit = $self->_explicit_pager_command ) ) {
+    return $self->_pager_can_use_toterm($explicit);
   }
+
+  foreach my $pager ( $self->pagers ) {
+    $self->_pager_can_use_toterm($pager)
+      and return 1;
+  }
+
+  return;
+}
+
+sub terminal_accepts_ansi {
+  my $term = $ENV{TERM} // return;
+
+  return 1 if $term =~ /^(xterm|screen|tmux)(?:-|$)/;
+  return 1 if $term =~ /^(vt100|vt220|linux)$/;
+  return 1 if $term =~ /^ansi$/;
+
+  return;
+}
+
+sub _explicit_pager_command {
+  return $ENV{PERLDOC_PAGER} if defined $ENV{PERLDOC_PAGER} && length $ENV{PERLDOC_PAGER};
+  return $ENV{PAGER} if defined $ENV{PAGER} && length $ENV{PAGER};
+  return;
+}
+
+sub _pager_can_use_toterm {
+  my ( $self, $pager ) = @_;
+
+  my ( $command, $args ) = $self->_parse_pager_command($pager)
+    or return;
+
+  $self->_pager_is_less_command($command)
+    or return;
+
+  $self->_less_supports_r_flag($command)
+    or return;
+
+  $self->_can_pass_r_safely($args)
+    or return;
+
+  return 1;
+}
+
+sub _parse_pager_command {
+  my ( $self, $pager ) = @_;
+
+  return if !defined $pager || $pager eq '';
+  return if $pager =~ /[|&;<>`\$]/;
+  return if $pager =~ /["']/;
+  return if $pager =~ /[\r\n]/;
+
+  $pager =~ s/^\s+//;
+  $pager =~ s/\s+$//;
+
+  my ( $command, $args ) = split /\s+/, $pager, 2;
+  return unless defined $command && length $command;
+
+  return ( $command, $args // '' );
+}
+
+sub _pager_is_less_command {
+  my ( $self, $command ) = @_;
+
+  return 1 if $command =~ m{(?:^|/)less(?:\.exe)?\z};
+  return;
+}
+
+sub _less_supports_r_flag {
+  my ( $self, $command ) = @_;
+
+  my $version_string = $self->_run_command("$command --version");
+  my( $version ) = $version_string =~ /less (\d+)/;
+  return unless defined $version;
+
+  return $version ge MIN_LESS_VERSION();
+}
+
+sub _can_pass_r_safely {
+  my ( $self, $args ) = @_;
+
+  return 1 if $args =~ /(?:^|\s)-R(?:\s|$)/;
+  return 1 if !defined $ENV{LESS} || $ENV{LESS} =~ /(?:^|\s)-R(?:\s|$)/;
 
   return;
 }

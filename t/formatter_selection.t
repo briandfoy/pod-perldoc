@@ -52,6 +52,9 @@ sub with_fake_versions {
 
 {
     local $ENV{TERM} = 'xterm-256color';
+    local $ENV{PAGER};
+    local $ENV{PERLDOC_PAGER};
+    local $ENV{LESS};
     my $perldoc = make_perldoc(
         pagers  => ['less'],
         nroffer => 'groff',
@@ -68,6 +71,9 @@ sub with_fake_versions {
 
 {
     local $ENV{TERM} = 'xterm';
+    local $ENV{PAGER};
+    local $ENV{PERLDOC_PAGER};
+    local $ENV{LESS};
     my $perldoc = make_perldoc(
         pagers  => ['less'],
         nroffer => 'groff',
@@ -84,6 +90,9 @@ sub with_fake_versions {
 
 {
     local $ENV{TERM} = 'xterm';
+    local $ENV{PAGER};
+    local $ENV{PERLDOC_PAGER};
+    local $ENV{LESS};
     my $perldoc = make_perldoc(
         pagers  => ['less'],
         nroffer => 'groff',
@@ -100,6 +109,9 @@ sub with_fake_versions {
 
 {
     local $ENV{TERM} = 'dumb';
+    local $ENV{PAGER};
+    local $ENV{PERLDOC_PAGER};
+    local $ENV{LESS};
     my $perldoc = make_perldoc(
         pagers  => ['less'],
         nroffer => 'groff',
@@ -112,6 +124,44 @@ sub with_fake_versions {
     );
     is( $formatter, undef, 'falls back for dumb terminals' );
     ok( $perldoc->can_use_toman, 'can_use_toman is independent of TERM' );
+}
+
+{
+    local $ENV{TERM} = 'xterm';
+    local $ENV{PAGER} = 'more';
+    local $ENV{PERLDOC_PAGER};
+    local $ENV{LESS};
+    my $perldoc = make_perldoc(
+        pagers  => ['less'],
+        nroffer => 'groff',
+    );
+    my $formatter = with_fake_versions(
+        perldoc => $perldoc,
+        groff => "groff version 1.19\n",
+        less  => "less 350\n",
+        code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
+    );
+    is( $formatter, undef, 'rejects ToTerm when explicit pager is not less' );
+    ok( !$perldoc->can_use_toterm, 'explicit non-less pager blocks ToTerm' );
+}
+
+{
+    local $ENV{TERM} = 'xterm';
+    local $ENV{PAGER} = 'less | cat';
+    local $ENV{PERLDOC_PAGER};
+    local $ENV{LESS};
+    my $perldoc = make_perldoc(
+        pagers  => ['less'],
+        nroffer => 'groff',
+    );
+    my $formatter = with_fake_versions(
+        perldoc => $perldoc,
+        groff => "groff version 1.19\n",
+        less  => "less 350\n",
+        code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
+    );
+    is( $formatter, undef, 'rejects ToTerm when pager is complex' );
+    ok( !$perldoc->can_use_toterm, 'complex explicit pager blocks ToTerm' );
 }
 
 done_testing();

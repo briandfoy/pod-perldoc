@@ -596,6 +596,14 @@ sub init_formatter_class_list {
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
 
+  if ( my $formatter = $self->choose_formatter ) {
+    $self->opt_o_with($formatter);
+  }
+}
+
+sub choose_formatter {
+  my $self = shift;
+
   $self->is_mswin32 || $self->is_dos || $self->is_amigaos
     and return;
 
@@ -606,11 +614,11 @@ sub init_formatter_class_list {
   # Only those will work propertly with ToMan
   # The rest is either ToTerm or ToMan again
   if ( my $roffer = $self->{'executables'}{'nroffer'} ) {
-    my $version_string = `$roffer -v`;
+    my $version_string = $self->_run_command("$roffer -v");
     my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 
     semver_ge( $version, MIN_GROFF_VERSION() )
-      and return $self->opt_o_with('man');
+      and return 'man';
 
 	# groff is old, we need to check if our pager is less
 	# because if so, we can use ToTerm
@@ -622,7 +630,7 @@ sub init_formatter_class_list {
         # The less binary can have shell redirection characters
         # So we're cleaning that up and everything afterwards
         my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
-        my $version_string = `$less_bin_clean --version`;
+        my $version_string = $self->_run_command("$less_bin_clean --version");
         my( $version ) = $version_string =~ /less (\d+)/;
 
         # We're using the regexp match here to figure out
@@ -633,13 +641,21 @@ sub init_formatter_class_list {
 
         # added between 340 and 346
         $version ge MIN_LESS_VERSION()
-          and return $self->opt_o_with('term');
+          and return 'term';
       }
     }
   }
 
   # No fallback listed here, which means we will use ToText
   # (provided above)
+  return;
+}
+
+#..........................................................................
+
+sub _run_command {
+  my ( $self, $command ) = @_;
+  return `$command`;
 }
 
 #..........................................................................

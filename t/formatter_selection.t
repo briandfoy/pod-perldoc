@@ -122,7 +122,7 @@ sub with_fake_versions {
         less  => "less 350\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
-    is( $formatter, undef, 'falls back for dumb terminals' );
+    is( $formatter, 'man', 'uses ToMan even for dumb terminals' );
     ok( $perldoc->can_use_toman, 'can_use_toman is independent of TERM' );
 }
 

@@ -604,12 +604,6 @@ sub init_formatter_class_list {
 sub choose_formatter {
   my $self = shift;
 
-  $self->is_mswin32 || $self->is_dos || $self->is_amigaos
-    and return;
-
-  ( $ENV{TERM} || '' ) =~ /dumb|emacs|none|unknown/i
-	and return;
-
   return 'man'  if $self->can_use_toman;
   return 'term' if $self->can_use_toterm;
 
@@ -634,6 +628,9 @@ sub can_use_toman {
 
 sub can_use_toterm {
   my $self = shift;
+
+  $self->is_mswin32 || $self->is_dos || $self->is_amigaos
+    and return;
 
   return unless $self->terminal_accepts_ansi;
 

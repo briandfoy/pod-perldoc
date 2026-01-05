@@ -582,6 +582,12 @@ sub init_formatter_class_list {
   my $self = shift;
   $self->{'formatter_classes'} ||= [];
 
+  # Formatter selection contract:
+  # - Prefer ToMan when a capable roff toolchain is available.
+  # - Use ToTerm only when pager and terminal capabilities are known safe.
+  # - Otherwise fall back to ToText.
+  # This is intentionally conservative: unknown environments default to safety.
+
   # Remember, no switches have been read yet, when
   # we've started this routine.
 

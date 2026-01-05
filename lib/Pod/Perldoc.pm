@@ -610,6 +610,15 @@ sub choose_formatter {
   ( $ENV{TERM} || '' ) =~ /dumb|emacs|none|unknown/i
 	and return;
 
+  return 'man'  if $self->can_use_toman;
+  return 'term' if $self->can_use_toterm;
+
+  return;
+}
+
+sub can_use_toman {
+  my $self = shift;
+
   # We need a version that properly supports ANSI escape codes
   # Only those will work propertly with ToMan
   # The rest is either ToTerm or ToMan again
@@ -618,36 +627,40 @@ sub choose_formatter {
     my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 
     semver_ge( $version, MIN_GROFF_VERSION() )
-      and return 'man';
+      and return 1;
+  }
+
+  return;
+}
+
+sub can_use_toterm {
+  my $self = shift;
 
 	# groff is old, we need to check if our pager is less
 	# because if so, we can use ToTerm
 	# We can only know if it's one of the detected pagers
 	# (there could be others that would be tried)
 
-    if ( my @less_bins = grep /less/, $self->pagers ) {
-      foreach my $less_bin (@less_bins) {
-        # The less binary can have shell redirection characters
-        # So we're cleaning that up and everything afterwards
-        my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
-        my $version_string = $self->_run_command("$less_bin_clean --version");
-        my( $version ) = $version_string =~ /less (\d+)/;
+  if ( my @less_bins = grep /less/, $self->pagers ) {
+    foreach my $less_bin (@less_bins) {
+      # The less binary can have shell redirection characters
+      # So we're cleaning that up and everything afterwards
+      my ($less_bin_clean) = $less_bin =~ /^([^<>\s]+)/;
+      my $version_string = $self->_run_command("$less_bin_clean --version");
+      my( $version ) = $version_string =~ /less (\d+)/;
 
-        # We're using the regexp match here to figure out
-        # if we found less to begin with, because the initial
-        # regexp match for @less_bins is too permissive
-        $version
-          or next;
+      # We're using the regexp match here to figure out
+      # if we found less to begin with, because the initial
+      # regexp match for @less_bins is too permissive
+      $version
+        or next;
 
-        # added between 340 and 346
-        $version ge MIN_LESS_VERSION()
-          and return 'term';
-      }
+      # added between 340 and 346
+      $version ge MIN_LESS_VERSION()
+        and return 1;
     }
   }
 
-  # No fallback listed here, which means we will use ToText
-  # (provided above)
   return;
 }
 

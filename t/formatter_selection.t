@@ -63,6 +63,7 @@ sub with_fake_versions {
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
     is( $formatter, 'man', 'prefers ToMan with new groff' );
+    ok( $perldoc->can_use_toman, 'can_use_toman returns true with new groff' );
 }
 
 {
@@ -78,6 +79,7 @@ sub with_fake_versions {
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
     is( $formatter, 'term', 'uses ToTerm with old groff and new less' );
+    ok( $perldoc->can_use_toterm, 'can_use_toterm returns true with new less' );
 }
 
 {
@@ -93,6 +95,7 @@ sub with_fake_versions {
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
     is( $formatter, undef, 'falls back when less is too old' );
+    ok( !$perldoc->can_use_toterm, 'can_use_toterm returns false with old less' );
 }
 
 {
@@ -108,6 +111,7 @@ sub with_fake_versions {
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
     is( $formatter, undef, 'falls back for dumb terminals' );
+    ok( $perldoc->can_use_toman, 'can_use_toman is independent of TERM' );
 }
 
 done_testing();

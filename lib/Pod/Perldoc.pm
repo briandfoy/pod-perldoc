@@ -76,6 +76,7 @@ BEGIN {
  *is_openbsd = $^O =~ m/openbsd/ ? \&TRUE : \&FALSE unless defined &is_openbsd;
  *is_freebsd = $^O =~ m/freebsd/ ? \&TRUE : \&FALSE unless defined &is_freebsd;
  *is_bitrig = $^O =~ m/bitrig/ ? \&TRUE : \&FALSE unless defined &is_bitrig;
+ *is_midnightbsd = $^O =~ m/midnightbsd/ ? \&TRUE : \&FALSE unless defined &is_midnightbsd;
 }
 
 $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;

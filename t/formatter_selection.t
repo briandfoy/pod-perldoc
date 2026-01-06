@@ -10,7 +10,7 @@ use Pod::Perldoc::ToTerm ();
     use parent 'Pod::Perldoc';
 
     sub new {
-        return bless { pagers => [], executables => {}, _fake_cmd => {} }, shift;
+        return bless { pagers => [], _fake_cmd => {}, _fake_exec => {} }, shift;
     }
 
     sub is_mswin32 { 0 }
@@ -23,6 +23,12 @@ use Pod::Perldoc::ToTerm ();
         return;
     }
 
+    sub set_fake_executable {
+        my ( $self, $name, $path ) = @_;
+        $self->{_fake_exec}{$name} = $path;
+        return;
+    }
+
     sub _run_command {
         my ( $self, $command ) = @_;
         foreach my $pattern ( keys %{ $self->{_fake_cmd} } ) {
@@ -30,13 +36,18 @@ use Pod::Perldoc::ToTerm ();
         }
         return '';
     }
+
+    sub _find_executable_in_path {
+        my ( $self, $program ) = @_;
+        return $self->{_fake_exec}{$program};
+    }
 }
 
 sub make_perldoc {
     my (%args) = @_;
     my $perldoc = Local::Perldoc->new;
     $perldoc->{pagers} = $args{pagers} || [];
-    $perldoc->{executables}{nroffer} = $args{nroffer};
+    $perldoc->set_fake_executable( $args{nroffer}, $args{nroffer} ) if $args{nroffer};
     return $perldoc;
 }
 

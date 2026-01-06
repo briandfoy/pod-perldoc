@@ -457,8 +457,6 @@ sub init {
 
 
   $self->{'target'} = undef;
-  $self->{'executables'} = $self->inspect_execs();
-
   $self->{'pagers' } = [@Pagers] unless exists $self->{'pagers'};
   $self->{'bindir' } = $Bindir   unless exists $self->{'bindir'};
   $self->{'pod2man'} = $Pod2man  unless exists $self->{'pod2man'};
@@ -496,18 +494,18 @@ sub _roffer_candidates {
 
 #..........................................................................
 
-sub inspect_execs {
-    my $self = shift;
+sub _find_nroffer {
+    my ( $self ) = @_;
 
-    my @found;
     foreach my $candidate ( $self->_roffer_candidates ) {
-        push @found, $self->_find_executable_in_path( $candidate );
+        my $found = $self->_find_executable_in_path($candidate);
+        return $found if $found;
     }
 
-    return +{
-        'nroffer' => $found[0],
-    };
+    return;
 }
+
+#..........................................................................
 
 sub _get_path_components {
     my( $self ) = @_;
@@ -574,7 +572,7 @@ sub can_use_toman {
   my $self = shift;
 
   # We need a roff toolchain that properly supports Unicode output.
-  if ( my $roffer = $self->{'executables'}{'nroffer'} ) {
+  if ( my $roffer = $self->_find_nroffer ) {
     my $version_string = $self->_run_command("$roffer -v");
     my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
 
@@ -1000,7 +998,7 @@ sub options_processing {
     if( $self->opt_n ) {
         $self->add_formatter_option( '__nroffer' => $self->opt_n );
     } else {
-		$self->add_formatter_option( '__nroffer' => $self->{'executables'}{'nroffer'} );
+        $self->add_formatter_option( '__nroffer' => $self->_find_nroffer );
 	}
 
     # Get language from PERLDOC_POD2 environment variable

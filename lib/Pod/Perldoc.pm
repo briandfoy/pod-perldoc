@@ -494,21 +494,6 @@ sub _roffer_candidates {
     else                    { qw( groff nroff mandoc ) }
     }
 
-sub _check_nroffer {
-    return 1;
-    # where is it in the PATH?
-
-    # is it executable?
-
-    # what is its real name?
-
-    # what is its version?
-
-    # does it support the flags we need?
-
-    # is it good enough for us?
-    }
-
 #..........................................................................
 
 # Inspect each program to determine if it's available and what version it is
@@ -520,7 +505,6 @@ sub _exec_data {
 	return +{
 		'nroffer' => {
 			'candidates' => [ $self->_roffer_candidates ],
-			'check'      => sub { $self->_check_nroffer(@_) },
 		},
 	};
 }
@@ -531,8 +515,6 @@ sub inspect_execs {
 	# nroffer
 	my $nroffer_data = $self->_exec_data->{'nroffer'};
 	my $nroffer      = $self->_find_executable( @{ $nroffer_data->{'candidates'} } );
-	$nroffer_data->{'check'}->($nroffer);
-
 	return +{
 		'nroffer' => $nroffer,
 	};

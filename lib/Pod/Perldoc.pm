@@ -496,40 +496,18 @@ sub _roffer_candidates {
 
 #..........................................................................
 
-# Inspect each program to determine if it's available and what version it is
-# This is important because it helps determine which formatter we can use
-# It used to choose and then the formatter would inspect if it has the binaries it needs
-# But we need to know whether binaries are available in order to determine the formatter
-sub _exec_data {
-	my $self = shift;
-	return +{
-		'nroffer' => {
-			'candidates' => [ $self->_roffer_candidates ],
-		},
-	};
-}
-
 sub inspect_execs {
     my $self = shift;
 
-	# nroffer
-	my $nroffer_data = $self->_exec_data->{'nroffer'};
-	my $nroffer      = $self->_find_executable( @{ $nroffer_data->{'candidates'} } );
-	return +{
-		'nroffer' => $nroffer,
-	};
-}
-
-sub _find_executable {
-    my( $self, @candidates ) = @_;
-
-    my @found = ();
-    foreach my $candidate ( @candidates ) {
+    my @found;
+    foreach my $candidate ( $self->_roffer_candidates ) {
         push @found, $self->_find_executable_in_path( $candidate );
-        }
-
-    return wantarray ? @found : $found[0];
     }
+
+    return +{
+        'nroffer' => $found[0],
+    };
+}
 
 sub _get_path_components {
     my( $self ) = @_;

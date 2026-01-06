@@ -1,5 +1,5 @@
 # brian's standard GitHub Actions Ubuntu config for Perl 5 modules
-# version 20251210.001
+# version 20260105.001
 # https://github.com/briandfoy/github_workflows
 # https://github.com/features/actions
 # This file is licensed under the Artistic License 2.0
@@ -74,7 +74,7 @@ on:
     pull_request:
     # weekly build on the master branch just to see what CPAN is doing
     schedule:
-        - cron: "35 12 * * 1"
+        - cron: "18 6 * * 2"
 jobs:
     perl:
         environment: automated_testing
@@ -150,9 +150,11 @@ jobs:
                 rm -rfv HTML-Tagset-*
 # Restore the last module installation for this OS/perl combination. This
 # saves several minutes in some cases. When cpan installs updates, the
-# 'save' counterpart for 'restore' will update the cache.
+# 'save' counterpart for 'restore' will update the cache. If this fails we
+# keep going, although the module installation will take longer
             - name: Restore Perl modules
               id: perl-modules-cache-restore
+              continue-on-error: true
               uses: actions/cache/restore@v4
               with:
                 key: ${{ runner.os }}-${{ matrix.perl-version }}-modules
@@ -160,12 +162,15 @@ jobs:
                   /usr/local/lib/perl5
                   /usr/local/bin/cover
                   /usr/local/bin/cpan
-# We cannot reuse cache keys, so we'll delete it and then save it again
+# We cannot reuse a cache key that exists, so we'll delete it and then save it again
 # There are various hacks for this, but GitHub has so far declined to
 # do what so many people want. This seems like a long way to go to do
 # this, but most of the problem is translating the unique cache key name
-# to another hidden ID value. This is pervasive in the GitHub API.
+# to another hidden ID value. This is pervasive in the GitHub API. If we
+# fail this step, no big whoop. Outside pull requesters are likely to fail
+# this step since their token won't have permissions to the repo cache
             - name: Delete cache
+              continue-on-error: true
               id: delete-cache
               env:
                 GH_TOKEN: ${{ github.token }}
@@ -234,8 +239,11 @@ jobs:
                 cpanm --notest Devel::Cover Devel::Cover::Report::Coveralls
                 perl Makefile.PL
                 cover -test +ignore 'Makefile.PL' -report coveralls
-# Now always save the Perl modules in case we updated some versions
+# Now always save the Perl modules in case we updated some versions. We'd like
+# this step to work, but if it doesn't, it's not a big deal. The always() captures
+# any work that we did even if something failed.
             - name: Save Perl modules
+              continue-on-error: true
               id: perl-modules-cache-save
               uses: actions/cache/save@v4
               if: always()

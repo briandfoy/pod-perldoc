@@ -544,6 +544,8 @@ sub init_formatter_class_list {
   # - Prefer ToMan when a capable roff toolchain is available.
   # - Use ToTerm only when pager and terminal capabilities are known safe.
   # - Otherwise fall back to ToText.
+  # - ToTerm is disabled on MSWin32/DOS/Amiga because we do not reliably
+  #   support or detect ANSI+less in those environments.
   # This is intentionally conservative: unknown environments default to safety.
 
   # Remember, no switches have been read yet, when
@@ -587,6 +589,8 @@ sub can_use_toman {
 sub can_use_toterm {
   my $self = shift;
 
+  # Windows/DOS/Amiga are excluded because ToTerm depends on ANSI+less,
+  # which we do not reliably support or detect on those platforms.
   $self->is_mswin32 || $self->is_dos || $self->is_amigaos
     and return;
 

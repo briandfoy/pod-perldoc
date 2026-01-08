@@ -14,7 +14,9 @@ use vars qw($VERSION @Pagers $Bindir $Pod2man
 );
 $VERSION = '3.29';
 
+# Earliest groff with proper UTF‑8 support
 sub MIN_GROFF_VERSION () { '1.20.1' }
+# Earliest reliable -R for raw ANSI escape handling
 sub MIN_LESS_VERSION  () { '346'    }
 
 #..........................................................................

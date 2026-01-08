@@ -51,7 +51,7 @@ sub init {
     # We used to print the __nroffer here, but we can't anymore
     # Because it only gets applied after the new() and init() calls
     # Check Pod::Perldoc::render_findings() (under formatter_switches)
-    #$self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
+    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
 	}
 
 sub _get_stty { `stty -a` }

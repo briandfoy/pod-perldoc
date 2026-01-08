@@ -32,9 +32,13 @@ sub pager_configuration {
   # do not modify anything on Windows or DOS
   return if ( $perldoc->is_mswin32 || $perldoc->is_dos );
 
+  # First validate the overall environment (platform + terminal + policy).
+  # Is any safe ToTerm path available in this environment?
   $perldoc->can_use_toterm
     or return;
 
+  # Then validate the exact pager string being invoked; the global check
+  # may have passed based on a different pager candidate.
   $perldoc->_pager_can_use_toterm($pager)
     or return;
 

@@ -230,15 +230,15 @@ sub with_fake_versions {
     subtest 'explicit pager precedence' => sub {
         local $ENV{PERLDOC_PAGER} = 'less';
         local $ENV{PAGER} = 'more';
-        is( $perldoc->_explicit_pager_command, 'less', 'PERLDOC_PAGER wins' );
+        is( $perldoc->_explicit_pager_in_env, 'less', 'PERLDOC_PAGER wins' );
 
         local $ENV{PERLDOC_PAGER};
         local $ENV{PAGER} = 'less';
-        is( $perldoc->_explicit_pager_command, 'less', 'PAGER used when PERLDOC_PAGER missing' );
+        is( $perldoc->_explicit_pager_in_env, 'less', 'PAGER used when PERLDOC_PAGER missing' );
 
         local $ENV{PERLDOC_PAGER};
         local $ENV{PAGER};
-        ok( !defined $perldoc->_explicit_pager_command, 'no explicit pager when env unset' );
+        ok( !defined $perldoc->_explicit_pager_in_env, 'no explicit pager when env unset' );
     };
 }
 

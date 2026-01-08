@@ -596,7 +596,7 @@ sub can_use_toterm {
 
   return unless $self->terminal_accepts_ansi;
 
-  if ( defined( my $explicit = $self->_explicit_pager_command ) ) {
+  if ( defined( my $explicit = $self->_explicit_pager_in_env ) ) {
     return $self->_pager_can_use_toterm($explicit);
   }
 
@@ -618,7 +618,7 @@ sub terminal_accepts_ansi {
   return;
 }
 
-sub _explicit_pager_command {
+sub _explicit_pager_in_env {
   return $ENV{PERLDOC_PAGER} if defined $ENV{PERLDOC_PAGER} && length $ENV{PERLDOC_PAGER};
   return $ENV{PAGER} if defined $ENV{PAGER} && length $ENV{PAGER};
   return;

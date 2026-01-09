@@ -7,7 +7,7 @@ use Config '%Config';
 
 use Fcntl;    # for sysopen
 use File::Basename qw(basename);
-use File::Spec::Functions qw(catfile catdir splitdir);
+use File::Spec::Functions qw(catfile catdir splitdir path);
 
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
@@ -509,19 +509,11 @@ sub _find_nroffer {
 
 #..........................................................................
 
-sub _get_path_components {
-    my( $self ) = @_;
-
-    my @paths = split /\Q$Config{path_sep}/, $ENV{PATH};
-
-    return @paths;
-    }
-
 sub _find_executable_in_path {
     my( $self, $program ) = @_;
 
     my @found = ();
-    foreach my $dir ( $self->_get_path_components ) {
+    foreach my $dir ( path() ) {
         my $binary = catfile( $dir, $program );
         $self->debug( "Looking for $binary\n" );
         next unless -e $binary;

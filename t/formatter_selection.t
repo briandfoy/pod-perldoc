@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Encode ();
 
 use Pod::Perldoc ();
 use Pod::Perldoc::ToTerm ();
@@ -10,7 +11,7 @@ use Pod::Perldoc::ToTerm ();
     use parent 'Pod::Perldoc';
 
     sub new {
-        return bless { pagers => [], _fake_cmd => {}, _fake_exec => {} }, shift;
+        return bless { pagers => [], _fake_cmd => {}, _fake_exec => {}, _fake_probe => {} }, shift;
     }
 
     sub is_mswin32 { 0 }
@@ -29,6 +30,12 @@ use Pod::Perldoc::ToTerm ();
         return;
     }
 
+    sub set_fake_probe_output {
+        my ( $self, $name, $output ) = @_;
+        $self->{_fake_probe}{$name} = Encode::encode( 'UTF-8', $output );
+        return;
+    }
+
     sub _run_command {
         my ( $self, $command ) = @_;
         foreach my $pattern ( keys %{ $self->{_fake_cmd} } ) {
@@ -40,6 +47,11 @@ use Pod::Perldoc::ToTerm ();
     sub _find_executable_in_path {
         my ( $self, $program ) = @_;
         return $self->{_fake_exec}{$program};
+    }
+
+    sub _run_roffer_probe {
+        my ( $self, $roffer ) = @_;
+        return $self->{_fake_probe}{$roffer};
     }
 }
 
@@ -71,9 +83,10 @@ sub with_fake_versions {
         pagers  => ['less'],
         nroffer => 'groff',
     );
+    $perldoc->set_fake_probe_output( 'groff', $perldoc->_utf8_probe_expected );
     my $formatter = with_fake_versions(
         perldoc => $perldoc,
-        groff => "groff version 1.21\n",
+        groff => '',
         less  => "less 350\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
@@ -90,13 +103,14 @@ sub with_fake_versions {
         pagers  => ['less'],
         nroffer => 'groff',
     );
+    $perldoc->set_fake_probe_output( 'groff', "\x{FFFD}" );
     my $formatter = with_fake_versions(
         perldoc => $perldoc,
-        groff => "groff version 1.19\n",
+        groff => '',
         less  => "less 346\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
-    is( $formatter, 'term', 'uses ToTerm with old groff and new less' );
+    is( $formatter, 'term', 'uses ToTerm when roffer probe fails and less is new' );
     ok( $perldoc->can_use_toterm, 'can_use_toterm returns true with new less' );
 }
 
@@ -109,9 +123,10 @@ sub with_fake_versions {
         pagers  => ['less'],
         nroffer => 'groff',
     );
+    $perldoc->set_fake_probe_output( 'groff', "\x{FFFD}" );
     my $formatter = with_fake_versions(
         perldoc => $perldoc,
-        groff => "groff version 1.19\n",
+        groff => '',
         less  => "less 345\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
@@ -128,9 +143,10 @@ sub with_fake_versions {
         pagers  => ['less'],
         nroffer => 'groff',
     );
+    $perldoc->set_fake_probe_output( 'groff', $perldoc->_utf8_probe_expected );
     my $formatter = with_fake_versions(
         perldoc => $perldoc,
-        groff => "groff version 1.21\n",
+        groff => '',
         less  => "less 350\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
@@ -147,9 +163,10 @@ sub with_fake_versions {
         pagers  => ['less'],
         nroffer => 'groff',
     );
+    $perldoc->set_fake_probe_output( 'groff', "\x{FFFD}" );
     my $formatter = with_fake_versions(
         perldoc => $perldoc,
-        groff => "groff version 1.19\n",
+        groff => '',
         less  => "less 350\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );
@@ -166,9 +183,10 @@ sub with_fake_versions {
         pagers  => ['less'],
         nroffer => 'groff',
     );
+    $perldoc->set_fake_probe_output( 'groff', "\x{FFFD}" );
     my $formatter = with_fake_versions(
         perldoc => $perldoc,
-        groff => "groff version 1.19\n",
+        groff => '',
         less  => "less 350\n",
         code  => sub { Pod::Perldoc::choose_formatter($perldoc) },
     );

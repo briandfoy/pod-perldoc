@@ -14,8 +14,6 @@ use vars qw($VERSION @Pagers $Bindir $Pod2man
 );
 $VERSION = '3.29';
 
-# Earliest groff with proper UTF‑8 support
-sub MIN_GROFF_VERSION () { '1.20.1' }
 # Earliest reliable -R for raw ANSI escape handling
 sub MIN_LESS_VERSION  () { '346'    }
 
@@ -500,8 +498,8 @@ sub _find_nroffer {
     my ( $self ) = @_;
 
     foreach my $candidate ( $self->_roffer_candidates ) {
-        my $found = $self->_find_executable_in_path($candidate);
-        return $found if $found;
+        my @found = $self->_find_executable_in_path($candidate);
+        return $found[0] if @found;
     }
 
     return;
@@ -569,12 +567,7 @@ sub can_use_toman {
 
   # We need a roff toolchain that properly supports Unicode output.
   if ( my $roffer = $self->_find_nroffer ) {
-    my $version_string = $self->_run_command("$roffer -v");
-    my( $version ) = $version_string =~ /\(?groff\)? version (\d+\.\d+(?:\.\d+)?)/;
-
-    if ( defined $version && semver_ge( $version, MIN_GROFF_VERSION() ) ) {
-        return 1;
-    }
+    return $self->_roffer_supports_utf8($roffer);
   }
 
   return;
@@ -610,6 +603,162 @@ sub terminal_accepts_ansi {
   return 1 if $term =~ /^ansi$/;
 
   return;
+}
+
+sub _roffer_supports_utf8 {
+  my ( $self, $roffer ) = @_;
+
+  # Probe the roffer by feeding it minimal roff that contains UTF-8 text.
+  # We only accept the roffer if the rendered output:
+  # - contains the expected UTF-8 glyphs
+  # - does not contain Unicode replacement characters
+  # - does not contain escaped UTF-8 bytes (e.g. \303\251)
+  # - does not echo roff or Pod markup
+  # (See https://github.com/briandfoy/pod-perldoc/pull/79)
+  my $output = $self->_run_roffer_probe($roffer);
+  return unless defined $output && length $output;
+
+  # Escaped UTF-8 bytes indicate output isn't real UTF-8 text.
+  return if $output =~ /\\[0-7]{3}/;
+
+  require Encode;
+  my $decoded = Encode::decode( 'UTF-8', $output, Encode::FB_DEFAULT );
+
+  # U+FFFD means invalid UTF-8 was produced or decoded.
+  return if $decoded =~ /\x{FFFD}/;
+
+  my $expected = $self->_utf8_probe_expected;
+  return unless index( $decoded, $expected ) >= 0;
+
+  # Roff or Pod markup surviving in output means we didn't actually render.
+  return if $decoded =~ /^=head\d\b/m;
+  return if $decoded =~ /^(\.|\')/m;
+
+  return 1;
+}
+
+sub _run_roffer_probe {
+  my ( $self, $roffer ) = @_;
+
+  # Keep the probe logic in sync with Pod::Perldoc::ToMan.
+  my @switches = $self->_probe_nroff_switches($roffer);
+  my $input    = $self->_roffer_probe_input;
+
+  require IPC::Open3;
+  require IO::Select;
+  require Symbol;
+
+  my ( $writer, $reader, $err );
+  my $pid = eval {
+    IPC::Open3::open3(
+      $writer,
+      $reader,
+      $err = Symbol::gensym(),
+      $roffer,
+      @switches
+    );
+  };
+  return if $@ || !$pid;
+
+  binmode $writer;
+  binmode $reader;
+  binmode $err;
+
+  eval {
+    print {$writer} $input;
+    close $writer;
+    1;
+  } or return;
+
+  my $output = '';
+  my $error  = '';
+  my $selector = IO::Select->new( $reader, $err );
+
+  while ( $selector->count ) {
+    for my $fh ( $selector->can_read ) {
+      my $buffer = '';
+      my $bytes  = sysread $fh, $buffer, 4096;
+      if ( !defined $bytes || $bytes == 0 ) {
+        $selector->remove($fh);
+        next;
+      }
+      if ( $fh == $reader ) { $output .= $buffer; }
+      else                  { $error  .= $buffer; }
+    }
+  }
+
+  waitpid $pid, 0;
+  return if $?;
+  return if $error =~ /\S/;
+
+  return $output;
+}
+
+sub _probe_nroff_switches {
+  my ( $self, $roffer ) = @_;
+
+  # Keep in sync with Pod::Perldoc::ToMan::_collect_nroff_switches and
+  # Pod::Perldoc::ToMan::_get_device_switches (same roffer selection rules).
+  my @switches = ( '-man', $self->_probe_device_switches($roffer) );
+
+  # Mandoc needs an explicit width to avoid odd wrapping.
+  if ( $self->_roffer_is_mandoc($roffer) ) {
+    push @switches, '-Owidth=80';
+  }
+
+  # Cygwin roff benefits from -c, but not all roff tools support it.
+  push @switches, '-c' if $self->_roffer_is_roff($roffer) && $self->is_cygwin;
+
+  return @switches;
+}
+
+sub _probe_device_switches {
+  my ( $self, $roffer ) = @_;
+
+     # These reflect the same device switch decisions as ToMan.
+     if ( $self->_roffer_is_nroff($roffer) )  { return qw() }
+  elsif ( $self->_roffer_is_groff($roffer) )  { return qw(-Kutf8 -Tutf8) }
+  elsif ( $self->_roffer_is_mandoc($roffer) ) { return qw() }
+  else                                        { return qw(-Tlatin1) }
+}
+
+sub _roffer_is_roff {
+  my ( $self, $roffer ) = @_;
+  return $self->_roffer_is_nroff($roffer) || $self->_roffer_is_groff($roffer);
+}
+
+sub _roffer_is_nroff {
+  my ( $self, $roffer ) = @_;
+  return $roffer =~ /\bnroff\b/;
+}
+
+sub _roffer_is_groff {
+  my ( $self, $roffer ) = @_;
+  return $roffer =~ /\bgroff\b/;
+}
+
+sub _roffer_is_mandoc {
+  my ( $self, $roffer ) = @_;
+  return $roffer =~ /\bmandoc\b/;
+}
+
+sub _roffer_probe_input {
+  my $self = shift;
+
+  # Raw roff, not POD, so we can test the roffer directly.
+  my $text = $self->_utf8_probe_expected;
+  my $roff = ".TH UTF8 1\n"
+    . ".SH NAME\n"
+    . "utf8-probe - UTF-8 check\n"
+    . ".SH DESCRIPTION\n"
+    . "$text\n";
+
+  require Encode;
+  return Encode::encode( 'UTF-8', $roff );
+}
+
+sub _utf8_probe_expected {
+  return "caf\x{00e9} na\x{00ef}ve \x{2603}";
 }
 
 sub _explicit_pager_in_env {
@@ -1065,6 +1214,7 @@ sub grand_search_init {
                 my ($fh, $filename) = File::Temp::tempfile(UNLINK => 1);
                 $fh->print($response->{content});
                 $fh->flush;
+                close $fh;
                 push @found, $filename;
                 ($self->{podnames}{$filename} =
                   m{.*/([^/#?]+)} ? uc $1 : "UNKNOWN")

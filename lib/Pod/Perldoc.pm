@@ -517,7 +517,7 @@ sub _find_executable_in_path {
         my $binary = catfile( $dir, $program );
         $self->debug( "Looking for $binary\n" );
         next unless -e $binary;
-        unless( -x $_ ) {
+        unless( -x _ ) {
             $self->warn( "Found $binary but it's not executable. Skipping.\n" );
             next;
             }
@@ -569,8 +569,6 @@ sub can_use_toman {
 
   # We need a roff toolchain that properly supports Unicode output.
   return $self->_find_nroffer;
-
-  return;
 }
 
 sub can_use_toterm {

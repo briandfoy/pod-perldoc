@@ -46,7 +46,8 @@ use Pod::Perldoc::ToTerm ();
 
     sub _find_executable_in_path {
         my ( $self, $program ) = @_;
-        return $self->{_fake_exec}{$program};
+        my $path = $self->{_fake_exec}{$program};
+        return defined $path ? ($path) : ();
     }
 
     sub _run_roffer_probe {

@@ -499,7 +499,9 @@ sub _find_nroffer {
 
     foreach my $candidate ( $self->_roffer_candidates ) {
         my @found = $self->_find_executable_in_path($candidate);
-        return $found[0] if @found;
+        foreach my $roffer ( @found ) {
+            return $roffer if $self->_roffer_supports_utf8($roffer);
+        }
     }
 
     return;
@@ -515,7 +517,7 @@ sub _find_executable_in_path {
         my $binary = catfile( $dir, $program );
         $self->debug( "Looking for $binary\n" );
         next unless -e $binary;
-        unless( -x $binary ) {
+        unless( -x $_ ) {
             $self->warn( "Found $binary but it's not executable. Skipping.\n" );
             next;
             }
@@ -566,9 +568,7 @@ sub can_use_toman {
   my $self = shift;
 
   # We need a roff toolchain that properly supports Unicode output.
-  if ( my $roffer = $self->_find_nroffer ) {
-    return $self->_roffer_supports_utf8($roffer);
-  }
+  return $self->_find_nroffer;
 
   return;
 }
@@ -649,6 +649,7 @@ sub _run_roffer_probe {
   require Symbol;
 
   my ( $writer, $reader, $err );
+  local $@;
   my $pid = eval {
     IPC::Open3::open3(
       $writer,
@@ -805,7 +806,7 @@ sub _parse_pager_command {
 sub _pager_is_less_command {
   my ( $self, $command ) = @_;
 
-  return 1 if $command =~ m{(?:^|/)less(?:\.exe)?\z};
+  return 1 if $command =~ m{(?:^|/)less(?:\.exe)?\z}i;
   return;
 }
 
@@ -905,30 +906,6 @@ sub process {
     DEBUG > 2 and print "Found: [@found]\n";
 
     return $self->render_and_page(\@found);
-}
-
-#..........................................................................
-
-sub semver_ge {
-    my ( $version, $target_version ) = @_;
-
-    my @version_parts        = split /\./, $version;
-    my @target_version_parts = split /\./, $target_version;
-
-    for (my $i = 0; $i <= $#version_parts; $i++) {
-        # Version part greater, return true
-        $version_parts[$i] > $target_version_parts[$i]
-            and return 1;
-
-        # Version part less, return false
-        $version_parts[$i] < $target_version_parts[$i]
-            and return 0;
-
-        # Parts equal, keep going
-    }
-
-    # All parts equal, return true
-    return 1;
 }
 
 #..........................................................................

@@ -488,7 +488,10 @@ sub init {
 sub _roffer_candidates {
     my( $self ) = @_;
 
-    if( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig || $self->is_midnightbsd ) { qw( mandoc groff nroff ) }
+	if( defined $ENV{'PERLDOC_ROFFER'} ) {
+		( split /\s+/, $ENV{'PERLDOC_ROFFER'} );
+		}
+    elsif( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig || $self->is_midnightbsd ) { qw( mandoc groff nroff ) }
     else                    { qw( groff nroff mandoc ) }
     }
 

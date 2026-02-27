@@ -15,6 +15,7 @@ use Pod::Man 2.18;
 # then we run nroff (or whatever) on it, and then page thru the
 # (plaintext) output of THAT!
 
+sub DEBUG   () { Pod::Perldoc::DEBUG() }
 sub SUCCESS () { 1 }
 sub FAILED  () { 0 }
 

@@ -500,11 +500,23 @@ sub _roffer_candidates {
 sub _find_nroffer {
     my ( $self ) = @_;
 
+	$self->debug(
+		sprintf "Roffer candidates are: %s\n", join ", ", $self->_roffer_candidates
+		) if DEBUG > 3;
+
     foreach my $candidate ( $self->_roffer_candidates ) {
+    	$self->debug( "Trying roffer candidate <$candidate>\n" ) if DEBUG > 3;
+
         my @found = $self->_find_executable_in_path($candidate);
+        $self->debug( "Found roffers <" . join( '><', @found ) . '>' . "\n" ) if DEBUG > 3;
         foreach my $roffer ( @found ) {
-            return $roffer if $self->_roffer_supports_utf8($roffer);
+	        $self->debug( "Checking <$roffer> for UTF-8 support\n" ) if DEBUG > 3;
+            if( $self->_roffer_supports_utf8($roffer) ) {
+				$self->debug( "<$roffer> supports UTF-8, so using it\n" ) if DEBUG > 3;
+            	return $roffer;
+            }
         }
+        $self->debug( "Did not find a UTF-8 compatible <$candidate>\n" ) if DEBUG > 3;
     }
 
     return;

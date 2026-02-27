@@ -317,6 +317,7 @@ sub _filter_through_nroff {
 			next READ;
 			}
 		}
+
 	close $writer;
 	$self->debug( "Done writing\n" );
 
@@ -326,16 +327,15 @@ sub _filter_through_nroff {
 		length $done
 		);
 
-	my $kid;
-	do {
-        $kid = waitpid(-1, WNOHANG);
-    } while $kid > 0;
+	my $kid = 0;
+	$kid = waitpid($pid, WNOHANG) until $kid > 0;
+
+	$self->debug( "\$? is <$?>\n" ) if DEBUG > 3;
 
 	if( $? ) {
 		$self->warn( "Error from pipe to $render!\n" );
 		$self->debug( 'Error: ' . do { local $/; <$err> } );
 		}
-
 
 	close $reader;
 	if( my $err = $? ) {

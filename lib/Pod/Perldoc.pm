@@ -730,8 +730,8 @@ sub _probe_device_switches {
   my ( $self, $roffer ) = @_;
 
      # These reflect the same device switch decisions as ToMan.
-     if ( $self->_roffer_is_nroff($roffer) )  { return qw() }
-  elsif ( $self->_roffer_is_groff($roffer) )  { return qw(-Kutf8 -Tutf8) }
+     if ( $self->_roffer_is_groff($roffer) )  { return qw(-Kutf8 -Tutf8) }
+  elsif ( $self->_roffer_is_nroff($roffer) )  { return qw() }
   elsif ( $self->_roffer_is_mandoc($roffer) ) { return qw() }
   else                                        { return qw(-Tlatin1) }
 }
@@ -741,9 +741,10 @@ sub _roffer_is_roff {
   return $self->_roffer_is_nroff($roffer) || $self->_roffer_is_groff($roffer);
 }
 
+# groff adds an nroff that is really just groff, and reports groff in --version
 sub _roffer_is_nroff {
   my ( $self, $roffer ) = @_;
-  return $roffer =~ /\bnroff\b/;
+  return $roffer =~ /\bnroff\b/ && $roffer !~ /\bgroff\b/;
 }
 
 sub _roffer_is_groff {

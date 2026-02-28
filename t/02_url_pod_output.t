@@ -47,26 +47,38 @@ unless( $fetched_url ) {
 	exit;
 	}
 
-subtest 'fetch https' => sub {
-	my $run = run_perldoc( $url );
-	ok( $run->{success}, "$perldoc ran successfully" )
-		or diag( "run failed: " . dumper($run) );
-	test_translation( $run->{output} );
-	};
+test_url($url, 'fetch http');
 
-subtest 'fetch https with redirection' => sub {
-	local $url = $url;
-	$url =~ s/\Ahttps/http/;
-	my $run = run_perldoc( $url );
-	ok( $run->{success}, "$perldoc ran successfully" )
-		or diag( "run failed: " . dumper($run) );
-	test_translation( $run->{output} );
-	};
+{
+	local $url = $url; $url =~ s/\Ahttps/http/;
+	test_url($url, 'fetch https');
+};
+
+sub test_url {
+	my( $url, $label ) = @_;
+	subtest $label => sub {
+		my $run = run_perldoc( '-o', 'text', $url );
+		ok( $run->{success}, "$perldoc ran successfully" )
+			or diag( "run failed: " . dumper($run) );
+		ok length $run->{'output'}, 'there is output';
+		test_translation( $run->{output} );
+		};
+	}
 
 sub test_translation {
 	my( $pod ) = @_;
 	subtest 'check pod' => sub {
-		like $pod, qr/^(?:\x1B\[1m)?NAME(?:\x1B\[0m)?\R+^\h*Pod::Perldoc/m, 'Found NAME header'
+		like $pod, qr/
+			^
+			(?:\x1B\[1m)?
+			NAME
+			(?:\x1B\[0m)?
+			\R+
+
+			^
+			\h*
+			Pod::Perldoc
+			/xm, 'Found NAME header'
 		};
 	}
 

@@ -47,15 +47,16 @@ unless( $fetched_url ) {
 	exit;
 	}
 
-test_url($url, 'fetch http');
+test_url($url, 'fetch https');
 
 {
 	local $url = $url; $url =~ s/\Ahttps/http/;
-	test_url($url, 'fetch https');
+	test_url($url, 'fetch http');
 };
 
 sub test_url {
 	my( $url, $label ) = @_;
+
 	subtest $label => sub {
 		my $run = run_perldoc( '-o', 'text', $url );
 		ok( $run->{success}, "$perldoc ran successfully" )

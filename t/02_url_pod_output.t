@@ -71,11 +71,8 @@ sub test_translation {
 	subtest 'check pod' => sub {
 		like $pod, qr/
 			^
-			(?:\x1B\[1m)?
 			NAME
-			(?:\x1B\[0m)?
 			\R+
-
 			^
 			\h*
 			Pod::Perldoc

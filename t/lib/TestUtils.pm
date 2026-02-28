@@ -30,7 +30,7 @@ sub run_perldoc {
 	my $pid = eval{
 		open3(
 			$child_in, $child_out, $child_err = Symbol::gensym(),
-			$^X, perldoc_path(), @args
+			$^X, '-Mblib', perldoc_path(), @args
 			);
 		};
 	my $at = $@;

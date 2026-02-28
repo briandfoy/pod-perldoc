@@ -224,7 +224,7 @@ sub _is_roff {
 sub _is_nroff {
 	my( $self ) = @_;
 
-	$self->__nroffer =~ /\bnroff\b/;
+	$self->__nroffer =~ /\bnroff\b/ and $self->__nroffer !~ /\bgroff\b/;
 	}
 
 sub _is_groff {

@@ -7,12 +7,15 @@ use Config '%Config';
 
 use Fcntl;    # for sysopen
 use File::Basename qw(basename);
-use File::Spec::Functions qw(catfile catdir splitdir);
+use File::Spec::Functions qw(catfile catdir splitdir path);
 
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
 $VERSION = '3.29';
+
+# Earliest reliable -R for raw ANSI escape handling
+sub MIN_LESS_VERSION  () { '346'    }
 
 #..........................................................................
 
@@ -70,6 +73,10 @@ BEGIN {
  *is_linux   = $^O eq 'linux'   ? \&TRUE : \&FALSE unless defined &is_linux;
  *is_hpux    = $^O =~ m/hpux/   ? \&TRUE : \&FALSE unless defined &is_hpux;
  *is_amigaos = $^O eq 'amigaos' ? \&TRUE : \&FALSE unless defined &is_amigaos;
+ *is_openbsd = $^O =~ m/openbsd/ ? \&TRUE : \&FALSE unless defined &is_openbsd;
+ *is_freebsd = $^O =~ m/freebsd/ ? \&TRUE : \&FALSE unless defined &is_freebsd;
+ *is_bitrig = $^O =~ m/bitrig/ ? \&TRUE : \&FALSE unless defined &is_bitrig;
+ *is_midnightbsd = $^O =~ m/midnightbsd/ ? \&TRUE : \&FALSE unless defined &is_midnightbsd;
 }
 
 $Temp_File_Lifetime ||= 60 * 60 * 24 * 5;
@@ -91,7 +98,7 @@ $Pod2man = "pod2man" . ( $Config{'versiononly'} ? $Config{'version'} : '' );
 #
 # Option accessors...
 
-foreach my $subname (map "opt_$_", split '', q{mhlDriFfXqnTdULva}) {
+foreach my $subname (map "opt_$_", split '', q{mhlDriFfXqnTdULvag}) {
   no strict 'refs';
   *$subname = do{ use strict 'refs';  sub () { shift->_elem($subname, @_) } };
 }
@@ -103,6 +110,7 @@ sub opt_q_with { shift->_elem('opt_q', @_) }
 sub opt_d_with { shift->_elem('opt_d', @_) }
 sub opt_L_with { shift->_elem('opt_L', @_) }
 sub opt_v_with { shift->_elem('opt_v', @_) }
+sub opt_g_with { shift->_elem('opt_g', @_) }
 
 sub opt_w_with { # Specify an option for the formatter subclass
   my($self, $value) = @_;
@@ -272,6 +280,7 @@ perldoc [options] PageName|ModuleName|ProgramName|URL...
 perldoc [options] -f BuiltinFunction
 perldoc [options] -q FAQRegex
 perldoc [options] -v PerlVariable
+perldoc [options] -g GlossaryTerm
 
 Options:
     -h   Display this help message
@@ -298,6 +307,7 @@ Options:
     -f   Search Perl built-in functions
     -a   Search Perl API
     -v   Search predefined Perl variables
+    -g   Search the glossary
 
 PageName|ModuleName|ProgramName|URL...
          is the name of a piece of documentation that you want to look at. You
@@ -313,6 +323,9 @@ BuiltinFunction
 FAQRegex
          is a regex. Will search perlfaq[1-9] for and extract any
          questions that match.
+GlossaryTerm
+         is the name of the glossary item. Will extract subtexts out of items
+         from 'perlglossary'
 
 Any switches in the PERLDOC environment variable will be used before the
 command line arguments.  The optional pod index file contains a list of
@@ -404,6 +417,7 @@ Examples:
     $program_name -q FAQKeywords
     $program_name -v PerlVar
     $program_name -a PerlAPI
+    $program_name -g GlossaryTerm
 
 The -h option prints more help.  Also try "$program_name perldoc" to get
 acquainted with the system.                        [Perldoc v$VERSION]
@@ -450,13 +464,14 @@ sub init {
 
 
   $self->{'target'} = undef;
-
-  $self->init_formatter_class_list;
-
   $self->{'pagers' } = [@Pagers] unless exists $self->{'pagers'};
   $self->{'bindir' } = $Bindir   unless exists $self->{'bindir'};
   $self->{'pod2man'} = $Pod2man  unless exists $self->{'pod2man'};
   $self->{'search_path'} = [ ]   unless exists $self->{'search_path'};
+
+  # Formatters are dependent on available pagers
+  $self->pagers_guessing;
+  $self->init_formatter_class_list;
 
   push @{ $self->{'formatter_switches'} = [] }, (
    # Yeah, we could use a hashref, but maybe there's some class where options
@@ -477,22 +492,354 @@ sub init {
 
 #..........................................................................
 
+sub _roffer_candidates {
+    my( $self ) = @_;
+
+    if( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig || $self->is_midnightbsd ) { qw( mandoc groff nroff ) }
+    else                    { qw( groff nroff mandoc ) }
+    }
+
+#..........................................................................
+
+sub _find_nroffer {
+    my ( $self ) = @_;
+
+    foreach my $candidate ( $self->_roffer_candidates ) {
+        my @found = $self->_find_executable_in_path($candidate);
+        foreach my $roffer ( @found ) {
+            return $roffer if $self->_roffer_supports_utf8($roffer);
+        }
+    }
+
+    return;
+}
+
+#..........................................................................
+
+sub _find_executable_in_path {
+    my( $self, $program ) = @_;
+
+    my @found = ();
+    foreach my $dir ( path() ) {
+        my $binary = catfile( $dir, $program );
+        $self->debug( "Looking for $binary\n" );
+        next unless -e $binary;
+        unless( -x _ ) {
+            $self->warn( "Found $binary but it's not executable. Skipping.\n" );
+            next;
+            }
+        $self->debug( "Found $binary\n" );
+        push @found, $binary;
+        }
+
+    return @found;
+    }
+
+#..........................................................................
+
 sub init_formatter_class_list {
   my $self = shift;
   $self->{'formatter_classes'} ||= [];
 
+  # Formatter selection contract:
+  # - Prefer ToMan when a capable roff toolchain is available.
+  # - Use ToTerm only when pager and terminal capabilities are known safe.
+  # - Otherwise fall back to ToText.
+  # - ToTerm is disabled on MSWin32/DOS/Amiga because we do not reliably
+  #   support or detect ANSI+less in those environments.
+  # This is intentionally conservative: unknown environments default to safety.
+
   # Remember, no switches have been read yet, when
   # we've started this routine.
 
+  # Here we decide the different formatter classes
+  # but do *not* instantiate them yet, despite the subroutine name!
   $self->opt_M_with('Pod::Perldoc::ToPod');   # the always-there fallthru
   $self->opt_o_with('text');
-  $self->opt_o_with('term')
-    unless $self->is_mswin32 || $self->is_dos || $self->is_amigaos
-       || !($ENV{TERM} && (
-              ($ENV{TERM} || '') !~ /dumb|emacs|none|unknown/i
-           ));
+
+  if ( my $formatter = $self->choose_formatter ) {
+    $self->opt_o_with($formatter);
+  }
+}
+
+sub choose_formatter {
+  my $self = shift;
+
+  return 'man'  if $self->can_use_toman;
+  return 'term' if $self->can_use_toterm;
 
   return;
+}
+
+sub can_use_toman {
+  my $self = shift;
+
+  # We need a roff toolchain that properly supports Unicode output.
+  return $self->_find_nroffer;
+}
+
+sub can_use_toterm {
+  my $self = shift;
+
+  # Windows/DOS/Amiga are excluded because ToTerm depends on ANSI+less,
+  # which we do not reliably support or detect on those platforms.
+  $self->is_mswin32 || $self->is_dos || $self->is_amigaos
+    and return;
+
+  return unless $self->terminal_accepts_ansi;
+
+  if ( defined( my $explicit = $self->_explicit_pager_in_env ) ) {
+    return $self->_pager_can_use_toterm($explicit);
+  }
+
+  foreach my $pager ( $self->pagers ) {
+    $self->_pager_can_use_toterm($pager)
+      and return 1;
+  }
+
+  return;
+}
+
+sub terminal_accepts_ansi {
+  my $term = $ENV{TERM} // return;
+
+  return 1 if $term =~ /^(xterm|screen|tmux)(?:-|$)/;
+  return 1 if $term =~ /^(vt100|vt220|linux)$/;
+  return 1 if $term =~ /^ansi$/;
+
+  return;
+}
+
+sub _roffer_supports_utf8 {
+  my ( $self, $roffer ) = @_;
+
+  # Probe the roffer by feeding it minimal roff that contains UTF-8 text.
+  # We only accept the roffer if the rendered output:
+  # - contains the expected UTF-8 glyphs
+  # - does not contain Unicode replacement characters
+  # - does not contain escaped UTF-8 bytes (e.g. \303\251)
+  # - does not echo roff or Pod markup
+  # (See https://github.com/briandfoy/pod-perldoc/pull/79)
+  my $output = $self->_run_roffer_probe($roffer);
+  return unless defined $output && length $output;
+
+  # Escaped UTF-8 bytes indicate output isn't real UTF-8 text.
+  return if $output =~ /\\[0-7]{3}/;
+
+  require Encode;
+  my $decoded = Encode::decode( 'UTF-8', $output, Encode::FB_DEFAULT );
+
+  # U+FFFD means invalid UTF-8 was produced or decoded.
+  return if $decoded =~ /\x{FFFD}/;
+
+  my $expected = $self->_utf8_probe_expected;
+  return unless index( $decoded, $expected ) >= 0;
+
+  # Roff or Pod markup surviving in output means we didn't actually render.
+  return if $decoded =~ /^=head\d\b/m;
+  return if $decoded =~ /^(\.|\')/m;
+
+  return 1;
+}
+
+sub _run_roffer_probe {
+  my ( $self, $roffer ) = @_;
+
+  # Keep the probe logic in sync with Pod::Perldoc::ToMan.
+  my @switches = $self->_probe_nroff_switches($roffer);
+  my $input    = $self->_roffer_probe_input;
+
+  require IPC::Open3;
+  require IO::Select;
+  require Symbol;
+
+  my ( $writer, $reader, $err );
+  local $@;
+  my $pid = eval {
+    IPC::Open3::open3(
+      $writer,
+      $reader,
+      $err = Symbol::gensym(),
+      $roffer,
+      @switches
+    );
+  };
+  return if $@ || !$pid;
+
+  binmode $writer;
+  binmode $reader;
+  binmode $err;
+
+  eval {
+    print {$writer} $input;
+    close $writer;
+    1;
+  } or return;
+
+  my $output = '';
+  my $error  = '';
+  my $selector = IO::Select->new( $reader, $err );
+
+  while ( $selector->count ) {
+    for my $fh ( $selector->can_read ) {
+      my $buffer = '';
+      my $bytes  = sysread $fh, $buffer, 4096;
+      if ( !defined $bytes || $bytes == 0 ) {
+        $selector->remove($fh);
+        next;
+      }
+      if ( $fh == $reader ) { $output .= $buffer; }
+      else                  { $error  .= $buffer; }
+    }
+  }
+
+  waitpid $pid, 0;
+  return if $?;
+  return if $error =~ /\S/;
+
+  return $output;
+}
+
+sub _probe_nroff_switches {
+  my ( $self, $roffer ) = @_;
+
+  # Keep in sync with Pod::Perldoc::ToMan::_collect_nroff_switches and
+  # Pod::Perldoc::ToMan::_get_device_switches (same roffer selection rules).
+  my @switches = ( '-man', $self->_probe_device_switches($roffer) );
+
+  # Mandoc needs an explicit width to avoid odd wrapping.
+  if ( $self->_roffer_is_mandoc($roffer) ) {
+    push @switches, '-Owidth=80';
+  }
+
+  # Cygwin roff benefits from -c, but not all roff tools support it.
+  push @switches, '-c' if $self->_roffer_is_roff($roffer) && $self->is_cygwin;
+
+  return @switches;
+}
+
+sub _probe_device_switches {
+  my ( $self, $roffer ) = @_;
+
+     # These reflect the same device switch decisions as ToMan.
+     if ( $self->_roffer_is_nroff($roffer) )  { return qw() }
+  elsif ( $self->_roffer_is_groff($roffer) )  { return qw(-Kutf8 -Tutf8) }
+  elsif ( $self->_roffer_is_mandoc($roffer) ) { return qw() }
+  else                                        { return qw(-Tlatin1) }
+}
+
+sub _roffer_is_roff {
+  my ( $self, $roffer ) = @_;
+  return $self->_roffer_is_nroff($roffer) || $self->_roffer_is_groff($roffer);
+}
+
+sub _roffer_is_nroff {
+  my ( $self, $roffer ) = @_;
+  return $roffer =~ /\bnroff\b/;
+}
+
+sub _roffer_is_groff {
+  my ( $self, $roffer ) = @_;
+  return $roffer =~ /\bgroff\b/;
+}
+
+sub _roffer_is_mandoc {
+  my ( $self, $roffer ) = @_;
+  return $roffer =~ /\bmandoc\b/;
+}
+
+sub _roffer_probe_input {
+  my $self = shift;
+
+  # Raw roff, not POD, so we can test the roffer directly.
+  my $text = $self->_utf8_probe_expected;
+  my $roff = ".TH UTF8 1\n"
+    . ".SH NAME\n"
+    . "utf8-probe - UTF-8 check\n"
+    . ".SH DESCRIPTION\n"
+    . "$text\n";
+
+  require Encode;
+  return Encode::encode( 'UTF-8', $roff );
+}
+
+sub _utf8_probe_expected {
+  return "caf\x{00e9} na\x{00ef}ve \x{2603}";
+}
+
+sub _explicit_pager_in_env {
+  return $ENV{PERLDOC_PAGER} if defined $ENV{PERLDOC_PAGER} && length $ENV{PERLDOC_PAGER};
+  return $ENV{PAGER} if defined $ENV{PAGER} && length $ENV{PAGER};
+  return;
+}
+
+sub _pager_can_use_toterm {
+  my ( $self, $pager ) = @_;
+
+  my ( $command, $args ) = $self->_parse_pager_command($pager)
+    or return;
+
+  $self->_pager_is_less_command($command)
+    or return;
+
+  $self->_less_supports_r_flag($command)
+    or return;
+
+  $self->_can_pass_r_safely($args)
+    or return;
+
+  return 1;
+}
+
+sub _parse_pager_command {
+  my ( $self, $pager ) = @_;
+
+  return if !defined $pager || $pager eq '';
+  return if $pager =~ /[|&;<>`\$]/;
+  return if $pager =~ /["']/;
+  return if $pager =~ /[\r\n]/;
+
+  $pager =~ s/^\s+//;
+  $pager =~ s/\s+$//;
+
+  my ( $command, $args ) = split /\s+/, $pager, 2;
+  return unless defined $command && length $command;
+
+  return ( $command, $args // '' );
+}
+
+sub _pager_is_less_command {
+  my ( $self, $command ) = @_;
+
+  return 1 if $command =~ m{(?:^|/)less(?:\.exe)?\z}i;
+  return;
+}
+
+sub _less_supports_r_flag {
+  my ( $self, $command ) = @_;
+
+  my $version_string = $self->_run_command("$command --version");
+  my( $version ) = $version_string =~ /less (\d+)/;
+  return unless defined $version;
+
+  return $version ge MIN_LESS_VERSION();
+}
+
+sub _can_pass_r_safely {
+  my ( $self, $args ) = @_;
+
+  return 1 if $args =~ /(?:^|\s)-R(?:\s|$)/;
+  return 1 if !defined $ENV{LESS};
+  return 1 if $ENV{LESS} =~ /(?:^|\s)-R(?:\s|$)/;
+
+  return;
+}
+
+#..........................................................................
+
+sub _run_command {
+  my ( $self, $command ) = @_;
+  return `$command`;
 }
 
 #..........................................................................
@@ -520,7 +867,6 @@ sub process {
 
     return $self->usage_brief  unless  @{ $self->{'args'} };
     $self->options_reading;
-    $self->pagers_guessing;
     $self->aside(sprintf "%s => %s v%s\n", $0, ref($self), $self->VERSION);
     $self->drop_privs_maybe unless ($self->opt_U || $self->opt_F);
     $self->options_processing;
@@ -537,6 +883,7 @@ sub process {
     elsif( $self->opt_q) { @pages = ("perlfaq1" .. "perlfaq9") }
     elsif( $self->opt_v) { @pages = ("perlvar")                }
     elsif( $self->opt_a) { @pages = ("perlapi")                }
+    elsif( $self->opt_g) { @pages = ("perlglossary")           }
     else                 { @pages = @{$self->{'args'}};
                            # @pages = __FILE__
                            #  if @pages == 1 and $pages[0] eq 'perldoc';
@@ -568,6 +915,7 @@ sub process {
 }
 
 #..........................................................................
+
 {
 
 my( %class_seen, %class_loaded );
@@ -774,11 +1122,14 @@ sub options_processing {
 
     $self->options_sanity;
 
-    # This used to set a default, but that's now moved into any
+    # This used to set a default, but then moved into any
     # formatter that cares to have a default.
+	# However, we need to set the default nroffer
     if( $self->opt_n ) {
         $self->add_formatter_option( '__nroffer' => $self->opt_n );
-    }
+    } else {
+        $self->add_formatter_option( '__nroffer' => $self->_find_nroffer );
+	}
 
     # Get language from PERLDOC_POD2 environment variable
     if ( ! $self->opt_L && $ENV{PERLDOC_POD2} ) {
@@ -821,7 +1172,8 @@ sub options_sanity {
     $count++ if $self->opt_f;
     $count++ if $self->opt_q;
     $count++ if $self->opt_a;
-    $self->usage("Only one of -f or -q or -a") if $count > 1;
+    $count++ if $self->opt_g;
+    $self->usage("Only one of -f or -q or -a or -g") if $count > 1;
     $self->warn(
         "Perldoc is meant for reading one file at a time.\n",
         "So these parameters are being ignored: ",
@@ -846,6 +1198,7 @@ sub grand_search_init {
                 my ($fh, $filename) = File::Temp::tempfile(UNLINK => 1);
                 $fh->print($response->{content});
                 $fh->flush;
+                close $fh;
                 push @found, $filename;
                 ($self->{podnames}{$filename} =
                   m{.*/([^/#?]+)} ? uc $1 : "UNKNOWN")
@@ -953,12 +1306,15 @@ sub maybe_generate_dynamic_pod {
 
     $self->search_perlfaqs($found_things, \@dynamic_pod)  if  $self->opt_q;
 
-    if( ! $self->opt_f and ! $self->opt_q and ! $self->opt_v and ! $self->opt_a) {
+    $self->search_perlglossary($found_things, \@dynamic_pod) if $self->opt_g;
+
+    if( ! $self->opt_f and ! $self->opt_q and ! $self->opt_v and ! $self->opt_a and ! $self->opt_g) {
         DEBUG > 4 and print "That's a non-dynamic pod search.\n";
     } elsif ( @dynamic_pod ) {
         $self->aside("Hm, I found some Pod from that search!\n");
         my ($buffd, $buffer) = $self->new_tempfile('pod', 'dyn');
-        if ( $] >= 5.008 && $self->opt_L ) {
+        if ( $] >= 5.008 && ($self->opt_L || $self->opt_g) ) {
+	    # let's make it UTF-8 by default for glossary items too...
             binmode($buffd, ":encoding(UTF-8)");
             print $buffd "=encoding utf8\n\n";
         }
@@ -966,7 +1322,7 @@ sub maybe_generate_dynamic_pod {
         push @{ $self->{'temp_file_list'} }, $buffer;
          # I.e., it MIGHT be deleted at the end.
 
-        my $in_list = !$self->not_dynamic && $self->opt_f || $self->opt_v || $self->opt_a;
+        my $in_list = !$self->not_dynamic && $self->opt_f || $self->opt_v || $self->opt_a || $self->opt_g;
 
         print $buffd "=over 8\n\n" if $in_list;
         print $buffd @dynamic_pod  or $self->die( "Can't print $buffer: $!" );
@@ -1393,6 +1749,89 @@ sub search_perlfunc {
         ;
     }
     close $fh                or $self->die( "Can't close $pfunc: $!" );
+
+    return;
+}
+
+#..........................................................................
+
+## This is largely cargo-culted from search_perlfunc, culling parts that
+## are of no interest to glossary items. For example, adding translators would
+## need this implemented in target callsites (Currently, I know of no such use for
+## this item). Its arguments are not a regex. We just directly search off
+## =item, so a glossary search for 'signal' would expectedly yield both 'signal'
+## and 'signal handler'
+sub search_perlglossary {
+    my($self, $found_things, $pod) = @_;
+
+    DEBUG > 2 and print "Search: @$found_things\n";
+
+    my $pglossary = shift @$found_things;
+    my $fh = $self->open_fh("<", $pglossary);
+
+    my $search_re = quotemeta($self->opt_g);
+
+    DEBUG > 2 and
+     print "Going to perlglossary-scan for $search_re in $pglossary\n";
+
+    my $re = 'DESCRIPTION';
+
+    # Skip introduction
+    local $_;
+    while (<$fh>) {
+        /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
+        last if /^=head1 (?:$re|DESCRIPTION)/;
+    }
+
+    # Look for our glossary item
+    my $found = 0;
+    my $inlist = 0;
+    my @related;
+    my $related_re;
+    while (<$fh>) {  # "The Mothership Connection is here!"
+        if ( /^=over/ and not $found ) {
+            ++$inlist;
+        }
+        elsif ( /^=back/ and not $found and $inlist ) {
+            --$inlist;
+        }
+
+        if ( m/^=item\s+$search_re\b/ and $inlist < 2 )  {
+            $found = 1;
+        }
+        elsif (@related > 1 and /^=item/) {
+            $related_re ||= join "|", @related;
+            if (m/^=item\s+(?:$related_re)\b/) {
+                $found = 1;
+            }
+            else {
+                last if $found > 1 and $inlist < 2;
+            }
+        }
+        elsif (/^=item|^=back/) {
+            last if $found > 1 and $inlist < 2;
+        }
+        elsif ($found and /^X<[^>]+>/) {
+            push @related, m/X<([^>]+)>/g;
+        }
+        next unless $found;
+        if (/^=over/) {
+            ++$inlist;
+        }
+        elsif (/^=back/) {
+            --$inlist;
+        }
+        push @$pod, $_;
+        ++$found if /^\w/;        # found descriptive text
+    }
+
+    if (!@$pod) {
+        CORE::die( sprintf
+          "No documentation for '%s' found in perl glossary\n",
+          $self->opt_g )
+        ;
+    }
+    close $fh                or $self->die( "Can't close $pglossary: $!" );
 
     return;
 }

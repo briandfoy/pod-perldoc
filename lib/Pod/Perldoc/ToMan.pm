@@ -48,50 +48,10 @@ sub new {
 
 sub init {
 	my( $self, @args ) = @_;
-
-	unless( $self->__nroffer ) {
-		my $roffer = $self->_find_roffer( $self->_roffer_candidates );
-		$self->debug( "Using $roffer\n" );
-		$self->__nroffer( $roffer );
-		}
-    else {
-	    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
-        }
-
-	$self->_check_nroffer;
-	}
-
-sub _roffer_candidates {
-	my( $self ) = @_;
-
-	if( $self->is_openbsd || $self->is_freebsd || $self->is_bitrig || $self->is_midnightbsd ) { qw( mandoc groff nroff ) }
-	else                    { qw( groff nroff mandoc ) }
-	}
-
-sub _find_roffer {
-	my( $self, @candidates ) = @_;
-
-	my @found = ();
-	foreach my $candidate ( @candidates ) {
-		push @found, $self->_find_executable_in_path( $candidate );
-		}
-
-	return wantarray ? @found : $found[0];
-	}
-
-sub _check_nroffer {
-	return 1;
-	# where is it in the PATH?
-
-	# is it executable?
-
-	# what is its real name?
-
-	# what is its version?
-
-	# does it support the flags we need?
-
-	# is it good enough for us?
+    # We used to print the __nroffer here, but we can't anymore
+    # Because it only gets applied after the new() and init() calls
+    # Check Pod::Perldoc::render_findings() (under formatter_switches)
+    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
 	}
 
 sub _get_stty { `stty -a` }
@@ -219,6 +179,8 @@ sub _have_groff_with_utf8 {
 sub _collect_nroff_switches {
 	my( $self ) = shift;
 
+    # NOTE: This switch selection mirrors Pod::Perldoc::_probe_nroff_switches
+    # and Pod::Perldoc::_probe_device_switches. Update both places together.
     my @render_switches = ('-man', $self->_get_device_switches);
 
 	# Thanks to Brendan O'Dea for contributing the following block
@@ -244,6 +206,8 @@ sub _collect_nroff_switches {
 sub _get_device_switches {
 	my( $self ) = @_;
 
+      # NOTE: This device logic mirrors Pod::Perldoc::_probe_device_switches.
+      # Update both places together.
 	   if( $self->_is_nroff  )             { qw()              }
 	elsif( $self->_have_groff_with_utf8 )  { qw(-Kutf8 -Tutf8) }
 	elsif( $self->_is_ebcdic )             { qw(-Tcp1047)      }
@@ -379,7 +343,7 @@ sub _filter_through_nroff {
 			"Nonzero exit ($?) while running `$render @render_switches`.\n" .
 			"Falling back to Pod::Perldoc::ToPod\n"
 			);
-		return $self->_fallback_to_pod( @_ );
+		return FAILED;
 		}
 
 	$self->debug( "Output:\n----\n$done\n----\n" );
@@ -413,8 +377,18 @@ sub _fallback_to_pod {
 	my( $self, @args ) = @_;
 	$self->warn( "Falling back to Pod because there was a problem!\n" );
 	require Pod::Perldoc::ToPod;
-	return  Pod::Perldoc::ToPod->new->parse_from_file(@_);
+	return  Pod::Perldoc::ToPod->new->parse_from_file(@args[0,1]);
 	}
+
+sub if_zero_length {
+	my( $self, $file, $out ) = @_;
+
+	# ToMan produced no output; fall back to ToText into the same file.
+	require Pod::Perldoc::ToText;
+	open my $fh, ">", $out or return;
+	Pod::Perldoc::ToText->new->parse_from_file( $file, $fh );
+	close $fh;
+}
 
 # maybe there's a user setting we should check?
 sub _get_tab_width { 4 }
@@ -566,4 +540,3 @@ Adriano R. Ferreira C<< <adriano@ferreira.pm> >>,
 Sean M. Burke
 
 =cut
-

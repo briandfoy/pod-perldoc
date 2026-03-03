@@ -32,26 +32,28 @@ sub pager_configuration {
   # do not modify anything on Windows or DOS
   return if ( $perldoc->is_mswin32 || $perldoc->is_dos );
 
-  if ( $pager =~ /less/ ) {
-    $self->_maybe_modify_environment('LESS');
-  }
-  elsif ( $pager =~ /more/ ) {
-    $self->_maybe_modify_environment('MORE');
-  }
+  # First validate the overall environment (platform + terminal + policy).
+  # Is any safe ToTerm path available in this environment?
+  $perldoc->can_use_toterm
+    or return;
+
+  # Then validate the exact pager string being invoked; the global check
+  # may have passed based on a different pager candidate.
+  $perldoc->_pager_can_use_toterm($pager)
+    or return;
+
+  my ( $command, $args ) = $perldoc->_parse_pager_command($pager)
+    or return;
+
+  $perldoc->_pager_is_less_command($command)
+    or return;
+
+  return if $args =~ /(?:^|\s)-R(?:\s|$)/;
+  return if defined $ENV{LESS};
+
+  $ENV{LESS} = '-R';
 
   return;
-}
-
-sub _maybe_modify_environment {
-  my($self, $name) = @_;
-
-  if ( ! defined $ENV{$name} ) {
-    $ENV{$name} = "-R";
-  }
-
-  # if the environment is set, don't modify
-  # anything
-
 }
 
 sub _get_stty {

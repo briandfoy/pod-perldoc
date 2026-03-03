@@ -1614,12 +1614,12 @@ sub search_perlapi {
     while (<$fh>) {
         /^=encoding\s+(\S+)/ && $self->set_encoding($fh, $1);
 
-        if ( m/^=item\s+(?:C<)?$search_re(?:>)?\b/ )  {
+        if ( m/^=item\s+(?:C<)?$search_re\b/ )  {
             $found = 1;
         }
         elsif (@related > 1 and /^=item/) {
             $related_re ||= join "|", @related;
-            if (m/^=item\s+(?:$related_re)\b/) {
+            if (m/^=item\s+(?:C<)?(?:$related_re)\b/) {
                 $found = 1;
             }
             else {

@@ -1,1 +1,2 @@
 xt/got/nroff/*.nroff linguist-vendored=true
+t/01_about_verbose.t linguist-language=Perl

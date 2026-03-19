@@ -1,1 +1,1 @@
-xt/got/* linguist-vendored
+xt/got/nroff/*.nroff linguist-vendored=true

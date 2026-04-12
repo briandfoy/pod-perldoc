@@ -12,7 +12,7 @@ use File::Spec::Functions qw(catfile catdir splitdir path);
 use vars qw($VERSION @Pagers $Bindir $Pod2man
   $Temp_Files_Created $Temp_File_Lifetime
 );
-$VERSION = '3.29';
+$VERSION = '3.29-TRIAL01';
 
 # Earliest reliable -R for raw ANSI escape handling
 sub MIN_LESS_VERSION  () { '346'    }

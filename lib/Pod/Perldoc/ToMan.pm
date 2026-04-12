@@ -51,7 +51,7 @@ sub init {
     # We used to print the __nroffer here, but we can't anymore
     # Because it only gets applied after the new() and init() calls
     # Check Pod::Perldoc::render_findings() (under formatter_switches)
-    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
+#    $self->debug( "__nroffer is " . $self->__nroffer() . "\n" );
 	}
 
 sub _get_stty { `stty -a` }
@@ -326,17 +326,6 @@ sub _filter_through_nroff {
 		length $done
 		);
 
-	my $kid;
-	do {
-        $kid = waitpid(-1, WNOHANG);
-    } while $kid > 0;
-
-	if( $? ) {
-		$self->warn( "Error from pipe to $render!\n" );
-		$self->debug( 'Error: ' . do { local $/; <$err> } );
-		}
-
-
 	close $reader;
 	if( my $err = $? ) {
 		$self->debug(
@@ -348,6 +337,11 @@ sub _filter_through_nroff {
 
 	$self->debug( "Output:\n----\n$done\n----\n" );
 
+	my $kid;
+	do {
+        $kid = waitpid(-1, WNOHANG);
+    } while $kid > 0;
+
 	${ $self->{_text_ref} } = $done;
 
 	return length ${ $self->{_text_ref} } ? SUCCESS : FAILED;
@@ -355,7 +349,6 @@ sub _filter_through_nroff {
 
 sub parse_from_file {
 	my( $self, $file, $outfh) = @_;
-
 	# We have a pipeline of filters each affecting the reference
 	# in $self->{_text_ref}
 	$self->{_text_ref} = \my $output;

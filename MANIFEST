@@ -32,6 +32,8 @@ README
 t/00_load.t
 t/02_module_pod_output.t
 t/02_url_pod_output.t
+t/formatter_selection.t
 t/lib/TestUtils.pm
 t/man/_get_columns.t
+t/pagers_guessing.t
 t/pod.t

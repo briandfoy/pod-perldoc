@@ -1,5 +1,8 @@
 Revision history for Pod::Perldoc
 
+3.30_01 2026-04-15T17:12:20Z
+	* trial release
+
 3.29 2025-02-16T01:44:05Z
 	* make `perldoc -a` work again (#76 from Matthew Horsfall)
 	* add check for MidnightBSD, which uses mandoc (#73 from Lucas Holt)

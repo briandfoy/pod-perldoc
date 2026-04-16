@@ -1,5 +1,8 @@
 Revision history for Pod::Perldoc
 
+3.30_02 2026-04-16T16:35:39Z
+	* second trial release, now including fix for blocking stderr (#78)
+
 3.30_01 2026-04-15T17:12:20Z
 	* trial release
 

@@ -289,7 +289,7 @@ sub _filter_through_nroff {
 	$reader->autoflush(1);
 
 	use IO::Select;
-	my $selector = IO::Select->new( $reader );
+	my $selector = IO::Select->new( $reader, $err );
 
 	$self->debug( "Writing to pipe to $render\n" );
 

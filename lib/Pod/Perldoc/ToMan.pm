@@ -305,18 +305,26 @@ sub _filter_through_nroff {
 			or $self->die( $! );
 		$offset += $chunk_size;
 		$self->debug( "Checking read\n" );
-		READ: {
-			last READ unless $selector->can_read( 0.01 );
-			$self->debug( "Reading\n" );
-			my $bytes = sysread $reader, $buffer, 4096;
-			$self->debug( "Read $bytes bytes\n" );
-			$done .= $buffer;
-			$self->debug( sprintf "Output is %d bytes\n",
-				length $done
-				);
-			next READ;
+
+		while (my @ready = $selector->can_read(0.01)) {
+			foreach my $handle (@ready) {
+				$self->debug( "Reading $handle\n" );
+				if (my $bytes = sysread($handle, my $buf, 4096)) {
+					$self->debug( "Read $bytes bytes from $handle\n" );
+					if ($handle == $reader) {
+						$done .= $buf;
+					}
+					else {
+						# STDERR
+					}
+				}
+				else {
+					# EOF or error
+					$selector->remove($handle)
+				}
 			}
 		}
+	}
 	close $writer;
 	$self->debug( "Done writing\n" );
 

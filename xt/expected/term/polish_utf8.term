@@ -1,0 +1,43 @@
+[1mNAME[0m
+    WŚRÓD NOCNEJ CISZY -- explicitly utf8 test document in Polish
+
+[1mDESCRIPTION[0m
+    This is a test Pod document in UTF8. Its content is the lyrics to the Polish Christmas carol "Wśród nocnej ciszy".
+
+    Wśród nocnej ciszy głos się rozchodzi: / Wstańcie, pasterze, Bóg się nam rodzi! / Czym prędzej się wybierajcie, / Do Betlejem pospieszajcie / Przywitać Pana.
+
+    Poszli, znaleźli Dzieciątko w żłobie / Z wszystkimi znaki danymi sobie. / Jako Bogu cześć Mu dali, / A witając zawołali / Z wielkiej radości:
+
+    Ach, witaj Zbawco z dawno żądany, / Wiele tysięcy lat wyglądany / Na Ciebie króle, prorocy / Czekali, a Tyś tej nocy / Nam się objawił.
+
+    I my czekamy na Ciebie, Pana, / A skoro przyjdziesz na głos kapłana, / Padniemy na twarz przed Tobą, / Wierząc, żeś jest pod osłoną / Chleba i wina.
+
+  [1mAs Verbatim[0m
+    And now as verbatim text:
+
+      Wśród nocnej ciszy głos się rozchodzi:
+      Wstańcie, pasterze, Bóg się nam rodzi!
+      Czym prędzej się wybierajcie,
+      Do Betlejem pospieszajcie
+      Przywitać Pana.
+
+      Poszli, znaleźli Dzieciątko w żłobie
+      Z wszystkimi znaki danymi sobie.
+      Jako Bogu cześć Mu dali,
+      A witając zawołali
+      Z wielkiej radości:
+
+      Ach, witaj Zbawco z dawno żądany,
+      Wiele tysięcy lat wyglądany
+      Na Ciebie króle, prorocy
+      Czekali, a Tyś tej nocy
+      Nam się objawił.
+
+      I my czekamy na Ciebie, Pana,
+      A skoro przyjdziesz na głos kapłana,
+      Padniemy na twarz przed Tobą,
+      Wierząc, żeś jest pod osłoną
+      Chleba i wina.
+
+    [end]
+

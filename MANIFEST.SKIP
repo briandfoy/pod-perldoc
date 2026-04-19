@@ -24,3 +24,6 @@ t/01_about_verbose.t
 # for now
 xt/
 util/perldoc-bug
+
+# https://github.com/briandfoy/pod-perldoc/pull/75
+corpus/

@@ -1,12 +1,5 @@
 Changes
 CONTRIBUTING
-corpus/gh-56-1.pod
-corpus/Header.pm
-corpus/mandoc/Perldoc.man
-corpus/no-head.pod
-corpus/perlfunc.pod
-corpus/polish_utf8.pod
-corpus/utf8.pod
 lib/Pod/Perldoc.pm
 lib/Pod/Perldoc/BaseTo.pm
 lib/Pod/Perldoc/GetOptsOO.pm

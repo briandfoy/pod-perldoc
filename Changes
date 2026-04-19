@@ -1,5 +1,8 @@
 Revision history for Pod::Perldoc
 
+3.30_03 2026-04-19T17:02:07Z
+	* remove corpus/ entries in MANIFEST (#93)
+
 3.30_02 2026-04-16T16:35:39Z
 	* second trial release, now including fix for blocking stderr (#78)
 

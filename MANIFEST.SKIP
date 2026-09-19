@@ -27,3 +27,6 @@ util/perldoc-bug
 
 # https://github.com/briandfoy/pod-perldoc/pull/75
 corpus/
+
+.downstream.json
+cpan_tester_reports

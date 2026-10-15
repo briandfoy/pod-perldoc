@@ -335,6 +335,10 @@ sub _filter_through_nroff {
 		);
 
 	close $reader;
+
+	# reap and retrieve exit status
+	waitpid($pid,0);
+
 	if( my $err = $? ) {
 		$self->debug(
 			"Nonzero exit ($?) while running `$render @render_switches`.\n" .
